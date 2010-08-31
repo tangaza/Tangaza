@@ -1,0 +1,10 @@
+
+grant all on tangaza.* to 'tzuser'@'localhost' identified by 'password';
+
+add country item
+
+load data local infile 'actions.dat' into table actions;
+load data local infile 'countries.dat' into table countries;
+
+
+

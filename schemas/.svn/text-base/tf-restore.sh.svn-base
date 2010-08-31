@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# Copyright (c) 2009 Nokia.  All Rights Reserved.
+
+HOST="nora02"
+USER="cxuser"
+PASS="5afAree"
+DB="crowdx"
+
+MYSQL="mysql -h $HOST -u $USER -p$PASS -D $DB"
+$MYSQL -BNe "show tables" | awk '{print "set foreign_key_checks=0; drop table `" $1 "`;"}' | $MYSQL
+
+#cat tafsiri-schema.sql | $MYSQL
+cat tangaza-schema.sql | $MYSQL
+
+MYSQLIMPORT="mysqlimport -h $HOST -p$PASS -u $USER --delete --local crowdx "
+$MYSQLIMPORT languages.dat
+$MYSQLIMPORT countries.dat
+
+
+unset HOST
+unset USER
+unset PASS
+unset DB
+unset MYSQL
+
