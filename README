@@ -1,0 +1,34 @@
+WELCOME
+#######
+Thanks for choosing Tangaza
+
+Structure for your directories
+******************************
+
+Nokia/ ->
+	Common/
+	Tangaza/
+		daemon/
+		schemas/
+
+Tangaza requires the Common Library. This should be checked out from 
+http://github.com/tangaza/Common
+
+System Requirements
+**********************
+These requirements show the minimum versions of software that the system
+has been tested with and that are required to successfully run.
+
+1. Perl 5
+2. Python 2.5
+3. MySQL 5.0
+4. Django 1.0.2
+5. Kannel 1.4.3
+6. Asterisk 1.4.21
+7. Common Library (http://github.com/tangaza/Common)
+
+Required Extensions
+*******************
+The following extensions are required by Perl for using Asterisk.
+1. AGI
+2, FastAGI
