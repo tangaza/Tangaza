@@ -5,11 +5,12 @@ Thanks for choosing Tangaza
 Structure for your directories
 ******************************
 
-Nokia/ ->
-	Common/
-	Tangaza/
-		daemon/
-		schemas/
+agi-bin/
+	Nokia/ ->
+		Common/
+		Tangaza/
+daemon/
+schemas/
 
 Tangaza requires the Common Library. This should be checked out from 
 http://github.com/tangaza/Common
