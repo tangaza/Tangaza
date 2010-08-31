@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+
+<head>
+    <link rel="stylesheet" href="style.css" />
+    <link href="http://tgz:8080/media/css/dashboard.css" rel="stylesheet" type="text/css" media="screen" />
+    <title>Tangaza Dashboard</title>
+    <script type="text/javascript">
+    <!--
+    function popup(mylink, windowname) {
+    if (! window.focus)return true;
+    var href;
+    if (typeof(mylink) == 'string')
+      href=mylink;
+    else
+      href=mylink.href;
+    window.open(href, windowname, 'width=400,height=200,scrollbars=no,status=no,location=no');
+    return false;
+    }
+    //-->
+    </script>
+
+</head>
+
+<body>
+<div style="float:none; width:850px; height:220px">
+
+<div id="user_summary">
+<h2>Users:</h2>
+Number of users: {% block user_count %}{% endblock %}<br />
+Most active user: {% block most_active_user %}{% endblock %}
+</div>
+
+<div id="call_summary">
+<h2>Calls/Tangazos:</h2>
+Number of Tangazos: {% block tangaza_count %}{% endblock %} <br />
+Tangazos in last 5days:
+<table>
+<tr>
+{% block day_dates %}
+<td>Today</td><td></td><td></td><td></td><td></td>
+{% endblock %}
+<tr>
+<tr>
+{% block call_count_per_day %}
+<td></td><td></td><td></td><td></td><td></td>
+{% endblock %}
+</tr>
+</table>
+</div>
+
+<div id="group_summary">
+<h2>Groups:</h2>
+Number of groups: {% block group_count %}{% endblock %} <br />
+Most active group: {% block most_active_group %}{% endblock %} <br />
+Largest group: {% block largest_group %}{% endblock %} <br />
+</div>
+</div>
+
+<br />
+<div style="float:none; width:850px;">
+<table>
+<tr>
+<th><a href="http://tgz:8080/app/web/dashboard/date/">Date sent</a></th>
+<th><a href="http://tgz:8080/app/web/dashboard/group/">Group</a></th>
+<th><a href="http://tgz:8080/app/web/dashboard/sender">Sender</a></th>
+<th>Tangazo</th>
+</tr>
+
+{% block tangazo_list %}
+<tr>
+<td></td><td></td><td></td><td></td>
+</tr>
+{% endblock %}
+
+</table>
+</div>
+</body>
+</html>

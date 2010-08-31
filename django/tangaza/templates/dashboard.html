@@ -1,0 +1,42 @@
+{% extends "dashboard-base.html" %}
+
+{% block user_count %} {{ user_count }} {% endblock %}
+{% block most_active_user %} {{ most_active_user.phone }} ({{most_active_user.count}}) {% endblock %}
+{% block tangaza_count %} {{tangazo_count}} {% endblock %}
+
+{% block day_dates %} 
+{% for call in calls %}
+<th>{{call.pub_date|date:"d/m"}}</th>
+{% endfor %}
+{% endblock day_dates %}
+
+{% block call_count_per_day %}
+{% for call in calls %}
+<td>{{call.count}}</td>
+{% endfor %}
+
+{% endblock call_count_per_day %}
+{% block group_count%} {{group_count}} {% endblock %}
+{% block most_active_group %} {{ most_active_group.group_name }} ({{ most_active_group.count}}) {% endblock %}
+{% block largest_group %} {{largest_group.group_name}}({{largest_group.count}}) {% endblock %}
+
+{% block tangazo_list %}
+{% for tangazo in tangazos %}
+<tr>
+<td>{{tangazo.datetime}}</td>
+<td>{{tangazo.group_name}}</td>
+<td>
+<a href="http://tgz:8080/names/{{tangazo.name_file}}.gsm" onClick="return popup(this,'message_window')">
+<img src="http://tgz:8080/media/speaker-small.png" style="border:none;" width="25" height="25" alt="Listen" />
+{{tangazo.phone_number}}
+</a>
+</td>
+
+<td>
+<a href="http://tgz:8080/status/{{tangazo.filename}}.gsm" onClick="return popup(this,'message_window')">
+<img src="http://tgz:8080/media/speaker-small.png" style="border:none;" width="25" height="25" alt="Listen" />
+</a>
+</td>
+</tr>
+{% endfor %}
+{% endblock %}

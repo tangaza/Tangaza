@@ -1,0 +1,32 @@
+div {
+font-family:"Trebuchet MS", "Lucida Console", Verdana;
+float:left;
+border:1px;
+background-color:#f1f1ed;
+#height:200px;
+margin:3px;
+padding:4px;
+border:1px solid #d4d4d4;
+}
+div div {
+height:200px;
+}
+
+table {
+border-collapse:collapse;
+}
+
+table, th, td {
+border:1px solid silver;
+}
+
+td, th {
+text-align:center;
+padding:4px;
+}
+
+a {
+color:Brown; 
+text-decoration: none;
+border-bottom:1px dotted gray;
+}

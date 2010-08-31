@@ -1,0 +1,11 @@
+Admin:
+create grp [slot]
+delete grp
+newadmin grp user
+deladmin grp user
+rmuser grp user
+ban grp user
+unban grp user
+admin this help
+grp:group name
+user:phone #

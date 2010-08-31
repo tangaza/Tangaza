@@ -1,0 +1,11 @@
+miss/flash/on to turn on missed calls.
+quiet/shh/off to turn off missed calls and updates.
+
+Channel names must be at least six letters or numbers.
+
+?, h for help.
+
+Send 'more' for other things you can do.
+Send 'tangaza' to learn more about Tangaza.
+Send 'privacy' or 'policy' to read the service policies.
+

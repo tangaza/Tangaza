@@ -1,0 +1,3 @@
+Tangaza, advanced usage: quiet all/group/slot, listen a/g/s.
+Save your thumbs and use Q for Quiet, etc.
+Send admin for group admin info.
