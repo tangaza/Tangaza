@@ -1,0 +1,10 @@
+You should move tangaza to /etc/init.d/ so that it automatically runs on system startup.
+
+Add the following lines to bashrc. You can edit the lines to the appropriate values:
+
+export NASI_TMP=/tmp/ #Path to your temp directory
+export NASI_KANNEL_CONFIG=/etc/kannel/kannel.conf  #path to you kannel config file
+export NASI_HOME=/home/$USER/trunk #Path to location where Tangaza will be setup
+export PERL5LIB=$NASI_HOME/agi-bin #Path where the agi-bin directory is located
+export NASI_DB_HOST=tgz #Hostname of the tangaza database
+export NASI_OUTGOING=$NASI_TMP/outgoing/ #Path of the outgoing messages, where all  asterisk .call files are located                               
