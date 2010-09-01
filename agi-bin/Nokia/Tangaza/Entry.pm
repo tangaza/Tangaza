@@ -27,7 +27,6 @@ use DBI;
 use Nokia::Tangaza::Update;
 use Nokia::Tangaza::Listen;
 use Nokia::Tangaza::Network;
-use Nokia::Tangaza::Profile;
 use Nokia::Tangaza::Invitations;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
