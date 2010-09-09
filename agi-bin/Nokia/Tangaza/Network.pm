@@ -45,18 +45,10 @@ sub get_friend_count_on_network {
     # network or all of them.
 	
     #0 means send to all
-    $self->{server}{get_network_friend_count_sth} =
-	$self->{server}{dbi}->prepare_cached
-	("SELECT count(*) as friend_count from user_groups where ".
-	 "is_quiet = 'no' and group_id = ? and user_id != ?");
-    $self->{server}{get_network_friend_count_sth}->execute
-	($network, $self->{user}->{id});
+    my $friend_rs = $self->{server}{schema}->resultset('UserGroups')->search
+	({is_quiet => 'no', group_id => $network, user_id => {'!=' => $self->{user}->{id}}});
     
-    my ($friend_count) = 
-		$self->{server}{get_network_friend_count_sth}->fetchrow_array();
-    $self->{server}{get_network_friend_count_sth}->finish();
-
-    return $friend_count;
+    return ($friend_rs->count);
 
 }
 
@@ -66,21 +58,12 @@ sub get_friend_count_on_network {
 sub get_total_friend_count {
     my ($self,$network) = @_;
 
-    $self->{server}{get_network_total_friend_count_sth} =
-	$self->{server}{dbi}->prepare_cached
-	("SELECT count(*) as friend_count from user_groups where ".
-	 "is_quiet = 'no' and user_id = ? and slot >= 0 and slot <= 9");
-    $self->{server}{get_network_total_friend_count_sth}->execute ($self->{user}->{id});
+    my $friend_rs = $self->{server}{schema}->resultset('UserGroups')->search
+        ({is_quiet => 'no', slot => {'<=' => 9},
+	 slot => {'>=' => 0}, user_id => $self->{user}->{id}});
     
-    my ($friend_count) = 
-		$self->{server}{get_network_total_friend_count_sth}->fetchrow_array();
-    $self->{server}{get_network_total_friend_count_sth}->finish();
-
     # deduct 1 for ourselves
-    $friend_count--;
-
-    return $friend_count;
-
+    return ($friend_rs->count) - 1;
 }
 
 
@@ -90,29 +73,11 @@ sub get_total_friend_count {
 sub get_friends_on_network {
     my ($self,$channels) = @_;
 
-    my $select = 
-	"SELECT user_id from user_groups where ".
-	"is_quiet='no' and group_id = ? and user_id != ?;";
+    my @friends = $self->{server}{schema}->resultset('UserGroups')->search
+        ({is_quiet => 'no', group_id => $channels, user_id => {'!=' => $self->{user}->{id}}});
+
     
-    $self->log (4, "get_friends_on_network running select $select");
-    $self->log(4, "SELECT user_id from user_groups where ".
-	       "is_quiet='no' and group_id =$channels and user_id != $self->{user}->{id};");
-
-    $self->{server}{select_friends_new_msg_sth} =
-	$self->{server}{dbi}->prepare_cached ($select);
-
-    $self->{server}{select_friends_new_msg_sth}->execute
-		($channels, $self->{user}->{id});
-
-    my $friend_tuples = undef;
-    if ($self->{server}{select_friends_new_msg_sth}->rows > 0) {
-	$friend_tuples =
-	    $self->{server}{select_friends_new_msg_sth}->fetchall_arrayref
-	    ({ user_id => 1});
-    }
-
-    $self->{server}{select_friends_new_msg_sth}->finish();
-    return $friend_tuples;
+    return \@friends;
 }
 
 ######################################################################
@@ -125,42 +90,21 @@ sub get_msg_count_on_network {
 
     # This is because UI only permits selection of one particular
     # network or all of them.
-    if (!defined($flagged)) {
-		$flagged = "";
-    }
-    else {
-		$flagged = " AND flagged = '$flagged'";
-    }
-    my $select = "SELECT count(*) as msg_count from sub_messages".
-		" where dst_user_id=? $flagged ";
-
-    if ($new_only) {
-		$select .= " AND heard='no'";
-    }
-
-    if (!defined($network) || ref($network) eq "ARRAY") {
-		$self->{server}{get_msg_count_on_sth} =
-		    $self->{server}{dbi}->prepare_cached ($select);
-		$self->{server}{get_msg_count_on_sth}->execute
-		    ($user_id);
-		
-    }
-    else {
-		
-		$select .= " AND channel=?";
-		
-		$self->{server}{get_msg_count_on_sth} =
-		    $self->{server}{dbi}->prepare_cached ($select);
-		$self->{server}{get_msg_count_on_sth}->execute
-		    ($user_id, $network);
-    }
-
-    my ($msg_count) = 
-		$self->{server}{get_msg_count_on_sth}->fetchrow_array();
-		
-    $self->{server}{get_msg_count_on_sth}->finish();
-
-    $self->log (4, "count $msg_count select $select");
+    
+    my $msg_rs = $self->{server}{schema}->resultset('SubMessages');
+    
+    $msg_rs = $msg_rs->search(flagged => $flagged) if (defined($flagged));
+    
+    $msg_rs = $msg_rs->search(dst_user_id => $user_id);
+    
+    $msg_rs = $msg_rs->search(heard => 'no') if ($new_only);
+    
+    $msg_rs = $msg_rs->search(channel => $network) unless (!defined($network) || ref($network) eq "ARRAY");
+    
+    
+    my $msg_count = $msg_rs->count;
+    
+    $self->log (4, "count $msg_count");
 
     return $msg_count;
 
@@ -169,21 +113,18 @@ sub get_msg_count_on_network {
 ######################################################################
 sub set_dirty_bit {
     my ($self,$user_id,$dirty) = @_;
-
+    
+    my $user_rs = $self->{server}{schema}->resultset('Users')->find($user_id);
+    
     if ($dirty) {
-		$self->{server}{set_dirty_bit_sth} =
-		    $self->{server}{dbi}->prepare_cached
-		    ("UPDATE users set dirty_time = NOW() where user_id=?");
+	$user_rs->update({dirty_time => \'NOW()'});
+
     }
     else {
-		#TODO Not sure if this is a nice way to approach it even if it solves it
-		$self->{server}{set_dirty_bit_sth} =
-		    $self->{server}{dbi}->prepare_cached
-		    ("UPDATE users set calling_time = NOW() where user_id=?");
+	#TODO Not sure if this is a nice way to approach it even if it solves it
+	$user_rs->update({calling_time => \'NOW()'});
+	
     }
-
-    $self->{server}{set_dirty_bit_sth}->execute ($user_id);
-    $self->{server}{set_dirty_bit_sth}->finish ();
 
 }
 

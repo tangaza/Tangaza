@@ -546,4 +546,4 @@ def global_send_sms (dest_phone, text, origin = 'KE'):
     except URLError:
         logger.info ('failed: %s' % url)
         
-        return sent
+    return sent

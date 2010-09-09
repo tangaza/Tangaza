@@ -31,7 +31,7 @@ use Nokia::Common::Callback;
 sub callback {
     my $self = shift;    
 
-    &db_connect ($self);
+    #&dbi_connect ($self);
 
     #$self->log (4, "XXX switch to sfcom specific flash");
 
