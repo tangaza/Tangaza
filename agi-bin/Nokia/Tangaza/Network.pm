@@ -23,7 +23,7 @@ package Nokia::Tangaza::Network;
 use Exporter;
 @ISA = ('Exporter');
 @EXPORT = ('get_friend_count_on_network', 'get_total_friend_count',
-	   'get_msg_count_on_network', 'set_dirty_bit',
+	   'get_msg_count_on_network', 'set_dirty_bit', 'select_network_menu',
 	   'set_dirty_bit_if_new_msgs', 'get_friends_on_network');
 
 use strict;
@@ -31,7 +31,44 @@ use DBI;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 use Nokia::Common::Phone;
-use Nokia::Tangaza::Invitations;
+#use Nokia::Tangaza::Invitations;
+
+######################################################################
+sub select_network_menu {
+    my ($self,$prompt,$can_select_all) = @_;
+
+    $self->log (4, "start select_network_menu");
+
+    my $digits = "0123456789";
+    if ($can_select_all == 1) {
+	$digits = "0123456789";
+    }
+
+    my $network_code = &get_unchecked_small_number
+        ($self, $prompt, $digits);
+
+    $self->log (4, "received network_code $network_code");
+
+    if ($network_code eq 'timeout' ||
+                $network_code eq 'hangup' ||
+	$network_code eq 'cancel') {
+	return $network_code;
+    }
+
+    $self->log (4, "end select_network_menu");
+
+    #return the group_id based on the selected slot                                                                                            
+    my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
+        (user_id => $self->{user}->{id}, slot => $network_code,
+         {select => [qw/group_id/]});
+
+    my $grp = $group_rs->next;
+    my $group_id = $grp->group_id->group_id if (defined($grp));
+    $self->log(4, "Selected group: ".$group_id);
+    return $group_id;
+
+}
+
 
 ######################################################################
 

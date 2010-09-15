@@ -54,6 +54,23 @@ sub invitations_main_menu {
 
 }
 
+######################################################################                                                                         
+
+sub check_end_network_modify_menu {
+    my ($self, $state, $action) = @_;
+
+  if ($state eq 'timeout' || $state eq 'cancel' ||
+      $state eq 'hangup') {
+
+      if ($state eq 'timeout' || $state eq 'cancel') {
+	  &play_random ($self, &msg($self,"cancelled-$action"), 'ok');
+      }
+      $self->log (4, "a $action s $state");
+      return 1;
+  }
+    return 0;
+}
+
 ######################################################################
 sub invite_friends_menu {
     my ($self) = @_;
