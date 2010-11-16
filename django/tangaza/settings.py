@@ -23,9 +23,9 @@
 
 import logging
 import logging.config
+import ConfigParser
 import sys
 import os
-
 
 # TODO: Values for SMS_VOICE should be provided
 
@@ -33,7 +33,23 @@ import os
 # Causes error: NoSectionError: No section: 'formatters'
 LOGGING_CONFIG = os.path.join(os.path.dirname(__file__), 'logging.conf')
 
-logging.config.fileConfig(LOGGING_CONFIG)
+#logging.config.fileConfig(LOGGING_CONFIG)
+
+APP_CONFIG = os.path.join(os.path.abspath('../../conf/'), 'settings.conf')
+#APP_CONFIG = os.environ.get('NASI_CONFIG')
+
+def read_config():
+    parser = ConfigParser.ConfigParser()
+    parser.read(APP_CONFIG)
+    config_settings = {}
+    
+    for section in parser.sections():
+        config_settings[section] = dict(parser.items(section))
+        
+    return config_settings
+
+CFG_SETTINGS = read_config()
+
 
 #Custom settings for sending sms
 SMS_VOICE = {
@@ -41,6 +57,7 @@ SMS_VOICE = {
     'SMS_PASSWORD_KE': '',
     'SMS_URL_KE': '',
     'SMS_FROM_KE': '',
+    'SMS_SMSC_KE': '',
     'VOICE_KE': '',
     'modem-tangaza':'KE',
 
@@ -56,6 +73,7 @@ SMS_VOICE = {
     'SMS_PASSWORD_FI': '',
     'SMS_URL_FI': '',
     'SMS_FROM_FI': '',
+    'SMS_SMSC_FI':'',
     'VOICE_FI': '',
 }
 
@@ -66,11 +84,13 @@ ADMINS = ()
 
 MANAGERS = ADMINS
 
+
+
 DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'tangaza'             # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_NAME = CFG_SETTINGS['mysql']['db_name']             # Or path to database file if using sqlite3.
+DATABASE_USER = CFG_SETTINGS['mysql']['db_user']             # Not used with sqlite3.
+DATABASE_PASSWORD = CFG_SETTINGS['mysql']['db_pass']         # Not used with sqlite3.
+DATABASE_HOST = CFG_SETTINGS['mysql']['db_host']  # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
