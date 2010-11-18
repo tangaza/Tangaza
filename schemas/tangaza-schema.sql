@@ -54,8 +54,9 @@ DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `group_id` int(10) unsigned NOT NULL auto_increment,
   `group_name` varchar(60) NOT NULL,
+  `group_name_file` varchar(32) NOT NULL,
   `group_type` enum('mine', 'private', 'public') NOT NULL default 'public',
-  `is_active` enum('yes') NULL,
+  `is_active` enum('yes') NULL default 'yes',
   PRIMARY KEY  (`group_id`),
   UNIQUE KEY `group_name` (`group_name`, `is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

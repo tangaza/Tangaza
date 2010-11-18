@@ -12,3 +12,13 @@ Change the DB values if your database in 1. above is not called 'tangaza'.
 tz-restore.sh will create the required tables. Some django* tables are also
 created. These can be deleted in case you want to create your own tables or you
 are not using django.
+
+
+Whenever the database schema is changed you need to run the command below to generate 
+the matching perl (.pm) file for the new db structure. Then replace the existing .pm file.
+
+NOTE: Replace <hostname>, <user> and <password> with the appropriate values
+
+perl -MDBIx::Class::Schema::Loader=make_schema_at,dump_to_dir:./ -e 'make_schema_at("Nokia::Tangaza::Schema", { debug => 1 }, [ "dbi:mysql:dbname=tangaza;host=<hostname>","<user>", "<password>" ])'
+
+You also need to edit the appropriate class in models.py to reflect the change
