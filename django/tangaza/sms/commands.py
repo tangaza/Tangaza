@@ -28,7 +28,7 @@ import string
 from django.http import HttpResponse
 from utility import *
 from grammar import *
-from admin import *
+from appadmin import *
 
 logger = logging.getLogger('tangaza_logger')
 

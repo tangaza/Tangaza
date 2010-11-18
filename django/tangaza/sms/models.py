@@ -46,6 +46,9 @@ class Actions(models.Model):
     action_desc = models.CharField(max_length=90,unique=True)
     class Meta:
         db_table = u'actions'
+    
+    def __unicode__(self):
+        return self.action_desc
 
 YES_NO_CHOICES = ((u'y', u'yes'),(u'n', u'no'),)
 
