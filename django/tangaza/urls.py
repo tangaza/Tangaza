@@ -49,10 +49,10 @@ urlpatterns = patterns('tangaza.sms.views',
     
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    #(r'^admin/(.*)', admin.site.root),
+    (r'^admin/(.*)', admin.site.root),
     #(r'^', 'sms.views.root'),
 
 )
@@ -68,7 +68,7 @@ urlpatterns += patterns('tangaza.sms.commands',
 )
 
 
-urlpatterns += patterns('tangaza.sms.admin',
+urlpatterns += patterns('tangaza.sms.appadmin',
     # called directly from kannel
     (r'^create_group/from=\+?(\d{1,20})/group=(\w{1,20})/slot=([\+|\w|\s]{0,90})/$', 'request_create_group'),
     (r'^delete_group/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'delete_group'),
@@ -90,11 +90,11 @@ urlpatterns += patterns('tangaza.sms.maintenance',
 
 )
 
-urlpatterns += patterns('tangaza.sms.dashboard',
-    (r'^web/dashboard/$', 'get_users'),
-    (r'^web/dashboard/(\w{0,20})/$', 'get_users'),
-)
-urlpatterns += patterns('tangaza.sms.web.views',
-    (r'^web/room/$', 'index'),
-)
+#urlpatterns += patterns('tangaza.sms.dashboard',
+#    (r'^web/dashboard/$', 'get_users'),
+#    (r'^web/dashboard/(\w{0,20})/$', 'get_users'),
+#)
+#urlpatterns += patterns('tangaza.sms.web.views',
+#    (r'^web/room/$', 'index'),
+#)
 
