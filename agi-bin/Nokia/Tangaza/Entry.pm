@@ -134,6 +134,11 @@ sub main_menu {
 #	    return;
 #	}
 #    } 
+
+    # JL new code
+    #while (&get_unnamed_network_count ($self) > 0) {
+
+    #}
     
     if (&get_msg_count_on_network ($self, $self->{user}->{id}, 1) > 0) {
 	my @prompt = ();
