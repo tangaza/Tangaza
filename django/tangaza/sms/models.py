@@ -50,23 +50,196 @@ class Actions(models.Model):
     def __unicode__(self):
         return self.action_desc
 
-YES_NO_CHOICES = ((u'y', u'yes'),(u'n', u'no'),)
+class Users(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    user_pin = models.CharField(max_length=4, null=True, blank=True)
+    name_text = models.CharField(max_length=20, null=True, blank=True, verbose_name='Nickname')
+    
+    class Meta:
+        db_table = u'users'
+    
+    def __unicode__(self):
+        #return '[user_id=' + str(self.user_id) +']'
+        return self.userphones_set.get().phone_number
+        #return 'test'
+
+    def set_name (self, name):
+        self.name_text = name
+        self.save()
+    
+    def get_used_slots(self):
+        user_groups = UserGroups.objects.filter(user = self)
+        used_slots = [ug.slot for ug in user_groups]
+        return used_slots
+        
+    def is_mine (self, group):
+        # true iff group is this users mine group
+        # checked by seeing that he is the only admin
+        if not group.group_type == 'mine':
+            return False
+        return self.is_admin(group)
+    
+    def slot_is_empty (self, slot):
+        user_groups = UserGroups.objects.filter(user=self, slot=slot)
+        return (len(user_groups) < 1)
+    
+    def has_empty_slot (self):
+        user_groups = UserGroups.objects.filter(user=self)
+        return len (user_groups) < 9
+    
+    def is_admin(self, group):
+        grps = GroupAdmin.objects.filter(user=self, group=group)
+        return len(grps) > 0
+    
+    def was_invited(self, group):
+        inv_list = Invitations.objects.filter(group = group, completed = 'no', invitation_to = self)
+        return len(inv_list) > 0
+        
+    @classmethod
+    def resolve(cls, phone):
+        try:
+            if len(phone) > 0:
+                if phone.startswith('07'):
+                    phone = "254" + phone[1:]
+            
+            user = UserPhones.objects.get(phone_number = phone).user
+            user.phone_number = phone
+            user.language = ""
+        except UserPhones.DoesNotExist:
+            user = None
+        return user
+    
+    @classmethod
+    def resolve_or_create (cls, request, invoking_user, language, phone):
+        if phone.startswith('07'):
+            phone = "254" + phone[1:]
+            
+        user = cls.resolve (phone)
+        if not user == None:
+            return user
+        
+        return cls.create_user (phone, phone)
+    
+
+    def leave_group(self, group):
+        UserGroups.objects.filter(user = self, group = group).delete()
+        GroupAdmin.objects.filter (user = self, group = group).delete()
+
+        action = Actions.objects.get(action_desc = 'left group')
+        hist = UserGroupHistory(user = self, group = group, action = action)
+        hist.save()
+        
+    def invite_user(self, invited_user, group):
+        invitation, created = Invitations.objects.get_or_create(group = group, 
+                                invitation_to = invited_user, completed = 'no',
+                                defaults = {'invitation_from': self})
+        if not created:
+            invitation.invitation_from = self
+        
+        invitation.save()
+        action = Actions.objects.get(action_desc = 'invited user')
+        hist = UserGroupHistory(user = self, group = group, action = action)
+        hist.save()
+        
+    def is_member(self, group):
+        grps = UserGroups.objects.filter(group = group, user = self)
+        return len(grps) > 0
+
+    def can_send(self, group):
+        # assume membership already checked
+        if group.is_public():
+            return True
+        if self.is_mine(group):
+            return True
+        return False
+
+    def join_group(self, group, slot, origin):
+        grps = UserGroups(user = self, group = group, slot= slot, is_quiet = 'no')
+        grps.save()
+
+        invs = Invitations.objects.filter(invitation_to = self, completed = 'no', group = group)
+        for inv in invs:
+            inv.completed = 'yes'
+            inv.save()
+        
+        action = Actions.objects.get(action_desc = 'joined group')
+        hist = UserGroupHistory(user = self, group = group, action = action)
+        hist.save()
+
+        #notify admin(s) new user has joined
+        admins = GroupAdmin.objects.filter(group=group)
+        for admin in admins:
+            logger.debug("Notifying admin %s of new user in group" % admin.user)
+            admin_phone = UserPhones.objects.get(user = admin.user, is_primary = 'yes')
+            new_user_phone = UserPhones.objects.get (user = self)
+            if self.name_text == None: self.name_text = ""
+            text = "A new user %s<%s> has joined %s" % (self.name_text, new_user_phone.phone_number, group.group_name)
+            sent = global_send_sms(admin_phone.phone_number, text, origin)
+        
+    @classmethod
+    def create_user (cls, phone, own_group):
+
+        logger.debug ('phone %s' % phone)
+
+        user = Users()
+        user.save()
+
+        country_name = Countries.phone2country (phone)
+        country = Countries.objects.get(country_name=country_name)
+        user_phone = UserPhones (country = country, phone_number = phone,
+                                 user = user, is_primary = 'yes')
+        user_phone.save()
+        
+        group = Groups (group_name = own_group, group_type = 'mine', is_active = 'yes')
+        group.save()
+
+
+        user_group = UserGroups (user = user, group = group, slot = 1,
+                                 is_quiet = 'no')
+        user_group.save()
+        
+        action = Actions.objects.get (action_desc = 'joined group')
+        user_grp_hist = UserGroupHistory (group = group, action = action,
+                                          user = user)
+        user_grp_hist.save()
+        
+        grp_admin = GroupAdmin(user = user, group = group)
+        grp_admin.save()
+        
+        action = Actions.objects.get (action_desc = 'created user')
+        admin_group_hist = AdminGroupHistory (group = group, action = action,
+                                              user_src = user, user_dst = user)
+        admin_group_hist.save()
+
+        #additional info
+        user.phone_number = phone
+        user.language = ""
+
+        return user
+    
+YES_NO_CHOICES = ((u'yes', u'Yes'),(u'no', u'No'),)
 
 class Groups(models.Model):
-    ACTIVE_CHOICES = ((u'y', u'yes'),)
-    GROUP_TYPES = ((u'mine', u'mine'), (u'private', u'private'), (u'public', u'public'))
+    ACTIVE_CHOICES = ((u'yes', u'Yes'), (None, u'No'))
+    GROUP_TYPES = ((u'mine', u'Mine'), (u'private', u'Private'), (u'public', u'Public'))
     
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=60,db_index=True)
     group_type = models.CharField(max_length=21, choices=GROUP_TYPES)
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True)
+    #users = models.ManyToManyField(Users, through='UserGroups')
+    admins = models.ManyToManyField(Users, through='GroupAdmin')
     
     class Meta:
         db_table = u'groups'
         unique_together = ("group_name","is_active")
+        ordering = ['group_name']
+        verbose_name = 'Group'
         
     def __unicode__(self):
-        return '[id=' + str(self.group_id) + ',name=' + self.group_name + ',type=' + self.group_type + ',active=' + self.is_active+']'
+        #for group admin to work we cant return in this format 
+        #        return '[id=' + str(self.group_id) + ',name=' + self.group_name + ',type=' + self.group_type + ',active=' + self.is_active+']'
+        return self.group_name
 
     def get_admin_count (self):
         admins = GroupAdmin.objects.filter (group = self)
@@ -250,170 +423,7 @@ class Groups(models.Model):
     def is_valid_type (cls, type_name):
         return dict(GROUP_TYPES).has_key(type_name)
 
-class Users(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    user_pin = models.CharField(max_length=18, null=True)
-    name_text = models.CharField(max_length=20, null=True)
-    class Meta:
-        db_table = u'users'
-    
-    def __unicode__(self):
-        return '[user_id=' + str(self.user_id) +']'
 
-    def set_name (self, name):
-        self.name_text = name
-        self.save()
-    
-    def get_used_slots(self):
-        user_groups = UserGroups.objects.filter(user = self)
-        used_slots = [ug.slot for ug in user_groups]
-        return used_slots
-        
-    def is_mine (self, group):
-        # true iff group is this users mine group
-        # checked by seeing that he is the only admin
-        if not group.group_type == 'mine':
-            return False
-        return self.is_admin(group)
-    
-    def slot_is_empty (self, slot):
-        user_groups = UserGroups.objects.filter(user=self, slot=slot)
-        return (len(user_groups) < 1)
-    
-    def has_empty_slot (self):
-        user_groups = UserGroups.objects.filter(user=self)
-        return len (user_groups) < 9
-    
-    def is_admin(self, group):
-        grps = GroupAdmin.objects.filter(user=self, group=group)
-        return len(grps) > 0
-    
-    def was_invited(self, group):
-        inv_list = Invitations.objects.filter(group = group, completed = 'no', invitation_to = self)
-        return len(inv_list) > 0
-        
-    @classmethod
-    def resolve(cls, phone):
-        try:
-            if len(phone) > 0:
-                if phone.startswith('07'):
-                    phone = "254" + phone[1:]
-            
-            user = UserPhones.objects.get(phone_number = phone).user
-            user.phone_number = phone
-            user.language = ""
-        except UserPhones.DoesNotExist:
-            user = None
-        return user
-    
-    @classmethod
-    def resolve_or_create (cls, request, invoking_user, language, phone):
-        if phone.startswith('07'):
-            phone = "254" + phone[1:]
-            
-        user = cls.resolve (phone)
-        if not user == None:
-            return user
-        
-        return cls.create_user (phone, phone)
-    
-
-    def leave_group(self, group):
-        UserGroups.objects.filter(user = self, group = group).delete()
-        GroupAdmin.objects.filter (user = self, group = group).delete()
-
-        action = Actions.objects.get(action_desc = 'left group')
-        hist = UserGroupHistory(user = self, group = group, action = action)
-        hist.save()
-        
-    def invite_user(self, invited_user, group):
-        invitation, created = Invitations.objects.get_or_create(group = group, 
-                                invitation_to = invited_user, completed = 'no',
-                                defaults = {'invitation_from': self})
-        if not created:
-            invitation.invitation_from = self
-        
-        invitation.save()
-        action = Actions.objects.get(action_desc = 'invited user')
-        hist = UserGroupHistory(user = self, group = group, action = action)
-        hist.save()
-        
-    def is_member(self, group):
-        grps = UserGroups.objects.filter(group = group, user = self)
-        return len(grps) > 0
-
-    def can_send(self, group):
-        # assume membership already checked
-        if group.is_public():
-            return True
-        if self.is_mine(group):
-            return True
-        return False
-
-    def join_group(self, group, slot, origin):
-        grps = UserGroups(user = self, group = group, slot= slot, is_quiet = 'no')
-        grps.save()
-
-        invs = Invitations.objects.filter(invitation_to = self, completed = 'no', group = group)
-        for inv in invs:
-            inv.completed = 'yes'
-            inv.save()
-        
-        action = Actions.objects.get(action_desc = 'joined group')
-        hist = UserGroupHistory(user = self, group = group, action = action)
-        hist.save()
-
-        #notify admin(s) new user has joined
-        admins = GroupAdmin.objects.filter(group=group)
-        for admin in admins:
-            logger.debug("Notifying admin %s of new user in group" % admin.user)
-            admin_phone = UserPhones.objects.get(user = admin.user, is_primary = 'yes')
-            new_user_phone = UserPhones.objects.get (user = self)
-            if self.name_text == None: self.name_text = ""
-            text = "A new user %s<%s> has joined %s" % (self.name_text, new_user_phone.phone_number, group.group_name)
-            sent = global_send_sms(admin_phone.phone_number, text, origin)
-        
-    @classmethod
-    def create_user (cls, phone, own_group):
-
-        logger.debug ('phone %s' % phone)
-
-        user = Users()
-        user.save()
-
-        country_name = Countries.phone2country (phone)
-        country = Countries.objects.get(country_name=country_name)
-        user_phone = UserPhones (country = country, phone_number = phone,
-                                 user = user, is_primary = 'yes')
-        user_phone.save()
-        
-        group = Groups (group_name = own_group, group_type = 'mine', is_active = 'yes')
-        group.save()
-
-
-        user_group = UserGroups (user = user, group = group, slot = 1,
-                                 is_quiet = 'no')
-        user_group.save()
-        
-        action = Actions.objects.get (action_desc = 'joined group')
-        user_grp_hist = UserGroupHistory (group = group, action = action,
-                                          user = user)
-        user_grp_hist.save()
-        
-        grp_admin = GroupAdmin(user = user, group = group)
-        grp_admin.save()
-        
-        action = Actions.objects.get (action_desc = 'created user')
-        admin_group_hist = AdminGroupHistory (group = group, action = action,
-                                              user_src = user, user_dst = user)
-        admin_group_hist.save()
-
-        #additional info
-        user.phone_number = phone
-        user.language = ""
-
-        return user
-    
 class AdminGroupHistory(models.Model):
     admin_group_hist_id = models.AutoField(primary_key=True)
     group = models.ForeignKey(Groups)
@@ -429,9 +439,14 @@ class Countries(models.Model):
     country_id = models.AutoField(primary_key=True)
     country_code = models.IntegerField()
     country_name = models.CharField(max_length=40)
+    
     class Meta:
         db_table = u'countries'
-
+        ordering = ['country_name']
+        
+    def __unicode__(self):
+        return self.country_name
+    
     @classmethod
     def phone2country(cls, phone):
         return 'kenya'
@@ -444,6 +459,9 @@ class GroupAdmin(models.Model):
     
     class Meta:
         db_table = u'group_admin'
+    
+    def __unicode__(self):
+        return self.group.group_name
 
 class Invitations(models.Model):
     invitation_id = models.AutoField(primary_key=True)
@@ -486,7 +504,8 @@ class UserGroups(models.Model):
         #unique_together = (('user','slot'), ('user','group'),)
 
     def __unicode__(self):
-        return '[grp_name=' + self.group.group_name + ' <-> user_id=' + str(self.user.user_id) + ',quiet=' + self.is_quiet + ',slot=' + str(self.slot) + ']'
+        #return '[grp_name=' + self.group.group_name + ' <-> user_id=' + str(self.user.user_id) + ',quiet=' + self.is_quiet + ',slot=' + str(self.slot) + ']'
+        return "Group: %s, Slot: %d" % (self.group.group_name, self.slot)
 
 
 class UserPhones(models.Model):

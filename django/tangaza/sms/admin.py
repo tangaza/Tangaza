@@ -18,21 +18,48 @@
 #
 #
 
-from tangaza.sms.models import Actions, Users, Groups, UserGroups
+from tangaza.sms.models import *
+from tangaza.sms.views import *
+from tangaza.sms.forms import *
 from django.contrib import admin
 
 
-class ActionAdmin(admin.ModelAdmin):
-    ordering = ['action_desc']
+#inline definitions
+class GroupAdminInline(admin.TabularInline):
+    model = GroupAdmin
+    extra = 1
+    max_num = 20
+    
+class UserGroupInline(admin.TabularInline):
+    model = UserGroups
+    extra = 1
+    max_num = 20
 
-admin.site.register(Actions, ActionAdmin)
+class UserPhonesInline(admin.TabularInline):
+    model = UserPhones
+    form = UserPhonesForm
+    max_num = 3
 
-class GroupAdmin(admin.ModelAdmin):
+#Groups customization
+class GroupsAdmin(admin.ModelAdmin):
     list_display = ('group_name', 'group_type', 'is_active')
     list_filter = ('group_type', 'is_active')
+    inlines = [GroupAdminInline, UserGroupInline]
+    filter_horizontal = ['admins']
+    
+    fieldsets = (
+        (None, 
+         {'fields': ['group_name', 'group_type', 'is_active'], 'classes':['wide']}
+         ),
+        )
+    
+admin.site.register(Groups, GroupsAdmin)
 
-admin.site.register(Users)
+#Users customization
+class UserAdmin(admin.ModelAdmin):
+    inlines = [UserPhonesInline]
+    form = UserForm
+    
+admin.site.register(Users, UserAdmin)
 
-admin.site.register(Groups, GroupAdmin)
-
-admin.site.register(UserGroups)
+####
