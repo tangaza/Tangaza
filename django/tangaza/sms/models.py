@@ -50,18 +50,28 @@ class Actions(models.Model):
     def __unicode__(self):
         return self.action_desc
 
+class PhoneOrderedManager(models.Manager):
+    def get_query_set(self):
+        users = super(PhoneOrderedManager, self).get_query_set().all()
+        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
+        users = users.extra(where=['user_phones.user_id=users.user_id'])
+        return users
+        
 class Users(models.Model):
     user_id = models.AutoField(primary_key=True)
     user_pin = models.CharField(max_length=4, null=True, blank=True)
-    name_text = models.CharField(max_length=20, null=True, blank=True, verbose_name='Nickname')
+    name_text = models.CharField(max_length=20, null=True, blank=True, verbose_name=u'Nickname')
+    objects = PhoneOrderedManager()
     
     class Meta:
         db_table = u'users'
+        verbose_name = u'User'
+        ordering = ['phone_number']
     
     def __unicode__(self):
         #return '[user_id=' + str(self.user_id) +']'
-        return self.userphones_set.get().phone_number
-        #return 'test'
+        #return self.userphones_set.get().phone_number
+        return self.phone_number
 
     def set_name (self, name):
         self.name_text = name
@@ -227,14 +237,15 @@ class Groups(models.Model):
     group_name = models.CharField(max_length=60,db_index=True)
     group_type = models.CharField(max_length=21, choices=GROUP_TYPES)
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True)
-    #users = models.ManyToManyField(Users, through='UserGroups')
     admins = models.ManyToManyField(Users, through='GroupAdmin')
+    users = models.ManyToManyField(Users, through='UserGroups')
+
     
     class Meta:
         db_table = u'groups'
         unique_together = ("group_name","is_active")
         ordering = ['group_name']
-        verbose_name = 'Group'
+        verbose_name = u'Group'
         
     def __unicode__(self):
         #for group admin to work we cant return in this format 
@@ -459,10 +470,12 @@ class GroupAdmin(models.Model):
     
     class Meta:
         db_table = u'group_admin'
+        verbose_name = u'Group Admin'
+        unique_together = (('user', 'group'))
     
     def __unicode__(self):
         return self.group.group_name
-
+    
 class Invitations(models.Model):
     invitation_id = models.AutoField(primary_key=True)
     invitation_to = models.ForeignKey(Users, related_name='to',db_index=True)
@@ -492,22 +505,21 @@ class UserGroupHistory(models.Model):
         db_table = u'user_group_history'
 
 
-
 class UserGroups(models.Model):
     user_group_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(Users)
     group = models.ForeignKey(Groups)
-    is_quiet = models.CharField(max_length=9, choices=YES_NO_CHOICES)
-    slot = models.IntegerField()
+    is_quiet = models.CharField(max_length=9, choices=YES_NO_CHOICES, default='no')
+    slot = models.PositiveIntegerField()
     class Meta:
         db_table = u'user_groups'
-        #unique_together = (('user','slot'), ('user','group'),)
+        verbose_name = u'User Group'
+        unique_together = (('user','slot'), ('user','group'),)
 
     def __unicode__(self):
         #return '[grp_name=' + self.group.group_name + ' <-> user_id=' + str(self.user.user_id) + ',quiet=' + self.is_quiet + ',slot=' + str(self.slot) + ']'
         return "Group: %s, Slot: %d" % (self.group.group_name, self.slot)
-
-
+    
 class UserPhones(models.Model):
     phone_id = models.AutoField(primary_key=True)
     country = models.ForeignKey(Countries)
@@ -516,9 +528,10 @@ class UserPhones(models.Model):
     is_primary = models.CharField(max_length=9, choices=YES_NO_CHOICES)
     class Meta:
         db_table = u'user_phones'
+        verbose_name = u'User Phone'
 
     def __unicode__(self):
-        return '[phone=' + self.phone_number + ',prim=' + self.is_primary + ']'
+        return '[phone=' + self.phone_number + ',primary=' + self.is_primary + ']'
 
 class PubMessages(models.Model):
     pub_id = models.AutoField(primary_key=True)
