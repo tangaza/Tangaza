@@ -41,8 +41,9 @@ class UserGroupInline(admin.TabularInline):
 class UserPhonesInline(admin.TabularInline):
     model = UserPhones
     form = UserPhonesForm
+    formset = UserPhonesInlineFormset
     max_num = 3
-    extra = 0
+    extra = 1
     
 #Groups customization
 class GroupsAdmin(admin.ModelAdmin):
@@ -75,20 +76,12 @@ class UserAdmin(admin.ModelAdmin):
     inlines = [UserPhonesInline]
     form = UserForm
     search_fields = ['userphones__phone_number']
+    ordering = ['userphones__phone_number']
+    
+    def queryset(self, request):
+        users = super(UserAdmin, self).queryset(request)
+        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
+        users = users.extra(where=['user_phones.user_id=users.user_id'])
+        return users
     
 admin.site.register(Users, UserAdmin)
-
-####
-class GroupAdminManager(admin.ModelAdmin):
-    def save_model(self, request, obj, form, change):
-        import sys
-        sys.stdout = sys.stderr
-        print "GroupAdmin: save_model",  obj
-        pass
-    def save_formset(self, request, form, formset, change):
-        import sys
-        sys.stdout = sys.stderr
-        print "GroupAdmin: save_formset",obj
-        pass
-
-admin.site.register(GroupAdmin, GroupAdminManager)

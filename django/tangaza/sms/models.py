@@ -26,6 +26,7 @@ import logging
 
 from django.db import models
 from django.db import transaction
+from django.db.models.signals import *
 
 logger = logging.getLogger('tangaza_logger')
 
@@ -50,29 +51,19 @@ class Actions(models.Model):
     def __unicode__(self):
         return self.action_desc
 
-class PhoneOrderedManager(models.Manager):
-    def get_query_set(self):
-        users = super(PhoneOrderedManager, self).get_query_set().all()
-        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
-        users = users.extra(where=['user_phones.user_id=users.user_id'])
-        return users
-        
 class Users(models.Model):
     user_id = models.AutoField(primary_key=True)
     user_pin = models.CharField(max_length=4, null=True, blank=True)
     name_text = models.CharField(max_length=20, null=True, blank=True, verbose_name=u'Nickname')
-    objects = PhoneOrderedManager()
     
     class Meta:
         db_table = u'users'
         verbose_name = u'User'
-        ordering = ['phone_number']
     
     def __unicode__(self):
         #return '[user_id=' + str(self.user_id) +']'
-        #return self.userphones_set.get().phone_number
-        return self.phone_number
-
+        return self.userphones_set.get().phone_number
+    
     def set_name (self, name):
         self.name_text = name
         self.save()
@@ -133,11 +124,11 @@ class Users(models.Model):
 
     def leave_group(self, group):
         UserGroups.objects.filter(user = self, group = group).delete()
-        GroupAdmin.objects.filter (user = self, group = group).delete()
+        GroupAdmin.objects.filter(user = self, group = group).delete()
 
-        action = Actions.objects.get(action_desc = 'left group')
-        hist = UserGroupHistory(user = self, group = group, action = action)
-        hist.save()
+        #action = Actions.objects.get(action_desc = 'left group')
+        #hist = UserGroupHistory(user = self, group = group, action = action)
+        #hist.save()
         
     def invite_user(self, invited_user, group):
         invitation, created = Invitations.objects.get_or_create(group = group, 
@@ -171,10 +162,10 @@ class Users(models.Model):
         for inv in invs:
             inv.completed = 'yes'
             inv.save()
-        
-        action = Actions.objects.get(action_desc = 'joined group')
-        hist = UserGroupHistory(user = self, group = group, action = action)
-        hist.save()
+            
+        #action = Actions.objects.get(action_desc = 'joined group')
+        #hist = UserGroupHistory(user = self, group = group, action = action)
+        #hist.save()
 
         #notify admin(s) new user has joined
         admins = GroupAdmin.objects.filter(group=group)
@@ -202,16 +193,15 @@ class Users(models.Model):
         
         group = Groups (group_name = own_group, group_type = 'mine', is_active = 'yes')
         group.save()
-
-
+        
         user_group = UserGroups (user = user, group = group, slot = 1,
                                  is_quiet = 'no')
         user_group.save()
         
-        action = Actions.objects.get (action_desc = 'joined group')
-        user_grp_hist = UserGroupHistory (group = group, action = action,
-                                          user = user)
-        user_grp_hist.save()
+        #action = Actions.objects.get (action_desc = 'joined group')
+        #user_grp_hist = UserGroupHistory (group = group, action = action,
+        #                                  user = user)
+        #user_grp_hist.save()
         
         grp_admin = GroupAdmin(user = user, group = group)
         grp_admin.save()
@@ -332,9 +322,9 @@ class Groups(models.Model):
         group = UserGroups(user = user_being_added, group = self, is_quiet = 'n')
         group.save()
         
-        action = Actions.objects.get(action_desc = 'joined group')
-        user_hist = UserGroupHistory(group = self, action = action, user = user_being_added)
-        user_hist.save()
+        #action = Actions.objects.get(action_desc = 'joined group')
+        #user_hist = UserGroupHistory(group = self, action = action, user = user_being_added)
+        #user_hist.save()
 
         action = Actions.objects.get(action_desc = 'added user')
         admin_hist = AdminGroupHistory(group = self, action = action, user_src = admin_doing_add, 
@@ -393,8 +383,8 @@ class Groups(models.Model):
         usr_grp = UserGroups(group = group, user = user, is_quiet = 'no', slot = slot)
         usr_grp.save()
 
-        usr_hist = UserGroupHistory(group = group, action = action, user = user)
-        usr_hist.save()
+        #usr_hist = UserGroupHistory(group = group, action = action, user = user)
+        #usr_hist.save()
 
     @classmethod
     def delete (cls, admin, group):
@@ -582,3 +572,27 @@ def global_send_sms (dest_phone, text, origin = 'KE'):
         logger.info ('failed: %s' % url)
         
     return sent
+
+#############################################################################################
+# Signal handlers for post-actions
+
+def user_left_group(sender, **kwargs):
+    logging.debug("Deleting user group %s" % kwargs)
+    
+    action = Actions.objects.get(action_desc = 'left group')
+    user_group = kwargs['instance']
+    hist = UserGroupHistory(user = user_group.user, group = user_group.group, action = action)
+    hist.save()
+
+post_delete.connect(user_left_group, sender=UserGroups)
+
+def user_joined_group(sender, **kwargs):
+    if not kwargs['created']:
+        return
+    
+    action = Actions.objects.get(action_desc = 'joined group')
+    user_group = kwargs['instance']
+    hist = UserGroupHistory(user = user_group.user, group = user_group.user.group, action = action)
+    hist.save()
+
+post_save.connect(user_joined_group, sender=UserGroups)

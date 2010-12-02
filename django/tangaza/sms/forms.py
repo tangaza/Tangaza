@@ -26,6 +26,29 @@ from tangaza.sms import utility
 import logging
 logger = logging.getLogger('tangaza_logger')
 
+class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
+    def clean(self):
+        form_count = 0
+        
+        for form in self.forms:
+            try:
+                if form.cleaned_data and not form.cleaned_data['DELETE']:
+                    form_count += 1
+            except AttributeError:
+                #raised coz of the extra field(s) so just ignore
+                pass
+        if form_count < 1:
+            msg = u'Users must have a phone number'
+            logger.error (msg)
+            raise forms.ValidationError(msg)
+
+from  django.db.models.signals import *
+#connect to post-save signal to log save
+def callback(sender, **kwargs):
+    logging.info("signal: %s" % dir(kwargs))
+
+post_save.connect(callback)
+
 class UserPhonesForm(forms.ModelForm):
     class Meta:
         model = UserPhones
@@ -83,7 +106,7 @@ class GroupAdminInlineFormset(forms.models.BaseInlineFormSet):
         form_count = 0
         
         for form in self.forms:
-            logger.debug('Looping forms')
+            
             try:
                 if form.cleaned_data and not form.cleaned_data['DELETE']:
                     form_count += 1
@@ -101,3 +124,4 @@ class UserForm(forms.ModelForm):
         model = Users
         #fields = ['name_text', 'user_pin']
     
+
