@@ -181,8 +181,11 @@ class Users(models.Model):
     def create_user (cls, phone, own_group):
 
         logger.debug ('phone %s' % phone)
-
+        
         user = Users()
+        #additional info
+        user.phone_number = phone
+        user.language = ""
         user.save()
 
         country_name = Countries.phone2country (phone)
@@ -191,29 +194,30 @@ class Users(models.Model):
                                  user = user, is_primary = 'yes')
         user_phone.save()
         
-        group = Groups (group_name = own_group, group_type = 'mine', is_active = 'yes')
-        group.save()
+        # NOTE: The commented bit below is now handled by user_created signal
+        # to be removed once fully tested
+        #group = Groups (group_name = own_group, group_type = 'mine', is_active = 'yes')
+        #group.save()
         
-        user_group = UserGroups (user = user, group = group, slot = 1,
-                                 is_quiet = 'no')
-        user_group.save()
+        #user_group = UserGroups (user = user, group = group, slot = 1, is_quiet = 'no')
+        #user_group.save()
         
         #action = Actions.objects.get (action_desc = 'joined group')
         #user_grp_hist = UserGroupHistory (group = group, action = action,
         #                                  user = user)
         #user_grp_hist.save()
         
-        grp_admin = GroupAdmin(user = user, group = group)
-        grp_admin.save()
+        #grp_admin = GroupAdmin(user = user, group = group)
+        #grp_admin.save()
         
-        action = Actions.objects.get (action_desc = 'created user')
-        admin_group_hist = AdminGroupHistory (group = group, action = action,
-                                              user_src = user, user_dst = user)
-        admin_group_hist.save()
+        #action = Actions.objects.get (action_desc = 'created user')
+        #admin_group_hist = AdminGroupHistory (group = group, action = action,
+        #                                      user_src = user, user_dst = user)
+        #admin_group_hist.save()
 
         #additional info
-        user.phone_number = phone
-        user.language = ""
+        #user.phone_number = phone
+        #user.language = ""
 
         return user
     
@@ -225,8 +229,10 @@ class Groups(models.Model):
     
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=60,db_index=True)
-    group_type = models.CharField(max_length=21, choices=GROUP_TYPES)
-    is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True)
+    group_type = models.CharField(max_length=21, choices=GROUP_TYPES, default = u'public')
+    is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, default = u'yes')
+    group_name_file = models.CharField(max_length=60, default = u'')
+    
     admins = models.ManyToManyField(Users, through='GroupAdmin')
     users = models.ManyToManyField(Users, through='UserGroups')
 
@@ -262,7 +268,7 @@ class Groups(models.Model):
         usr_grp = UserGroups.objects.get(group = self, user = user)
         usr_grp.is_quiet = 'yes'
         usr_grp.save()
-
+        
         #set heard to yes to cancel previous but unheard updates
         subs = SubMessages.objects.filter(dst_user = user, channel = self)
         for s in subs:
@@ -302,8 +308,6 @@ class Groups(models.Model):
         admin.save()
         
         add_action = Actions.objects.get (action_desc='added admin')
-        if add_action is None:
-            logger.debug ('add action is none')
         
         history = AdminGroupHistory(group = self, action = add_action, user_src = admin_doing_add,
                                     user_dst = admin_being_added)
@@ -376,13 +380,14 @@ class Groups(models.Model):
         grp_admin = GroupAdmin(user = user, group = group)
         grp_admin.save()
         
-        action = Actions.objects.get(action_desc = 'created group')
-        hist = AdminGroupHistory(group = group, action = action, user_src = user, user_dst = user)
-        hist.save()
-
         usr_grp = UserGroups(group = group, user = user, is_quiet = 'no', slot = slot)
         usr_grp.save()
-
+        
+        # NOTE: the commented bit handled by signals. still testing
+        #action = Actions.objects.get(action_desc = 'created group')
+        #hist = AdminGroupHistory(group = group, action = action, user_src = user, user_dst = user)
+        #hist.save()
+        
         #usr_hist = UserGroupHistory(group = group, action = action, user = user)
         #usr_hist.save()
 
@@ -519,6 +524,7 @@ class UserPhones(models.Model):
     class Meta:
         db_table = u'user_phones'
         verbose_name = u'User Phone'
+        ordering = ['phone_number']
 
     def __unicode__(self):
         return '[phone=' + self.phone_number + ',primary=' + self.is_primary + ']'
@@ -592,7 +598,45 @@ def user_joined_group(sender, **kwargs):
     
     action = Actions.objects.get(action_desc = 'joined group')
     user_group = kwargs['instance']
-    hist = UserGroupHistory(user = user_group.user, group = user_group.user.group, action = action)
+    hist = UserGroupHistory(user = user_group.user, group = user_group.group, action = action)
     hist.save()
 
 post_save.connect(user_joined_group, sender=UserGroups)
+
+def user_created(sender, **kwargs):
+    if not kwargs['created']:
+        return
+    
+    instance = kwargs['instance']
+    user = instance.user
+    group = Groups (group_name = instance.phone_number, group_type = 'mine', is_active = 'yes')
+    group.save()
+    
+    user_group = UserGroups (user = user, group = group, slot = 1, is_quiet = 'no')
+    user_group.save()
+    
+    grp_admin = GroupAdmin(user = user, group = group)
+    grp_admin.save()
+    
+    action = Actions.objects.get (action_desc = 'created user')
+    admin_group_hist = AdminGroupHistory (group = group, action = action,
+                                          user_src = user, user_dst = user)
+
+post_save.connect(user_created, sender=UserPhones)
+
+def group_created(sender, **kwargs):
+    if not kwargs['created']:
+        return
+    instance = kwargs['instance']
+    
+    #if its a new group there'll be only one of it in group_admin table
+    g = GroupAdmin.objects.filter(group = instance)
+    if len(g) > 1:
+        return
+    
+    action = Actions.objects.get (action_desc = 'created group')
+    admin_group_hist = AdminGroupHistory (group = instance.group, action = action,
+                                          user_src = instance.user, user_dst = instance.user)
+    admin_group_hist.save()
+
+post_save.connect(group_created, sender=GroupAdmin)

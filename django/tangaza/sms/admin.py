@@ -22,7 +22,9 @@ from tangaza.sms.models import *
 from tangaza.sms.views import *
 from tangaza.sms.forms import *
 from django.contrib import admin
+import logging
 
+logger = logging.getLogger('tangaza_logger')
 
 #inline definitions
 class GroupAdminInline(admin.TabularInline):
@@ -44,7 +46,7 @@ class UserPhonesInline(admin.TabularInline):
     formset = UserPhonesInlineFormset
     max_num = 3
     extra = 1
-    
+
 #Groups customization
 class GroupsAdmin(admin.ModelAdmin):
     list_display = ('group_name', 'group_type', 'is_active')

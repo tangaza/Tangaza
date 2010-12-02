@@ -41,24 +41,32 @@ class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
             msg = u'Users must have a phone number'
             logger.error (msg)
             raise forms.ValidationError(msg)
-
-from  django.db.models.signals import *
-#connect to post-save signal to log save
-def callback(sender, **kwargs):
-    logging.info("signal: %s" % dir(kwargs))
-
-post_save.connect(callback)
+        if form_count > 1:
+            msg = u'A user can have only one phone at the moment'
+            logger.error(msg)
+            raise forms.ValidationError(msg)
 
 class UserPhonesForm(forms.ModelForm):
     class Meta:
         model = UserPhones
         exclude = ['country']
 
+    def save(self, force_insert=False, force_update=False, commit=True):
+        user_form = super(UserPhonesForm, self).save(commit=False)
+        logger.error('user_form: %s' % user_form)
+        country_name = Countries.phone2country (user_form.phone_number)
+        country = Countries.objects.get(country_name=country_name)
+        user_form.country = country
+        user_form.save()
+        return user_form
+        
+        
 class UserGroupsInlineFormset(forms.models.BaseInlineFormSet):
     
     def clean(self):
-        errors_exist = False
-
+        deleting_admin = False
+        form_count = 0
+        
         #checked if marked for delete
         #if user is admin, if so prevent delete
         for form in self.forms:
@@ -67,21 +75,30 @@ class UserGroupsInlineFormset(forms.models.BaseInlineFormSet):
                     user = form.cleaned_data['user']
                     marked_delete = form.cleaned_data['DELETE']
                     if marked_delete and user.is_admin(form.cleaned_data['group']):
-                        errors_exist = True
-                        
+                        deleting_admin = True
+                
+                if form.cleaned_data and not form.cleaned_data['DELETE']:
+                    form_count += 1
             except AttributeError:
                 pass
-            
-        if errors_exist:
-            msg = u'You cannot delete a user that is the the group administrator. Delete from group admin first'
+        
+        if deleting_admin:
+            msg = u'You cannot delete a user who is also the group administrator. Delete from group admin first'
             logger.error(msg)
             raise forms.ValidationError(msg)
+        
+        #There must be at least one group member
+        if form_count < 1:
+            msg = u'You must have at least one member in a group'
+            logger.error (msg)
+            raise forms.ValidationError(msg)
+
     
 #User Groups customization
 class UserGroupsForm(forms.ModelForm):
     class Meta:
         model = UserGroups
-        exclude = ['slot', 'is_quiet']
+        exclude = ['slot']
     
     def clean_slot(self):
         slot = self.cleaned_data['slot']
@@ -97,7 +114,17 @@ class UserGroupsForm(forms.ModelForm):
         if self.initial == {}:
             ug_form.slot = utility.auto_alloc_slot(ug_form.user)
         
+        #if quiet state changed use methods in model
+        ug_db = UserGroups.objects.get(user_group_id = ug_form.user_group_id)        
+        if ug_db: #it's an edit edit
+            if ug_db.is_quiet != ug_form.is_quiet:
+                if ug_form.is_quiet == 'yes':
+                    ug_form.group.set_quiet(ug_form.user)
+                else:
+                    ug_form.group.unquiet(ug_form.user)
+        
         ug_form.save()
+        
         return ug_form
 
 #Group admin customization
@@ -124,4 +151,3 @@ class UserForm(forms.ModelForm):
         model = Users
         #fields = ['name_text', 'user_pin']
     
-
