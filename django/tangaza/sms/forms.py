@@ -27,22 +27,32 @@ import logging
 logger = logging.getLogger('tangaza_logger')
 
 class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
+    
     def clean(self):
         form_count = 0
+        primary_nums = 0
+        already_primary = False
         
         for form in self.forms:
             try:
-                if form.cleaned_data and not form.cleaned_data['DELETE']:
-                    form_count += 1
+                if form.cleaned_data:
+                    #must have at least one phone number
+                    if not form.cleaned_data['DELETE']:
+                        form_count += 1
+                    
+                    #make sure at least/at most one is_primary
+                    if form.cleaned_data['is_primary'] == 'yes':
+                        primary_nums += 1
             except AttributeError:
                 #raised coz of the extra field(s) so just ignore
                 pass
-        if form_count < 1:
-            msg = u'Users must have a phone number'
-            logger.error (msg)
-            raise forms.ValidationError(msg)
-        if form_count > 1:
-            msg = u'A user can have only one phone at the moment'
+        
+        msg = u''
+        if form_count < 1: msg = u'Users must have a phone number'
+        if primary_nums > 1: msg = u'A user can only have one primary number'
+        if primary_nums < 1: msg = u'There must be  at least one primary number'
+        
+        if len(msg) > 0:
             logger.error(msg)
             raise forms.ValidationError(msg)
 
@@ -59,7 +69,7 @@ class UserPhonesForm(forms.ModelForm):
         user_form.country = country
         user_form.save()
         return user_form
-        
+
         
 class UserGroupsInlineFormset(forms.models.BaseInlineFormSet):
     
@@ -151,3 +161,12 @@ class UserForm(forms.ModelForm):
         model = Users
         #fields = ['name_text', 'user_pin']
     
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Groups
+        
+    def clean_is_active(self):
+        is_active = self.cleaned_data['is_active']
+        logger.debug("Active status: %s" % is_active)
+        is_active = u'no'
+        return is_active

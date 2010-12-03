@@ -53,6 +53,7 @@ class GroupsAdmin(admin.ModelAdmin):
     list_filter = ('group_type', 'is_active')
     inlines = [GroupAdminInline, UserGroupInline]
     search_fields = ['group_name']
+    form = GroupForm
     
     def queryset(self, request):
         qs = super(GroupsAdmin, self).queryset(request)
@@ -79,11 +80,12 @@ class UserAdmin(admin.ModelAdmin):
     form = UserForm
     search_fields = ['userphones__phone_number']
     ordering = ['userphones__phone_number']
+    fields = ['name_text', 'user_pin']
     
-    def queryset(self, request):
-        users = super(UserAdmin, self).queryset(request)
-        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
-        users = users.extra(where=['user_phones.user_id=users.user_id'])
-        return users
+#    def queryset(self, request):
+#        users = super(UserAdmin, self).queryset(request)
+#        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
+#        users = users.extra(where=['user_phones.user_id=users.user_id'])
+#        return users
     
 admin.site.register(Users, UserAdmin)

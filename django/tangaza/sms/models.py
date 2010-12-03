@@ -51,10 +51,19 @@ class Actions(models.Model):
     def __unicode__(self):
         return self.action_desc
 
+class OrderedUserManager(models.Manager):
+    def get_query_set(self):
+        users = super(OrderedUserManager, self).get_query_set()
+        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
+        users = users.extra(where=['user_phones.user_id=users.user_id'])
+        users = users.order_by('phone_number')
+        return users
+
 class Users(models.Model):
     user_id = models.AutoField(primary_key=True)
     user_pin = models.CharField(max_length=4, null=True, blank=True)
     name_text = models.CharField(max_length=20, null=True, blank=True, verbose_name=u'Nickname')
+    objects = OrderedUserManager()
     
     class Meta:
         db_table = u'users'
@@ -229,12 +238,12 @@ class Groups(models.Model):
     
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=60,db_index=True)
-    group_type = models.CharField(max_length=21, choices=GROUP_TYPES, default = u'public')
-    is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, default = u'yes')
+    group_type = models.CharField(max_length=21, choices=GROUP_TYPES[1:], default = u'public')
+    is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, default = u'no')
     group_name_file = models.CharField(max_length=60, default = u'')
     
-    admins = models.ManyToManyField(Users, through='GroupAdmin')
-    users = models.ManyToManyField(Users, through='UserGroups')
+    #admins = models.ManyToManyField(Users, through='GroupAdmin')
+    #users = models.ManyToManyField(Users, through='UserGroups')
 
     
     class Meta:
@@ -525,7 +534,7 @@ class UserPhones(models.Model):
         db_table = u'user_phones'
         verbose_name = u'User Phone'
         ordering = ['phone_number']
-
+        
     def __unicode__(self):
         return '[phone=' + self.phone_number + ',primary=' + self.is_primary + ']'
 
@@ -609,6 +618,13 @@ def user_created(sender, **kwargs):
     
     instance = kwargs['instance']
     user = instance.user
+    
+    #if its a new user there'll be only one of it in user_phones table
+    #if just adding an additional number there'll be more than 1
+    u = UserPhones.objects.filter(user=user)
+    if len(u) > 1:
+        return
+    
     group = Groups (group_name = instance.phone_number, group_type = 'mine', is_active = 'yes')
     group.save()
     
