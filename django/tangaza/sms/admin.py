@@ -18,21 +18,73 @@
 #
 #
 
-from tangaza.sms.models import Actions, Users, Groups, UserGroups
+from tangaza.sms.models import *
+from tangaza.sms.views import *
+from tangaza.sms.forms import *
 from django.contrib import admin
+import logging
 
+logger = logging.getLogger('tangaza_logger')
 
-class ActionAdmin(admin.ModelAdmin):
-    ordering = ['action_desc']
+#inline definitions
+class GroupAdminInline(admin.TabularInline):
+    model = GroupAdmin
+    extra = 1
+    max_num = 20
+    formset = GroupAdminInlineFormset
+    
+class UserGroupInline(admin.TabularInline):
+    model = UserGroups
+    form = UserGroupsForm
+    formset = UserGroupsInlineFormset
+    extra = 1
+    max_num = 20
 
-admin.site.register(Actions, ActionAdmin)
+class UserPhonesInline(admin.TabularInline):
+    model = UserPhones
+    form = UserPhonesForm
+    formset = UserPhonesInlineFormset
+    max_num = 3
+    extra = 1
 
-class GroupAdmin(admin.ModelAdmin):
+#Groups customization
+class GroupsAdmin(admin.ModelAdmin):
     list_display = ('group_name', 'group_type', 'is_active')
     list_filter = ('group_type', 'is_active')
+    inlines = [GroupAdminInline, UserGroupInline]
+    search_fields = ['group_name']
+    form = GroupForm
+    
+    def queryset(self, request):
+        qs = super(GroupsAdmin, self).queryset(request)
+        return qs.exclude(group_type = 'mine')
+    
+    #Issue: Cant use a m2m field. it wont save. so using inlines instead
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        from django.contrib.admin import widgets
+        
+        if db_field.name == 'admins':
+            ug = UserGroups.objects.filter(group_name = self.group_name)
+            
+            kwargs['widget'] = widgets.FilteredSelectMultiple(
+                db_field.verbose_name, (db_field.name in self.filter_vertical))
+            return super(GroupsAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    fields = ['group_name', 'group_type', 'is_active']#, 'admins', 'users']
+    
+admin.site.register(Groups, GroupsAdmin)
 
-admin.site.register(Users)
+#Users customization
+class UserAdmin(admin.ModelAdmin):
+    inlines = [UserPhonesInline]
+    form = UserForm
+    search_fields = ['userphones__phone_number']
+    ordering = ['userphones__phone_number']
+    fields = ['name_text', 'user_pin']
+    
+admin.site.register(Users, UserAdmin)
 
-admin.site.register(Groups, GroupAdmin)
+#Add profile as part of auth_user fields
+AuthUserAdmin.list_display += ('user_profile',)
+AuthUserAdmin.fieldsets[0][1]['fields'] += ('user_profile',)
 
-admin.site.register(UserGroups)
