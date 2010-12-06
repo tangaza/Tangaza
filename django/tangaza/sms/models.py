@@ -588,6 +588,14 @@ def global_send_sms (dest_phone, text, origin = 'KE'):
         
     return sent
 
+
+#############################################################################################
+# Extend Auth user to work with Users
+
+from django.contrib.auth.models import User
+
+User.add_to_class('user_profile', models.ForeignKey(Users))
+
 #############################################################################################
 # Signal handlers for post-actions
 

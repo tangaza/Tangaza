@@ -82,10 +82,9 @@ class UserAdmin(admin.ModelAdmin):
     ordering = ['userphones__phone_number']
     fields = ['name_text', 'user_pin']
     
-#    def queryset(self, request):
-#        users = super(UserAdmin, self).queryset(request)
-#        users = users.extra(select={'phone_number':'phone_number'}, tables=['user_phones'])
-#        users = users.extra(where=['user_phones.user_id=users.user_id'])
-#        return users
-    
 admin.site.register(Users, UserAdmin)
+
+#Add profile as part of auth_user fields
+AuthUserAdmin.list_display += ('user_profile',)
+AuthUserAdmin.fieldsets[0][1]['fields'] += ('user_profile',)
+
