@@ -21,26 +21,27 @@
 #    Authors: Billy Odero, Jonathan Ledlie
 #
 
+TANGAZA_HOME=/usr/local/lib/tangaza
+CONF_PATH=$TANGAZA_HOME/conf/settings.conf
+DB_HOST=`awk -F'=' '/^DB_HOST/ {print $2}'  $CONF_PATH`
+DB_USER=`awk -F'=' '/^DB_USER/ {print $2}'  $CONF_PATH`
+DB_PASS=`awk -F'=' '/^DB_PASS/ {print $2}'  $CONF_PATH`
+DB_NAME=`awk -F'=' '/^DB_NAME/ {print $2}'  $CONF_PATH`
 
-HOST=""
-USER=""
-PASS=""
-DB="tangaza"
-
-MYSQL="mysql -h $HOST -u $USER -p$PASS -D $DB"
+MYSQL="mysql -h $DB_HOST -u $DB_USER -p$DB_PASS -D $DB_NAME"
 $MYSQL -BNe "show tables" | awk '{print "set foreign_key_checks=0; drop table `" $1 "`;"}' | $MYSQL
 
 cat tangaza-schema.sql | $MYSQL
 
-MYSQLIMPORT="mysqlimport -h $HOST -p$PASS -u $USER --delete --local tangaza "
+MYSQLIMPORT="mysqlimport -h $DB_HOST -p$DB_PASS -u $DB_USER --delete --local tangaza "
 $MYSQLIMPORT actions.dat
 $MYSQLIMPORT countries.dat 
 $MYSQLIMPORT languages.dat
 
 
-unset HOST
-unset USER
-unset PASS
-unset DB
+unset DB_HOST
+unset DB_USER
+unset DB_PASS
+unset DB_NAME
 unset MYSQL
 
