@@ -87,6 +87,5 @@ admin.site.register(Users, UserAdmin)
 #Add profile as part of auth_user fields
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 
-AuthUserAdmin.list_display += ('user_profile',)
-AuthUserAdmin.fieldsets[0][1]['fields'] += ('user_profile',)
-
+#AuthUserAdmin.list_display += ('user_profile',)
+#AuthUserAdmin.fieldsets[0][1]['fields'] += ('user_profile',)

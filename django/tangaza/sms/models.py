@@ -27,12 +27,21 @@ import logging
 from django.db import models
 from django.db import transaction
 from django.db.models.signals import *
+from django.contrib.auth.models import User as AuthUser
 
 logger = logging.getLogger('tangaza_logger')
 
 # Note that because of settings in settings.py, each request is handled as its own transaction.
 
 # Default slot is 1 (not 0)
+
+class Organization(models.Model):
+    org_id = models.IntegerField(primary_key=True)
+    org_name = models.CharField(max_length=100)
+    org_admin = models.ForeignKey(AuthUser)
+    class Meta:
+        db_table = u'organization'
+        app_label = u'Tangaza'
 
 class SmsLog (models.Model):
     sms_id = models.AutoField(primary_key=True)
@@ -41,12 +50,14 @@ class SmsLog (models.Model):
 
     class Meta:
         db_table = 'sms_log'
+        app_label = u'Tangaza'
 
 class Actions(models.Model):
     action_id = models.AutoField(primary_key=True)
     action_desc = models.CharField(max_length=90,unique=True)
     class Meta:
         db_table = u'actions'
+        app_label = u'Tangaza'
     
     def __unicode__(self):
         return self.action_desc
@@ -67,7 +78,8 @@ class Users(models.Model):
     
     class Meta:
         db_table = u'users'
-        verbose_name = u'User'
+        app_label = u'Tangaza'
+        verbose_name = u'Member'
     
     def __unicode__(self):
         #return '[user_id=' + str(self.user_id) +']'
@@ -248,6 +260,7 @@ class Groups(models.Model):
     
     class Meta:
         db_table = u'groups'
+        app_label = u'Tangaza'
         unique_together = ("group_name","is_active")
         ordering = ['group_name']
         verbose_name = u'Group'
@@ -449,6 +462,7 @@ class AdminGroupHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = u'admin_group_history'
+        app_label = u'Tangaza'
 
 class Countries(models.Model):
     country_id = models.AutoField(primary_key=True)
@@ -457,6 +471,7 @@ class Countries(models.Model):
     
     class Meta:
         db_table = u'countries'
+        app_label = u'Tangaza'
         ordering = ['country_name']
         
     def __unicode__(self):
@@ -474,6 +489,7 @@ class GroupAdmin(models.Model):
     
     class Meta:
         db_table = u'group_admin'
+        app_label = u'Tangaza'
         verbose_name = u'Group Admin'
         unique_together = (('user', 'group'))
     
@@ -489,6 +505,7 @@ class Invitations(models.Model):
     completed = models.CharField(max_length=9, choices = YES_NO_CHOICES, default = 'no')
     class Meta:
         db_table = u'invitations'
+        app_label = u'Tangaza'
 
 #XXX Odero kannel should probably store this, not us
 class SmsRawmessage(models.Model):
@@ -498,6 +515,7 @@ class SmsRawmessage(models.Model):
     text = models.CharField(max_length=1536)
     class Meta:
         db_table = u'sms_rawmessage'
+        app_label = u'Tangaza'
 
 class UserGroupHistory(models.Model):
     user_group_hist_id = models.AutoField(primary_key=True)
@@ -507,7 +525,7 @@ class UserGroupHistory(models.Model):
     create_stamp = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = u'user_group_history'
-
+        app_label = u'Tangaza'
 
 class UserGroups(models.Model):
     user_group_id = models.AutoField(primary_key=True)
@@ -517,6 +535,7 @@ class UserGroups(models.Model):
     slot = models.PositiveIntegerField()
     class Meta:
         db_table = u'user_groups'
+        app_label = u'Tangaza'
         verbose_name = u'User Group'
         unique_together = (('user','slot'), ('user','group'),)
 
@@ -532,6 +551,7 @@ class UserPhones(models.Model):
     is_primary = models.CharField(max_length=9, choices=YES_NO_CHOICES)
     class Meta:
         db_table = u'user_phones'
+        app_label = u'Tangaza'
         verbose_name = u'User Phone'
         ordering = ['phone_number']
         
@@ -547,6 +567,7 @@ class PubMessages(models.Model):
     text = models.CharField(max_length=250)
     class Meta:
         db_table = u'pub_messages'
+        app_label = u'Tangaza'
 
 class SubMessages(models.Model):
     sub_id = models.AutoField(primary_key=True)
@@ -558,6 +579,7 @@ class SubMessages(models.Model):
     channel = models.ForeignKey(Groups, db_column = "channel")
     class Meta:
         db_table = u'sub_messages'
+        app_label = u'Tangaza'
         
 def global_send_sms (dest_phone, text, origin = 'KE'):
     from django.conf import settings
@@ -588,13 +610,9 @@ def global_send_sms (dest_phone, text, origin = 'KE'):
         
     return sent
 
-
 #############################################################################################
 # Extend Auth user to work with Users
-
-from django.contrib.auth.models import User
-
-User.add_to_class('user_profile', models.ForeignKey(Users))
+#AuthUser.add_to_class('user_profile', models.ForeignKey(Users))
 
 #############################################################################################
 # Signal handlers for post-actions

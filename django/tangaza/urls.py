@@ -84,11 +84,10 @@ urlpatterns += patterns('tangaza.sms.appadmin',
 )
 
 # XXX restrict access to this to local IPs
-urlpatterns += patterns('tangaza.sms.maintenance',
-    # cronjobs call these to keep things in order
-    (r'^maint/periodic/$', 'periodic_maintenance'),
-
-)
+#urlpatterns += patterns('tangaza.sms.maintenance',
+#    # cronjobs call these to keep things in order
+#    (r'^maint/periodic/$', 'periodic_maintenance'),
+#)
 
 #urlpatterns += patterns('tangaza.sms.dashboard',
 #    (r'^web/dashboard/$', 'get_users'),

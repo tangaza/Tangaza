@@ -83,8 +83,6 @@ ADMINS = ()
 
 MANAGERS = ADMINS
 
-
-
 DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = CFG_SETTINGS['mysql']['db_name']             # Or path to database file if using sqlite3.
 DATABASE_USER = CFG_SETTINGS['mysql']['db_user']             # Not used with sqlite3.
