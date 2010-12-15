@@ -33,10 +33,9 @@ import os
 # Causes error: NoSectionError: No section: 'formatters'
 LOGGING_CONFIG = os.path.join(os.path.dirname(__file__), 'logging.conf')
 
-#logging.config.fileConfig(LOGGING_CONFIG)
+logging.config.fileConfig(LOGGING_CONFIG)
 
-APP_CONFIG = os.path.join(os.path.abspath('../../conf/'), 'settings.conf')
-#APP_CONFIG = os.environ.get('NASI_CONFIG')
+APP_CONFIG = os.path.join(os.path.dirname(__file__), '../../conf/settings.conf')
 
 def read_config():
     parser = ConfigParser.ConfigParser()
