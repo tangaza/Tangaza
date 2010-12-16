@@ -125,9 +125,10 @@ class UserGroupsForm(forms.ModelForm):
             ug_form.slot = utility.auto_alloc_slot(ug_form.user)
         
         #if quiet state changed use methods in model
-        ug_db = UserGroups.objects.get(user_group_id = ug_form.user_group_id)        
-        if ug_db: #it's an edit edit
-            if ug_db.is_quiet != ug_form.is_quiet:
+        ug_db = UserGroups.objects.filter(user_group_id = ug_form.user_group_id)        
+        
+        if len(ug_db) > 0: #if it's an edit then ug_db is no empty
+            if ug_db[0].is_quiet != ug_form.is_quiet:
                 if ug_form.is_quiet == 'yes':
                     ug_form.group.set_quiet(ug_form.user)
                 else:
@@ -165,8 +166,8 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Groups
         
-    def clean_is_active(self):
-        is_active = self.cleaned_data['is_active']
-        logger.debug("Active status: %s" % is_active)
-        is_active = u'no'
-        return is_active
+#    def clean_is_active(self):
+#        is_active = self.cleaned_data['is_active']
+#        logger.debug("Active status: %s" % is_active)
+#        #is_active = u'no'
+#        return is_active

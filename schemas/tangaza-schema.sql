@@ -47,6 +47,41 @@ CREATE TABLE `sms_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `auth_user`
+--
+
+DROP TABLE IF EXISTS `auth_user`;
+CREATE TABLE `auth_user` (
+  `id` int(11) NOT NULL auto_increment,
+  `username` varchar(30) NOT NULL,
+  `first_name` varchar(30) NOT NULL,
+  `last_name` varchar(30) NOT NULL,
+  `email` varchar(75) NOT NULL,
+  `password` varchar(128) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `last_login` datetime NOT NULL,
+  `date_joined` datetime NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `organization`
+--
+
+DROP TABLE IF EXISTS `organization`;
+CREATE TABLE `organization` (
+  `org_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `org_name` varchar(90) NOT NULL,
+  `org_admin_id` int(11) NOT NULL,
+  PRIMARY KEY (`org_id`),
+  KEY `org_admin_id` (`org_admin_id`),
+  CONSTRAINT `organization_ibfk_1` FOREIGN KEY (`org_admin_id`) REFERENCES `auth_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `groups`
 --
 
@@ -57,8 +92,11 @@ CREATE TABLE `groups` (
   `group_name_file` varchar(32) NOT NULL,
   `group_type` enum('mine', 'private', 'public') NOT NULL default 'public',
   `is_active` enum('yes') NULL default 'yes',
+  `org_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`group_id`),
-  UNIQUE KEY `group_name` (`group_name`, `is_active`)
+  UNIQUE KEY `group_name` (`group_name`, `is_active`),
+  KEY `org_id` (`org_id`),
+  CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organization` (`org_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -114,38 +152,6 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `content_type_id` (`content_type_id`,`codename`),
   KEY `auth_permission_content_type_id` (`content_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `auth_permission`
---
-
-LOCK TABLES `auth_permission` WRITE;
-/*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (1,'Can add permission',1,'add_permission'),(2,'Can change permission',1,'change_permission'),(3,'Can delete permission',1,'delete_permission'),(4,'Can add group',2,'add_group'),(5,'Can change group',2,'change_group'),(6,'Can delete group',2,'delete_group'),(7,'Can add user',3,'add_user'),(8,'Can change user',3,'change_user'),(9,'Can delete user',3,'delete_user'),(10,'Can add message',4,'add_message'),(11,'Can change message',4,'change_message'),(12,'Can delete message',4,'delete_message'),(13,'Can add content type',5,'add_contenttype'),(14,'Can change content type',5,'change_contenttype'),(15,'Can delete content type',5,'delete_contenttype'),(16,'Can add session',6,'add_session'),(17,'Can change session',6,'change_session'),(18,'Can delete session',6,'delete_session'),(19,'Can add site',7,'add_site'),(20,'Can change site',7,'change_site'),(21,'Can delete site',7,'delete_site'),(22,'Can add log entry',8,'add_logentry'),(23,'Can change log entry',8,'change_logentry'),(24,'Can delete log entry',8,'delete_logentry'),(25,'Can add actions',9,'add_actions'),(26,'Can change actions',9,'change_actions'),(27,'Can delete actions',9,'delete_actions'),(28,'Can add groups',10,'add_groups'),(29,'Can change groups',10,'change_groups'),(30,'Can delete groups',10,'delete_groups'),(31,'Can add users',11,'add_users'),(32,'Can change users',11,'change_users'),(33,'Can delete users',11,'delete_users'),(34,'Can add admin group history',12,'add_admingrouphistory'),(35,'Can change admin group history',12,'change_admingrouphistory'),(36,'Can delete admin group history',12,'delete_admingrouphistory'),(37,'Can add countries',13,'add_countries'),(38,'Can change countries',13,'change_countries'),(39,'Can delete countries',13,'delete_countries'),(40,'Can add group admin',14,'add_groupadmin'),(41,'Can change group admin',14,'change_groupadmin'),(42,'Can delete group admin',14,'delete_groupadmin'),(43,'Can add invitations',15,'add_invitations'),(44,'Can change invitations',15,'change_invitations'),(45,'Can delete invitations',15,'delete_invitations'),(46,'Can add sms rawmessage',16,'add_smsrawmessage'),(47,'Can change sms rawmessage',16,'change_smsrawmessage'),(48,'Can delete sms rawmessage',16,'delete_smsrawmessage'),(49,'Can add user group history',17,'add_usergrouphistory'),(50,'Can change user group history',17,'change_usergrouphistory'),(51,'Can delete user group history',17,'delete_usergrouphistory'),(52,'Can add user groups',18,'add_usergroups'),(53,'Can change user groups',18,'change_usergroups'),(54,'Can delete user groups',18,'delete_usergroups'),(55,'Can add user phones',19,'add_userphones'),(56,'Can change user phones',19,'change_userphones'),(57,'Can delete user phones',19,'delete_userphones'),(58,'Can add pub messages',20,'add_pubmessages'),(59,'Can change pub messages',20,'change_pubmessages'),(60,'Can delete pub messages',20,'delete_pubmessages'),(61,'Can add sub messages',21,'add_submessages'),(62,'Can change sub messages',21,'change_submessages'),(63,'Can delete sub messages',21,'delete_submessages');
-
-/*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `auth_user`
---
-
-DROP TABLE IF EXISTS `auth_user`;
-CREATE TABLE `auth_user` (
-  `id` int(11) NOT NULL auto_increment,
-  `username` varchar(30) NOT NULL,
-  `first_name` varchar(30) NOT NULL,
-  `last_name` varchar(30) NOT NULL,
-  `email` varchar(75) NOT NULL,
-  `password` varchar(128) NOT NULL,
-  `is_staff` tinyint(1) NOT NULL,
-  `is_active` tinyint(1) NOT NULL,
-  `is_superuser` tinyint(1) NOT NULL,
-  `last_login` datetime NOT NULL,
-  `date_joined` datetime NOT NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -220,17 +226,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `app_label` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `django_content_type`
---
-
-LOCK TABLES `django_content_type` WRITE;
-/*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
-INSERT INTO `django_content_type` VALUES (1,'permission','auth','permission'),(2,'group','auth','group'),(3,'user','auth','user'),(4,'message','auth','message'),(5,'content type','contenttypes','contenttype'),(6,'session','sessions','session'),(7,'site','sites','site'),(8,'log entry','admin','logentry'),(9,'actions','sms','actions'),(10,'groups','sms','groups'),(11,'users','sms','users'),(12,'admin group history','sms','admingrouphistory'),(13,'countries','sms','countries'),(14,'group admin','sms','groupadmin'),(15,'invitations','sms','invitations'),(16,'sms rawmessage','sms','smsrawmessage'),(17,'user group history','sms','usergrouphistory'),(18,'user groups','sms','usergroups'),(19,'user phones','sms','userphones');
-/*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
-UNLOCK TABLES;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `django_session`

@@ -84,6 +84,9 @@ class UserAdmin(admin.ModelAdmin):
     
 admin.site.register(Users, UserAdmin)
 
+#class OrganisationAdmin(admin.ModelAdmin):
+admin.site.register(Organization)
+
 #Add profile as part of auth_user fields
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 

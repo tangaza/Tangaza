@@ -42,8 +42,8 @@ Q1="create database if not exists $DB_NAME;"
 Q2="create user '$DB_USER'@'$DB_HOST' identified by '$DB_PASS';"
 Q3="grant all privileges on $DB_NAME.* to '$DB_USER'@'$DB_HOST' with grant option;"
 
-echo "Checking if $DB_USERNAME already exists. Waiting for the database root password"
-SQLUSER=`mysql -u root -p -e "select user, host from mysql.user where user='$DB_USER' and host='$DB_HOST'"`
+echo "Checking if $DB_USER already exists. Waiting for the database root password"
+SQLUSER=`mysql -u root -p -D mysql -e "select user, host from mysql.user where user='$DB_USER' and host='$DB_HOST'"`
 
 if [ -n "$SQLUSER" ]; then
     # if user already exists dont try to recreate
@@ -52,7 +52,7 @@ if [ -n "$SQLUSER" ]; then
 fi
 
 echo "All checks complete. Database creation commencing. Waiting for the database root password"
-mysql -u root -p -e "$Q1 $Q2 $Q3"
+mysql -u root -p -D mysql -e "$Q1 $Q2 $Q3"
 
 CWD=$PWD
 echo "Switching working dir /usr/local/lib/tangaza/schemas/"
