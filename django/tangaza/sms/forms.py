@@ -60,17 +60,16 @@ class UserPhonesForm(forms.ModelForm):
     class Meta:
         model = UserPhones
         exclude = ['country']
-
+    
     def save(self, force_insert=False, force_update=False, commit=True):
         user_form = super(UserPhonesForm, self).save(commit=False)
-        logger.error('user_form: %s' % user_form)
+        
         country_name = Countries.phone2country (user_form.phone_number)
         country = Countries.objects.get(country_name=country_name)
         user_form.country = country
         user_form.save()
         return user_form
 
-        
 class UserGroupsInlineFormset(forms.models.BaseInlineFormSet):
     
     def clean(self):
@@ -93,7 +92,8 @@ class UserGroupsInlineFormset(forms.models.BaseInlineFormSet):
                 pass
         
         if deleting_admin:
-            msg = u'You cannot delete a user who is also the group administrator. Delete from group admin first'
+            msg = u'You cannot delete a user who is also the group administrator. ' \
+                'Delete from group admin first'
             logger.error(msg)
             raise forms.ValidationError(msg)
         
@@ -103,9 +103,9 @@ class UserGroupsInlineFormset(forms.models.BaseInlineFormSet):
             logger.error (msg)
             raise forms.ValidationError(msg)
 
-    
 #User Groups customization
 class UserGroupsForm(forms.ModelForm):
+    
     class Meta:
         model = UserGroups
         exclude = ['slot']
@@ -125,7 +125,7 @@ class UserGroupsForm(forms.ModelForm):
             ug_form.slot = utility.auto_alloc_slot(ug_form.user)
         
         #if quiet state changed use methods in model
-        ug_db = UserGroups.objects.filter(user_group_id = ug_form.user_group_id)        
+        ug_db = UserGroups.objects.filter(user_group_id = ug_form.user_group_id)
         
         if len(ug_db) > 0: #if it's an edit then ug_db is no empty
             if ug_db[0].is_quiet != ug_form.is_quiet:
@@ -155,19 +155,54 @@ class GroupAdminInlineFormset(forms.models.BaseInlineFormSet):
             msg = u'You must have at least one administrator in a group'
             logger.error (msg)
             raise forms.ValidationError(msg)
+
+###################################################
+# Added so that the forms below can access the request object
+
+import threading
+_thread_locals = threading.local()
+
+class ThreadLocals(object):
+    """
+    Middleware that gets various objects from the
+    request object and saves them in thread local storage.
+    """
+    def process_request(self, request):
+        _thread_locals.request = request
         
 #User customization
 class UserForm(forms.ModelForm):
     class Meta:
         model = Users
-        #fields = ['name_text', 'user_pin']
-    
+        fields = ['name_text', 'user_pin']
+        
+    def clean(self):
+        request = getattr(_thread_locals, 'request', None)
+        
+        if request.user.is_superuser:
+            msg = u'Superusers cannot edit forms at the moment'
+            logger.error(msg)
+            raise forms.ValidationError(msg)
+        return self.cleaned_data
+
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Groups
+    
+    def clean_is_active(self):
         
-#    def clean_is_active(self):
-#        is_active = self.cleaned_data['is_active']
-#        logger.debug("Active status: %s" % is_active)
-#        #is_active = u'no'
-#        return is_active
+        if self.cleaned_data['is_active'] and not self.instance.group_name_file:
+            msg = u'The group cannot be activated until a '\
+                'voice recording of group name is provided.'
+            logger.error(msg)
+            raise forms.ValidationError(msg)
+        return self.cleaned_data['is_active']
+    
+    def clean(self):
+        request = getattr(_thread_locals, 'request', None)
+        
+        if request.user.is_superuser:
+            msg = u'Superusers cannot edit forms at the moment'
+            logger.error(msg)
+            raise forms.ValidationError(msg)
+        return self.cleaned_data

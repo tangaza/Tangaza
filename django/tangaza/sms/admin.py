@@ -26,6 +26,17 @@ import logging
 
 logger = logging.getLogger('tangaza_logger')
 
+def filtered_user_queryset(request):
+    org = request.user.organization_set.get()
+    groups = Groups.objects.filter(org = org)
+    
+    user_groups = UserGroups.objects.filter(group__in = groups)
+    users = [ug.user.user_id for ug in user_groups]
+    
+    qs = Users.objects.filter(user_id__in = users)
+    
+    return qs
+    
 #inline definitions
 class GroupAdminInline(admin.TabularInline):
     model = GroupAdmin
@@ -33,12 +44,26 @@ class GroupAdminInline(admin.TabularInline):
     max_num = 20
     formset = GroupAdminInlineFormset
     
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        
+        if db_field.name == 'user' and not request.user.is_superuser:
+            kwargs['queryset'] = filtered_user_queryset(request)
+            #return db_field.formfield(**kwargs)
+        return super(GroupAdminInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 class UserGroupInline(admin.TabularInline):
     model = UserGroups
     form = UserGroupsForm
     formset = UserGroupsInlineFormset
     extra = 1
     max_num = 20
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        
+        if db_field.name == 'user' and not request.user.is_superuser:
+            kwargs['queryset'] = filtered_user_queryset(request)
+            #return db_field.formfield(**kwargs)
+        return super(UserGroupInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class UserPhonesInline(admin.TabularInline):
     model = UserPhones
@@ -57,20 +82,17 @@ class GroupsAdmin(admin.ModelAdmin):
     
     def queryset(self, request):
         qs = super(GroupsAdmin, self).queryset(request)
+        if not request.user.is_superuser:
+            qs = qs.filter(org = request.user.organization_set.get())
         return qs.exclude(group_type = 'mine')
     
-    #Issue: Cant use a m2m field. it wont save. so using inlines instead
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        from django.contrib.admin import widgets
-        
-        if db_field.name == 'admins':
-            ug = UserGroups.objects.filter(group_name = self.group_name)
-            
-            kwargs['widget'] = widgets.FilteredSelectMultiple(
-                db_field.verbose_name, (db_field.name in self.filter_vertical))
-            return super(GroupsAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    def save_model(self, request, obj, form, change):
+        if not change:
+            org = request.user.organization_set.get()
+            obj.org = org
+        obj.save()
     
-    fields = ['group_name', 'group_type', 'is_active']#, 'admins', 'users']
+    fields = ['group_name', 'group_type', 'is_active']
     
 admin.site.register(Groups, GroupsAdmin)
 
@@ -78,13 +100,27 @@ admin.site.register(Groups, GroupsAdmin)
 class UserAdmin(admin.ModelAdmin):
     inlines = [UserPhonesInline]
     form = UserForm
-    search_fields = ['userphones__phone_number']
-    ordering = ['userphones__phone_number']
+    #search_fields = ['userphones__phone_number']
+    #ordering = ['userphones__phone_number']
+    search_fields = ['name_text']
+    ordering = ['name_text']
     fields = ['name_text', 'user_pin']
     
+    def queryset(self, request):
+        #Only returns users that belong to groups from this users organization
+        #There has to be a better way of doing this
+        qs = super(UserAdmin, self).queryset(request)
+        if not request.user.is_superuser:
+            org = request.user.organization_set.get()
+            groups = Groups.objects.filter(org = org)
+            user_groups = UserGroups.objects.filter(group__in = groups)
+            users = [ug.user.user_id for ug in user_groups]
+            qs = qs.filter(user_id__in = users)
+        
+        return qs
+        
 admin.site.register(Users, UserAdmin)
 
-#class OrganisationAdmin(admin.ModelAdmin):
 admin.site.register(Organization)
 
 #Add profile as part of auth_user fields

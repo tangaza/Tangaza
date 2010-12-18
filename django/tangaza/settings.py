@@ -140,6 +140,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
+    'tangaza.sms.forms.ThreadLocals',
 )
 
 ROOT_URLCONF = 'tangaza.urls'

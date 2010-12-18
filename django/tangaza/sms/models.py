@@ -76,8 +76,8 @@ class OrderedUserManager(models.Manager):
 class Users(models.Model):
     user_id = models.AutoField(primary_key=True)
     user_pin = models.CharField(max_length=4, null=True, blank=True)
-    name_text = models.CharField(max_length=20, null=True, blank=True, verbose_name=u'Nickname')
-    objects = OrderedUserManager()
+    name_text = models.CharField(max_length=20, verbose_name=u'Nickname')
+    #objects = OrderedUserManager()
     
     class Meta:
         db_table = u'users'
@@ -86,7 +86,8 @@ class Users(models.Model):
     
     def __unicode__(self):
         #return '[user_id=' + str(self.user_id) +']'
-        return self.userphones_set.get().phone_number
+        #return self.userphones_set.get().phone_number
+        return self.name_text
     
     def set_name (self, name):
         self.name_text = name
@@ -253,13 +254,10 @@ class Groups(models.Model):
     
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=60,db_index=True)
+    group_name_file = models.CharField(max_length=60, null = True, blank = True)
     group_type = models.CharField(max_length=21, choices=GROUP_TYPES[1:], default = u'public')
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
-    group_name_file = models.CharField(max_length=60, default = u'')
-    
-    #admins = models.ManyToManyField(Users, through='GroupAdmin')
-    #users = models.ManyToManyField(Users, through='UserGroups')
-    
+    org = models.ForeignKey(Organization)
     
     class Meta:
         db_table = u'groups'
@@ -526,6 +524,7 @@ class UserGroupHistory(models.Model):
     action = models.ForeignKey(Actions)
     user = models.ForeignKey(Users)
     create_stamp = models.DateTimeField(auto_now_add=True)
+    
     class Meta:
         db_table = u'user_group_history'
         #app_label = u'Tangaza'
@@ -543,7 +542,6 @@ class UserGroups(models.Model):
         unique_together = (('user','slot'), ('user','group'),)
 
     def __unicode__(self):
-        #return '[grp_name=' + self.group.group_name + ' <-> user_id=' + str(self.user.user_id) + ',quiet=' + self.is_quiet + ',slot=' + str(self.slot) + ']'
         return "Group: %s, Slot: %d" % (self.group.group_name, self.slot)
     
 class UserPhones(models.Model):

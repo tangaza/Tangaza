@@ -89,9 +89,9 @@ DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `group_id` int(10) unsigned NOT NULL auto_increment,
   `group_name` varchar(60) NOT NULL,
-  `group_name_file` varchar(32) NOT NULL,
+  `group_name_file` varchar(32) NULL,
   `group_type` enum('mine', 'private', 'public') NOT NULL default 'public',
-  `is_active` enum('yes') NULL default 'yes',
+  `is_active` enum('yes') NULL,
   `org_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`group_id`),
   UNIQUE KEY `group_name` (`group_name`, `is_active`),
