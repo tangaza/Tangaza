@@ -334,6 +334,7 @@ CREATE TABLE `users` (
   `notify_time` timestamp NOT NULL default '0000-00-00 00:00:00',
   `calling_time` timestamp NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`user_id`),
+  UNIQUE KEY `name_text` (`name_text`),
   KEY `language_id` (`language_id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `languages` (`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

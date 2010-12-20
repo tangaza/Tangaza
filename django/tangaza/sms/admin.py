@@ -48,7 +48,7 @@ class GroupAdminInline(admin.TabularInline):
         
         if db_field.name == 'user' and not request.user.is_superuser:
             kwargs['queryset'] = filtered_user_queryset(request)
-            #return db_field.formfield(**kwargs)
+            return db_field.formfield(**kwargs)
         return super(GroupAdminInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class UserGroupInline(admin.TabularInline):
@@ -62,7 +62,7 @@ class UserGroupInline(admin.TabularInline):
         
         if db_field.name == 'user' and not request.user.is_superuser:
             kwargs['queryset'] = filtered_user_queryset(request)
-            #return db_field.formfield(**kwargs)
+            return db_field.formfield(**kwargs)
         return super(UserGroupInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class UserPhonesInline(admin.TabularInline):
@@ -79,6 +79,17 @@ class GroupsAdmin(admin.ModelAdmin):
     inlines = [GroupAdminInline, UserGroupInline]
     search_fields = ['group_name']
     form = GroupForm
+    fields = ['group_name', 'group_type', 'is_active']
+    
+    def add_view(self, request, form_url='', extra_context=None):
+        if request.user.is_superuser and not self.fields.__contains__('org'):
+            self.fields.append('org')
+        return super(GroupsAdmin, self).add_view(request, form_url, extra_context)
+    
+    def change_view(self, request, object_id, extra_context=None):
+        if request.user.is_superuser and not self.fields.__contains__('org'):
+            self.fields.append('org')
+        return super(GroupsAdmin, self).change_view(request, object_id, extra_context)
     
     def queryset(self, request):
         qs = super(GroupsAdmin, self).queryset(request)
@@ -88,12 +99,13 @@ class GroupsAdmin(admin.ModelAdmin):
     
     def save_model(self, request, obj, form, change):
         if not change:
-            org = request.user.organization_set.get()
-            obj.org = org
+            if request.user.is_superuser:
+                logger.error('Org on form: %s' % obj.org)
+            else:
+                org = request.user.organization_set.get()
+                obj.org = org
         obj.save()
-    
-    fields = ['group_name', 'group_type', 'is_active']
-    
+
 admin.site.register(Groups, GroupsAdmin)
 
 #Users customization
@@ -118,7 +130,7 @@ class UserAdmin(admin.ModelAdmin):
             qs = qs.filter(user_id__in = users)
         
         return qs
-        
+
 admin.site.register(Users, UserAdmin)
 
 admin.site.register(Organization)

@@ -169,21 +169,20 @@ class ThreadLocals(object):
     """
     def process_request(self, request):
         _thread_locals.request = request
-        
+
 #User customization
 class UserForm(forms.ModelForm):
     class Meta:
         model = Users
-        fields = ['name_text', 'user_pin']
-        
-    def clean(self):
-        request = getattr(_thread_locals, 'request', None)
-        
-        if request.user.is_superuser:
-            msg = u'Superusers cannot edit forms at the moment'
-            logger.error(msg)
-            raise forms.ValidationError(msg)
-        return self.cleaned_data
+              
+#    def clean(self):
+#        request = getattr(_thread_locals, 'request', None)
+#        if request.user.is_superuser:
+#            msg = u'Superusers cannot edit forms at the moment'
+#            logger.error(msg)
+#            raise forms.ValidationError(msg)
+#
+#        return self.cleaned_data
 
 class GroupForm(forms.ModelForm):
     class Meta:
@@ -192,17 +191,19 @@ class GroupForm(forms.ModelForm):
     def clean_is_active(self):
         
         if self.cleaned_data['is_active'] and not self.instance.group_name_file:
-            msg = u'The group cannot be activated until a '\
-                'voice recording of group name is provided.'
+            msg = u'The group cannot be activated until a ' \
+                'voice recording of the group name is provided.'
             logger.error(msg)
             raise forms.ValidationError(msg)
         return self.cleaned_data['is_active']
     
-    def clean(self):
-        request = getattr(_thread_locals, 'request', None)
-        
-        if request.user.is_superuser:
-            msg = u'Superusers cannot edit forms at the moment'
-            logger.error(msg)
-            raise forms.ValidationError(msg)
-        return self.cleaned_data
+#    def clean(self):
+#        request = getattr(_thread_locals, 'request', None)
+#        
+#        if request.user.is_superuser:
+#            msg = u'Superusers cannot edit forms at the moment'
+#            logger.error(msg)
+#            raise forms.ValidationError(msg)
+#        
+#        return self.cleaned_data
+

@@ -549,7 +549,7 @@ class UserPhones(models.Model):
     country = models.ForeignKey(Countries)
     phone_number = models.CharField(max_length=120,db_index=True,unique=True)
     user = models.ForeignKey(Users,db_index=True)
-    is_primary = models.CharField(max_length=9, choices=YES_NO_CHOICES)
+    is_primary = models.CharField(max_length=9, choices=YES_NO_CHOICES, default = 'yes')
     class Meta:
         db_table = u'user_phones'
         #app_label = u'Tangaza'
