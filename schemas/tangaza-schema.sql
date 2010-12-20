@@ -23,84 +23,6 @@
 -- Script for restoring the tangaza db
 
 --
--- Table structure for table `actions`
---
-
-DROP TABLE IF EXISTS `actions`;
-CREATE TABLE `actions` (
-  `action_id` int(10) unsigned NOT NULL auto_increment,
-  `action_desc` varchar(90) NOT NULL,
-  PRIMARY KEY  (`action_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
---
--- Table structure for table `sms_log`
---
-
-DROP TABLE IF EXISTS `sms_log`;
-CREATE TABLE `sms_log` (
-  `sms_id` int(10) unsigned NOT NULL auto_increment,
-  `sender` varchar(20) NOT NULL,
-  `text` varchar(200) default NULL,
-  PRIMARY KEY  (`sms_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `auth_user`
---
-
-DROP TABLE IF EXISTS `auth_user`;
-CREATE TABLE `auth_user` (
-  `id` int(11) NOT NULL auto_increment,
-  `username` varchar(30) NOT NULL,
-  `first_name` varchar(30) NOT NULL,
-  `last_name` varchar(30) NOT NULL,
-  `email` varchar(75) NOT NULL,
-  `password` varchar(128) NOT NULL,
-  `is_staff` tinyint(1) NOT NULL,
-  `is_active` tinyint(1) NOT NULL,
-  `is_superuser` tinyint(1) NOT NULL,
-  `last_login` datetime NOT NULL,
-  `date_joined` datetime NOT NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `organization`
---
-
-DROP TABLE IF EXISTS `organization`;
-CREATE TABLE `organization` (
-  `org_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `org_name` varchar(90) NOT NULL,
-  `org_admin_id` int(11) NOT NULL,
-  PRIMARY KEY (`org_id`),
-  KEY `org_admin_id` (`org_admin_id`),
-  CONSTRAINT `organization_ibfk_1` FOREIGN KEY (`org_admin_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `groups`
---
-
-DROP TABLE IF EXISTS `groups`;
-CREATE TABLE `groups` (
-  `group_id` int(10) unsigned NOT NULL auto_increment,
-  `group_name` varchar(60) NOT NULL,
-  `group_name_file` varchar(32) NULL,
-  `group_type` enum('mine', 'private', 'public') NOT NULL default 'public',
-  `is_active` enum('yes') NULL,
-  `org_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`group_id`),
-  UNIQUE KEY `group_name` (`group_name`, `is_active`),
-  KEY `org_id` (`org_id`),
-  CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organization` (`org_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
---
 -- Table structure for table `auth_group`
 --
 
@@ -182,19 +104,6 @@ CREATE TABLE `auth_user_user_permissions` (
   KEY `permission_id_refs_id_6d7fb3c2067e79cb` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-
---
--- Table structure for table `countries`
---
-
-DROP TABLE IF EXISTS `countries`;
-CREATE TABLE `countries` (
-  `country_id` int(10) unsigned NOT NULL auto_increment,
-  `country_code` smallint(6) NOT NULL,
-  `country_name` varchar(9) NOT NULL,
-  PRIMARY KEY  (`country_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 --
 -- Table structure for table `django_admin_log`
 --
@@ -263,6 +172,30 @@ INSERT INTO `django_site` VALUES (1,'example.com','example.com');
 UNLOCK TABLES;
 
 --
+-- Table structure for table `actions`
+--
+
+DROP TABLE IF EXISTS `actions`;
+CREATE TABLE `actions` (
+  `action_id` int(10) unsigned NOT NULL auto_increment,
+  `action_desc` varchar(90) NOT NULL,
+  PRIMARY KEY  (`action_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `sms_log`
+--
+
+DROP TABLE IF EXISTS `sms_log`;
+CREATE TABLE `sms_log` (
+  `sms_id` int(10) unsigned NOT NULL auto_increment,
+  `sender` varchar(20) NOT NULL,
+  `text` varchar(200) default NULL,
+  PRIMARY KEY  (`sms_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `dlr`
 --
 
@@ -281,6 +214,17 @@ CREATE TABLE `dlr` (
   PRIMARY KEY  (`dlr_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `countries`
+--
+
+DROP TABLE IF EXISTS `countries`;
+CREATE TABLE `countries` (
+  `country_id` int(10) unsigned NOT NULL auto_increment,
+  `country_code` smallint(6) NOT NULL,
+  `country_name` varchar(9) NOT NULL,
+  PRIMARY KEY  (`country_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `languages`
@@ -339,6 +283,8 @@ CREATE TABLE `users` (
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `languages` (`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
 --
 -- Table structure for table `calls`
 --
@@ -358,6 +304,94 @@ CREATE TABLE `calls` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `terms_and_privacy`
+--
+
+DROP TABLE IF EXISTS `terms_and_privacy`;
+CREATE TABLE `terms_and_privacy` (
+  `user_id` int(10) unsigned NOT NULL,
+  `status` enum('accepted','rejected') NOT NULL,
+  `create_stamp` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `terms_and_privacy_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `user_phones`
+--
+
+DROP TABLE IF EXISTS `user_phones`;
+CREATE TABLE `user_phones` (
+  `phone_id` int(10) unsigned NOT NULL auto_increment,
+  `country_id` int(10) unsigned NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `is_primary` enum('yes','no') NOT NULL default 'no',
+  PRIMARY KEY  (`phone_id`),
+  UNIQUE KEY `phone_number` (`phone_number`),
+  KEY `country_id` (`country_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `user_phones_ibfk_1` FOREIGN KEY (`country_id`) REFERENCES `countries` (`country_id`),
+  CONSTRAINT `user_phones_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `auth_user`
+--
+
+DROP TABLE IF EXISTS `auth_user`;
+CREATE TABLE `auth_user` (
+  `id` int(11) NOT NULL auto_increment,
+  `username` varchar(30) NOT NULL,
+  `first_name` varchar(30) NOT NULL,
+  `last_name` varchar(30) NOT NULL,
+  `email` varchar(75) NOT NULL,
+  `password` varchar(128) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `last_login` datetime NOT NULL,
+  `date_joined` datetime NOT NULL,
+  `member_profile_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `username` (`username`),
+  KEY `member_profile_id` (`member_profile_id`),
+  CONSTRAINT `auth_user_ibfk_1` FOREIGN KEY (`member_profile_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `organization`
+--
+
+DROP TABLE IF EXISTS `organization`;
+CREATE TABLE `organization` (
+  `org_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `org_name` varchar(90) NOT NULL,
+  `org_admin_id` int(11) NOT NULL,
+  PRIMARY KEY (`org_id`),
+  KEY `org_admin_id` (`org_admin_id`),
+  CONSTRAINT `organization_ibfk_1` FOREIGN KEY (`org_admin_id`) REFERENCES `auth_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `groups`
+--
+
+DROP TABLE IF EXISTS `groups`;
+CREATE TABLE `groups` (
+  `group_id` int(10) unsigned NOT NULL auto_increment,
+  `group_name` varchar(60) NOT NULL,
+  `group_name_file` varchar(32) NULL,
+  `group_type` enum('mine', 'private', 'public') NOT NULL default 'private',
+  `is_active` enum('yes') NULL,
+  `org_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`group_id`),
+  UNIQUE KEY `group_name` (`group_name`, `is_active`),
+  KEY `org_id` (`org_id`),
+  CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organization` (`org_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `group_admin`
 --
 
@@ -371,6 +405,24 @@ CREATE TABLE `group_admin` (
   KEY `group_id` (`group_id`),
   CONSTRAINT `group_admin_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `group_admin_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `user_groups`
+--
+
+DROP TABLE IF EXISTS `user_groups`;
+CREATE TABLE `user_groups` (
+  `user_group_id` int(10) unsigned NOT NULL auto_increment,
+  `user_id` int(10) unsigned NOT NULL,
+  `group_id` int(10) unsigned NOT NULL,
+  `is_quiet` enum('yes','no') NOT NULL default 'no',
+  `slot` smallint(6) NOT NULL,
+  PRIMARY KEY  (`user_group_id`),
+  KEY `group_id` (`group_id`),
+  KEY `user_groups_ibfk_1` (`user_id`),
+  CONSTRAINT `user_groups_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `user_groups_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -441,19 +493,6 @@ CREATE TABLE `sub_messages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `terms_and_privacy`
---
-
-DROP TABLE IF EXISTS `terms_and_privacy`;
-CREATE TABLE `terms_and_privacy` (
-  `user_id` int(10) unsigned NOT NULL,
-  `status` enum('accepted','rejected') NOT NULL,
-  `create_stamp` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `terms_and_privacy_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
 -- Table structure for table `user_group_history`
 --
 
@@ -471,43 +510,6 @@ CREATE TABLE `user_group_history` (
   CONSTRAINT `user_group_history_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`),
   CONSTRAINT `user_group_history_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `actions` (`action_id`),
   CONSTRAINT `user_group_history_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `user_groups`
---
-
-DROP TABLE IF EXISTS `user_groups`;
-CREATE TABLE `user_groups` (
-  `user_group_id` int(10) unsigned NOT NULL auto_increment,
-  `user_id` int(10) unsigned NOT NULL,
-  `group_id` int(10) unsigned NOT NULL,
-  `is_quiet` enum('yes','no') NOT NULL default 'no',
-  `slot` smallint(6) NOT NULL,
-  PRIMARY KEY  (`user_group_id`),
-  KEY `group_id` (`group_id`),
-  KEY `user_groups_ibfk_1` (`user_id`),
-  CONSTRAINT `user_groups_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `user_groups_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `user_phones`
---
-
-DROP TABLE IF EXISTS `user_phones`;
-CREATE TABLE `user_phones` (
-  `phone_id` int(10) unsigned NOT NULL auto_increment,
-  `country_id` int(10) unsigned NOT NULL,
-  `phone_number` varchar(20) NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
-  `is_primary` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`phone_id`),
-  UNIQUE KEY `phone_number` (`phone_number`),
-  KEY `country_id` (`country_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `user_phones_ibfk_1` FOREIGN KEY (`country_id`) REFERENCES `countries` (`country_id`),
-  CONSTRAINT `user_phones_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --

@@ -21,6 +21,8 @@
 from tangaza.sms.models import *
 from tangaza.sms.views import *
 from tangaza.sms.forms import *
+from tangaza.sms import utility
+from django.template.defaultfilters import slugify
 from django.contrib import admin
 import logging
 
@@ -118,6 +120,20 @@ class UserAdmin(admin.ModelAdmin):
     ordering = ['name_text']
     fields = ['name_text', 'user_pin']
     
+    def save_model(self, request, obj, form, change):
+        obj.save()
+        #if adding new user then they'll be added to default
+        #group for that organization
+        if not change:
+            if request.user.is_superuser:
+                pass #catch this on the form
+            else:
+                slot = utility.auto_alloc_slot(obj)
+                org = Organization.objects.get(org_admin = request.user)
+                grp_name = slugify(org.org_name).replace('-','')
+                group = Groups.objects.get(group_name = grp_name, org = org)
+                obj.join_group(group, slot, None, False)
+    
     def queryset(self, request):
         #Only returns users that belong to groups from this users organization
         #There has to be a better way of doing this
@@ -133,10 +149,22 @@ class UserAdmin(admin.ModelAdmin):
 
 admin.site.register(Users, UserAdmin)
 
-admin.site.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    
+    def save_model(self, request, obj, form, change):
+        org = obj.save()
+        #Note: This will only ever execute for superuser(s)
+        #create group with similar name
+        logger.error('Org details %s: ' % obj.org_id)
+        grp_name = slugify(obj.org_name).replace('-','')
+        slot = utility.auto_alloc_slot(obj.org_admin.member_profile)
+        g = Groups.create(obj.org_admin.member_profile, grp_name, slot, org = obj)
+        logger.error('Created Group %s for org %s' % (obj, g))
+
+admin.site.register(Organization, OrganizationAdmin)
 
 #Add profile as part of auth_user fields
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 
-#AuthUserAdmin.list_display += ('user_profile',)
-#AuthUserAdmin.fieldsets[0][1]['fields'] += ('user_profile',)
+AuthUserAdmin.list_display += ('member_profile',)
+AuthUserAdmin.fieldsets[0][1]['fields'] += ('member_profile',)

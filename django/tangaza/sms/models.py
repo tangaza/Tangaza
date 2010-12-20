@@ -179,29 +179,26 @@ class Users(models.Model):
             return True
         return False
 
-    def join_group(self, group, slot, origin):
+    def join_group(self, group, slot, origin, notify_admin = True):
         grps = UserGroups(user = self, group = group, slot= slot, is_quiet = 'no')
         grps.save()
-
+        
         invs = Invitations.objects.filter(invitation_to = self, completed = 'no', group = group)
         for inv in invs:
             inv.completed = 'yes'
             inv.save()
-            
-        #action = Actions.objects.get(action_desc = 'joined group')
-        #hist = UserGroupHistory(user = self, group = group, action = action)
-        #hist.save()
-
-        #notify admin(s) new user has joined
-        admins = GroupAdmin.objects.filter(group=group)
-        for admin in admins:
-            logger.debug("Notifying admin %s of new user in group" % admin.user)
-            admin_phone = UserPhones.objects.get(user = admin.user, is_primary = 'yes')
-            new_user_phone = UserPhones.objects.get (user = self)
-            if self.name_text == None: self.name_text = ""
-            text = "A new user %s<%s> has joined %s" % (self.name_text, new_user_phone.phone_number, group.group_name)
-            sent = global_send_sms(admin_phone.phone_number, text, origin)
         
+        #notify admin(s) new user has joined
+        if notify_admin:
+            admins = GroupAdmin.objects.filter(group=group)
+            for admin in admins:
+                logger.debug("Notifying admin %s of new user in group" % admin.user)
+                admin_phone = UserPhones.objects.get(user = admin.user, is_primary = 'yes')
+                new_user_phone = UserPhones.objects.get (user = self)
+                if self.name_text == None: self.name_text = ""
+                text = "A new user %s<%s> has joined %s" % (self.name_text, new_user_phone.phone_number, group.group_name)
+                sent = global_send_sms(admin_phone.phone_number, text, origin)
+    
     @classmethod
     def create_user (cls, phone, own_group):
 
@@ -255,7 +252,7 @@ class Groups(models.Model):
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=60,db_index=True)
     group_name_file = models.CharField(max_length=60, null = True, blank = True)
-    group_type = models.CharField(max_length=21, choices=GROUP_TYPES[1:], default = u'public')
+    group_type = models.CharField(max_length=21, choices=GROUP_TYPES[1:], default = u'private')
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
     org = models.ForeignKey(Organization)
     
@@ -393,13 +390,12 @@ class Groups(models.Model):
     def is_name_available (cls, name):
         grps = cls.objects.filter(group_name = name, is_active = 'yes')
         return len(grps) < 1
-
-
+    
     @classmethod
-    def create (cls, user, group_name, slot, group_type):
-        group = Groups(group_name = group_name, group_type = group_type, is_active = 'yes')
+    def create (cls, user, group_name, slot, group_type='private', org = None):
+        group = Groups(group_name = group_name, group_type = group_type, org = org)
         group.save()
-
+        
         grp_admin = GroupAdmin(user = user, group = group)
         grp_admin.save()
         
@@ -613,7 +609,7 @@ def global_send_sms (dest_phone, text, origin = 'KE'):
 
 #############################################################################################
 # Extend Auth user to work with Users
-#AuthUser.add_to_class('user_profile', models.ForeignKey(Users))
+AuthUser.add_to_class('member_profile', models.ForeignKey(Users))
 
 #############################################################################################
 # Signal handlers for post-actions
@@ -683,3 +679,13 @@ def group_created(sender, **kwargs):
     admin_group_hist.save()
 
 post_save.connect(group_created, sender=GroupAdmin)
+
+from django.template.defaultfilters import slugify
+def organization_created(sender, **kwargs):
+    if not kwargs['created']:
+        return
+    instance = kwargs['instance']
+    
+    #create group with same name
+    
+#post_save.connect(organization_created, sender=Organization)
