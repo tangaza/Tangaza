@@ -175,14 +175,14 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = Users
               
-#    def clean(self):
-#        request = getattr(_thread_locals, 'request', None)
-#        if request.user.is_superuser:
-#            msg = u'Superusers cannot edit forms at the moment'
-#            logger.error(msg)
-#            raise forms.ValidationError(msg)
-#
-#        return self.cleaned_data
+    def clean(self):
+        request = getattr(_thread_locals, 'request', None)
+        if request.user.is_superuser:
+            msg = u'Superusers cannot edit this form at the moment'
+            logger.error(msg)
+            raise forms.ValidationError(msg)
+
+        return self.cleaned_data
 
 class GroupForm(forms.ModelForm):
     class Meta:

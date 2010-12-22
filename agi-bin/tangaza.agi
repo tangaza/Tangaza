@@ -28,13 +28,13 @@ use Nokia::Common::Tools;
 die if (!defined($ENV{"NASI_CONFIG"}));
 
 my $prefs = &read_config(undef, $ENV{"NASI_CONFIG"});
-my $tmp_dir = $prefs->{"NASI_TMP"};
+my $tmp_dir = $prefs->{paths}->{NASI_TMP};
 
 foreach my $dir ('record','place_call','outgoing','log') {
     mkdir $tmp_dir."/$dir/";
 }
 
-my $root_snd_dir = $prefs->{"NASI_HOME"}.'/sounds';
+my $root_snd_dir = $prefs->{paths}->{NASI_HOME}.'/sounds';
 my $snd_path = "$root_snd_dir/tangaza/:$root_snd_dir/:/var/lib/asterisk/sounds/";
 
 my $server = Nokia::Tangaza::Entry->new
@@ -42,11 +42,12 @@ my $server = Nokia::Tangaza::Entry->new
       log_level => 4,
       cidr_allow => '127.0.0.1/32',
       app_name => 'Tangaza',
-      log_file => $ENV{"NASI_TMP"}.'/log/tangaza.log',
-      dsn => 'DBI:mysql:database=tangaza;host='.$prefs->{"DB_HOST"},
-      db_user => $prefs->{"DB_USER"},
-      db_pw => $prefs->{"DB_PASS"},
-      sound_path => $snd_path
+      log_file => $prefs->{paths}->{NASI_TMP}.'/log/tangaza.log',
+      dsn => 'DBI:mysql:database=tangaza;host='.$prefs->{mysql}->{DB_HOST},
+      db_user => $prefs->{mysql}->{DB_USER},
+      db_pw => $prefs->{mysql}->{DB_PASS},
+      sound_path => $snd_path,
+      prefs => $prefs,
      });
 
 $server->run;

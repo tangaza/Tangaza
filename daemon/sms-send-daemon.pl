@@ -25,22 +25,24 @@
 # 1. Insert missing values indicated by ? below.
 
 use Nokia::Common::SMSQueue;
+use Nokia::Common::Tools;
 
-die if (!defined($ENV{"NASI_TMP"}));
-die if (!defined($ENV{"NASI_KANNEL_CONFIG"}));
+die if (!defined($ENV{"NASI_CONFIG"}));
+
+my $prefs = &read_config(undef, $ENV{"NASI_CONFIG"});
+my $tmp_dir = $prefs->{paths}->{NASI_TMP};
 
 my $server = Nokia::Common::SMSQueue->new
     ({port            => 9275,
       log_level       => 4,
       cidr_allow      => '127.0.0.0/8',
-      kannel_config   => $ENV{"NASI_KANNEL_CONFIG"},
-      ext_ke          => ?,    # Country code
-      callout_ext_ke  => ?,    # Dialing out extension, or phone number
-      sms_number_ke   => ?,    # Phone number of your SMS gateway
+      ext_ke          => '?',    # Country code
+      callout_ext_ke  => '?',    # Dialing out extension, or phone number
+      sms_number_ke   => '?',    # Phone number of your SMS gateway
       sms_url_ke      => '?',  # URL that the SMS gateway uses to send out messages
       sms_username_ke => '?',  # Username for SMS gateway
       sms_password_ke => '?',  # Password for SMS gateway
-      log_file => $ENV{"NASI_TMP"}.'/log/sms-send-daemon.log',
+      log_file => $prefs->{paths}->{NASI_TMP}.'/log/sms-send-daemon.log',
      });
 
 $server->run;
