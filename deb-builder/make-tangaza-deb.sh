@@ -21,8 +21,9 @@
 #    Authors: Billy Odero
 #
 
-TANGAZA_SCRIPTS=$HOME/git/Tangaza
-COMMON_SCRIPTS=$HOME/git/Common
+BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
+TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza
+COMMON_SCRIPTS=$BUILD_BOT_HOME/Common
 INST_LOCATION=./tangaza/usr/local/lib/tangaza
 
 echo "Exporting Tangaza files"
