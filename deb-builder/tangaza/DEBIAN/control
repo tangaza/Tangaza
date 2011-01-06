@@ -1,0 +1,14 @@
+Package: tangaza
+Version: 1.0
+Section: tangaza 
+Priority: optional
+Architecture: all
+Essential: no
+Homepage: http://github.com/tangaza/
+Depends: perl (>= 5.6.0-16), libdbix-class-perl (>= 0.08), python (>= 2.5.2), mysql-server (>= 5.0), asterisk (>= 1.4.21.2), libasterisk-agi-perl, libnet-cidr-perl, kannel (>= 1.4.1), python-django (>= 1.0.2), festival, libapache2-mod-wsgi, python-mysqldb, libuniversal-require-perl, libmodule-install-perl, libnet-server-perl, libconfig-tiny-perl
+Installed-Size: 1024
+Maintainer: Billy Odero [ext-billy.odero@nokia.com]
+Provides: Tangaza
+Recommends: libdbix-class-schema-loader-perl
+Description: A mobile phone-based group messaging system
+	Uses both voice and text modes.
