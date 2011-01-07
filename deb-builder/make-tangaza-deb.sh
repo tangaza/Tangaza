@@ -24,10 +24,13 @@
 BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
 TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
 COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
-INST_LOCATION=./tangaza/usr/local/lib/tangaza
+#TANGAZA_SCRIPTS=$HOME/git/Tangaza
+#COMMON_SCRIPTS=$HOME/git/Common
+INST_LOCATION=$TANGAZA_SCRIPTS/deb-builder/tangaza/usr/local/lib/tangaza
 
 echo "Exporting Tangaza files"
-cp -r $TANGAZA_SCRIPTS/* $INST_LOCATION/
+shopt -s extglob
+cp -r $TANGAZA_SCRIPTS/!(deb-builder) $INST_LOCATION/
 rm -rf $INST_LOCATION/.git
 
 cp -r $COMMON_SCRIPTS $INST_LOCATION/agi-bin/Nokia/
@@ -44,6 +47,6 @@ if [ ! -d "$INST_LOCATION/../sounds/tangaza/english" ]; then
 fi
 
 echo "Building deb package"
-dpkg-deb --build tangaza/ tangaza-1.0.deb
+fakeroot dpkg-deb --build tangaza/ tangaza-1.0.deb
 
 mv tangaza-1.0.deb install/
