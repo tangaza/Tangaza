@@ -22,10 +22,10 @@
 #
 
 BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
-#TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
-#COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
-TANGAZA_SCRIPTS=$HOME/git/Tangaza
-COMMON_SCRIPTS=$HOME/git/Common
+TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
+COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
+#TANGAZA_SCRIPTS=$HOME/git/Tangaza
+#COMMON_SCRIPTS=$HOME/git/Common
 DEB_PATH=$TANGAZA_SCRIPTS/deb-builder/install
 
 if [ `id -u` != 0 ]; then
