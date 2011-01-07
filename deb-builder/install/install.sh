@@ -18,8 +18,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    Authors: Billy Odero
+#    Author: Billy Odero
 #
+
+BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
+#TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
+#COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
+TANGAZA_SCRIPTS=$HOME/git/Tangaza
+COMMON_SCRIPTS=$HOME/git/Common
+DEB_PATH=$TANGAZA_SCRIPTS/deb-builder/install
 
 if [ `id -u` != 0 ]; then
     echo "You have to run the install script as root."
@@ -27,9 +34,9 @@ if [ `id -u` != 0 ]; then
 fi
 
 #check if tangaza-1.0.deb is in the same directory
-if [ ! -f "tangaza-1.0.deb" ]; then
+if [ ! -f "$DEB_PATH/tangaza-1.0.deb" ]; then
     echo "tangaza-1.0.deb could not be found. Installation will stop."
-    echo "Make sure install.sh and tangaza-1.0.deb are the same directory."
+    #echo "Make sure install.sh and tangaza-1.0.deb are the same directory."
     exit 1
 fi
 
@@ -37,13 +44,13 @@ echo "Initializing install process..."
 #check if it has been added to sources.list and add
 dpkg-scanpackages ./ /dev/null |gzip -c -9 > Packages.gz
 
-VAR=`grep -i "^deb file://$PWD" /etc/apt/sources.list`
+VAR=`grep -i "^deb file://$DEB_PATH" /etc/apt/sources.list`
 
 if [ ! -n "$VAR" ]; then
     SOURCES_CHANGED=1
     echo "Updating sources.list"
     cp /etc/apt/sources.list /etc/apt/sources.list.bak
-    echo "deb file://$PWD /" >> /etc/apt/sources.list
+    echo "deb file://$DEB_PATH /" >> /etc/apt/sources.list
 fi
 
 echo -n "Would you like apt-get to update [RECOMMENDED]. (If you dont know just press enter.) [Y/n]:"

@@ -47,6 +47,7 @@ if [ ! -d "$INST_LOCATION/../sounds/tangaza/english" ]; then
 fi
 
 echo "Building deb package"
-fakeroot dpkg-deb --build tangaza/ tangaza-1.0.deb
+cd $TANGAZA_SCRIPTS/deb-builder
+fakeroot dpkg-deb --build tangaza tangaza-1.0.deb
 
 mv tangaza-1.0.deb install/
