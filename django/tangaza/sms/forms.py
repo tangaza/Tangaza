@@ -170,19 +170,30 @@ class ThreadLocals(object):
     def process_request(self, request):
         _thread_locals.request = request
 
+class OrgForm(forms.ModelForm):
+    class Meta:
+        model = Organization
+    
+    def clean(self):
+        org_admin = self.cleaned_data['org_admin']
+        if not org_admin.member_profile_id:
+            logger.error(u'User has no no associated member profile')
+            raise forms.ValidationError(u'The admin has no Tangaza member profile. You need to add all details for this admin from the Auth section in the homepage to proceed.')
+        return self.cleaned_data
+
 #User customization
 class UserForm(forms.ModelForm):
     class Meta:
         model = Users
               
-    def clean(self):
-        request = getattr(_thread_locals, 'request', None)
-        if request.user.is_superuser:
-            msg = u'Superusers cannot edit this form at the moment'
-            logger.error(msg)
-            raise forms.ValidationError(msg)
+#    def clean(self):
+#        request = getattr(_thread_locals, 'request', None)
+#        if request.user.is_superuser:
+#            msg = u'Superusers cannot edit this form at the moment'
+#            logger.error(msg)
+#            raise forms.ValidationError(msg)
 
-        return self.cleaned_data
+#        return self.cleaned_data
 
 class GroupForm(forms.ModelForm):
     class Meta:

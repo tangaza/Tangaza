@@ -150,6 +150,7 @@ class UserAdmin(admin.ModelAdmin):
 admin.site.register(Users, UserAdmin)
 
 class OrganizationAdmin(admin.ModelAdmin):
+    form = OrgForm
     
     def save_model(self, request, obj, form, change):
         org = obj.save()
