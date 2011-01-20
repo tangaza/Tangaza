@@ -42,7 +42,8 @@ shopt -s extglob
 cp -r $TANGAZA_SCRIPTS/!(deb-builder|.git) $INST_LOCATION/
 cp -r $COMMON_SCRIPTS $INST_LOCATION/agi-bin/Nokia/
 rm -rf $INST_LOCATION/agi-bin/Nokia/Common/.git
-find . -name *.gitignore -exec rm {} +;
+find $INST_LOCATION -name *.gitignore -exec rm {} +;
+find $INST_LOCATION -name *.pyc -exec rm {} +;
 
 # 2. create tar from source
 cd $INST_LOCATION/../
@@ -64,3 +65,7 @@ debuild -us -uc
 echo "Done. Clearing build files"
 rm -rf  $INST_LOCATION/!(debian)
 dh_clean
+
+# 7.
+cd $INST_LOCATION/../
+mv tangaza_1.0-1_all.deb install/

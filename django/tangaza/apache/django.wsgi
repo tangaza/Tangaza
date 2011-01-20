@@ -23,7 +23,11 @@
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../..')
+DJANGO_PATH = sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../..')
+if DJANGO_PATH not in sys.path:
+   sys.path.append(DJANGO_PATH)
+   sys.path.append(DJANGO_PATH + '/sms')
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tangaza.settings'
 
 import django.core.handlers.wsgi

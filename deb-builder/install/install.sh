@@ -21,7 +21,7 @@
 #    Author: Billy Odero
 #
 
-set -e
+#set -e
 
 TANGAZA_SCRIPTS=$HOME/git/Tangaza
 COMMON_SCRIPTS=$HOME/git/Common
@@ -48,7 +48,7 @@ fi
 
 echo "Initializing install process..."
 #check if it has been added to sources.list and add
-dpkg-scanpackages ./ /dev/null |gzip -c -9 > Packages.gz
+dpkg-scanpackages ./ /dev/null |gzip -c -9 > $DEB_PATH/Packages.gz
 
 VAR=`grep -i "^deb file://$DEB_PATH" /etc/apt/sources.list`
 

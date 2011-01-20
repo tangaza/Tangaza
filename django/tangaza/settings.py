@@ -35,7 +35,7 @@ LOGGING_CONFIG = os.path.join(os.path.dirname(__file__), 'logging.conf')
 
 logging.config.fileConfig(LOGGING_CONFIG)
 
-APP_CONFIG = os.path.join(os.path.dirname(__file__), '../../conf/settings.conf')
+APP_CONFIG = '/etc/tangaza/settings.conf'
 
 def read_config():
     parser = ConfigParser.ConfigParser()

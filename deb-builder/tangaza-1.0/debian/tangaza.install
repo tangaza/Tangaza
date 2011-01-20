@@ -7,3 +7,4 @@ schemas/		/usr/lib/tangaza/
 django/			/usr/lib/tangaza/
 django/tangaza/media/	/usr/share/tangaza/
 sounds/			/usr/share/tangaza/
+init/			/usr/lib/tangaza/

@@ -20,7 +20,7 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 
-NASI_PATH=/usr/local/lib/tangaza/agi-bin
+NASI_PATH=/usr/lib/tangaza/agi-bin
 DESC="Tangaza group communication service"
 NAME=tangaza
 #DAEMON=/usr/sbin/$NAME
@@ -37,6 +37,8 @@ USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+[ ! -d $PIDFILES ] && mkdir $PIDFILES 
 
 # Load the VERBOSE setting and other rcS variables
 #. /lib/init/vars.sh
