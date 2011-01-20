@@ -1,0 +1,9 @@
+agi-bin/		/usr/lib/tangaza/
+agi-bin/mkdirs.pl       /var/lib/tangaza/status/
+agi-bin/mkdirs.pl       /var/lib/tangaza/names/
+conf/*			/etc/tangaza/
+daemon/			/usr/lib/tangaza/
+schemas/		/usr/lib/tangaza/
+django/			/usr/lib/tangaza/
+django/tangaza/media/	/usr/share/tangaza/
+sounds/			/usr/share/tangaza/

@@ -1,0 +1,6 @@
+/etc/tangaza
+/usr/lib/tangaza
+/usr/share/tangaza
+/var/lib/asterisk/festivalcache
+/var/lib/tangaza/names
+/var/lib/tangaza/status

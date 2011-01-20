@@ -1,0 +1,210 @@
+#! /bin/bash
+
+#
+#    Tangaza
+#
+#    Copyright (C) 2010 Nokia Corporation.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Author: Billy Odero
+#
+
+set -e
+
+if [ `id -u` != 0 ]; then
+  echo "You must be root to configure the settings."
+  exit 1
+fi
+
+#Generate the sub directories needed in /data
+CURR_DIR=$CWD
+
+cd /data/names && perl mkdirs.pl
+
+cd /data/status && perl mkdirs.pl
+
+cd $CURR_DIR
+
+TGZ_LOCATION=/usr/local/lib/tangaza/
+TGZ_HOME=$TGZ_LOCATION
+
+AST_PATH=`which asterisk`
+
+if [ ! -n "$AST_PATH" ]; then
+    while [ -n "$PROVIDED_PATH" ]; do
+	echo -n "asterisk path to use [$AST_PATH]:"
+	#read PROVIDED_PATH
+	
+	#check if asterisk exists in the path provided
+	if [ -e "$PROVIDED_PATH"]; then
+	    echo "Asterisk doesnt seem to exist in [$PROVIDED_PATH]"
+	    exit 1;
+	else
+	    echo "Asterisk exists in [$PROVIDED_PATH]"
+	fi
+	AST_PATH=$PROVIDED_PATH
+    done
+fi
+
+AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
+
+echo "Setting directory permissions..."
+chown -R $AST_USER\: $TGZ_LOCATION
+chmod a+w  /mnt/tmpfs
+chown -R $AST_USER\: /data
+#chown root\: /data/apache-log
+
+#create the festivalcache directory if it doesnt exists
+
+if [ ! -d "/var/lib/asterisk/festivalcache" ]; then
+    echo "Creating the /var/lib/asterisk/festivalcache"
+    mkdir /var/lib/asterisk/festivalcache
+    chown $AST_USER\: /var/lib/asterisk/festivalcache
+fi
+
+#create database if it doesnt exist
+echo 'Checking if the database already exists. Waiting for the database root password'
+DB=`mysql -u root -p -D mysql -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tangaza'"`
+
+if [ ! -n "$DB" ]; then
+    echo "Creating the tangaza database."
+    $TGZ_LOCATION/schemas/install-db.sh
+else
+    echo "Another instance of the  tangaza database already exists. It will not be created."
+fi
+
+#Download and install Asterisk::FastAGI modules if they dont exist
+CURR_DIR=$CWD
+cd $TGZ_LOCATION/depends
+FAST_AGI=`perl check_depends.pl Asterisk::FastAGI`
+MATH_RAND=`perl check_depends.pl Math::Random`
+
+if [ "Missing" == "$FAST_AGI" ]; then
+    wget http://search.cpan.org/CPAN/authors/id/J/JA/JAYWHY/Asterisk-FastAGI-0.02.tar.gz
+    tar -xzf Asterisk-FastAGI-0.02.tar.gz
+    
+    cd Asterisk-FastAGI-0.02/
+    perl Makefile.PL
+    make && make test && make install
+fi
+
+if [ "Missing" == "$MATH_RAND" ]; then
+    wget http://search.cpan.org/CPAN/authors/id/G/GR/GROMMEL/Math-Random-0.71.tar.gz
+    tar -xzf Math-Random-0.71.tar.gz
+    cd Math-Random-0.71/
+    perl Makefile.PL
+    make && make test && make install
+fi
+
+cd $CWD
+
+# Replace existing conf files
+#*****************************
+#1. asterisk
+echo "Replacing /etc/asterisk/extensions.conf."
+mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.bak
+cp $TGZ_LOCATION/conf/asterisk/extensions.conf /etc/asterisk/extensions.conf
+
+#2. kannel
+echo "Replacing /etc/kannel/kannel.conf."
+if [ -f "/etc/kannel/kannel.conf" ]; then
+    mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.bak
+fi
+
+cp $TGZ_LOCATION/conf/kannel/kannel.conf /etc/kannel/kannel.conf
+
+echo "Replacing /etc/kannel/modem.conf"
+if [ -f "/etc/kannel/modem.conf" ]; then
+    mv /etc/kannel/modem.conf /etc/kannel/modem.conf.bak
+fi
+
+cp $TGZ_LOCATION/conf/kannel/modem.conf /etc/kannel/modem.conf
+
+cp $TGZ_LOCATION/conf/kannel/tangaza.conf /etc/kannel/tangaza.conf
+
+#3. set django permissions and content types
+python $TGZ_LOCATION/django/tangaza/update-permissions.py
+
+#restart asterisk
+echo "Restarting asterisk"
+/etc/init.d/asterisk restart
+
+echo "Restarting kannel"
+#/etc/init.d/kannel restart
+#For now stop kannel until config works then start manually
+#/etc/init.d/kannel stop
+
+#set apache configs
+FQDN=`hostname -f`
+if [ ! -n "$FQDN" ]; then
+    $FQDN=`hostname`
+fi
+
+echo "Adding tangaza-sms to sites-enabled"
+mv /usr/local/lib/tangaza/conf/tangaza-sms /usr/local/lib/tangaza/conf/tangaza-sms.bak
+awk "{gsub(/your_server_name/,\"$FQDN\");print}" /usr/local/lib/tangaza/conf/tangaza-sms.bak > /usr/local/lib/tangaza/conf/tangaza-sms
+
+ln -s /usr/local/lib/tangaza/conf/tangaza-sms /etc/apache2/sites-enabled/
+chown root\: /etc/apache2/sites-enabled/tangaza-sms
+
+echo "Enabling port 8080"
+PORT_ENABLED=`grep -i '^Listen 8080$' /etc/apache2/ports.conf`
+if [ ! -n "$PORT_ENABLED" ]; then
+    mv /etc/apache2/ports.conf /etc/apache2/ports.conf.bak
+    awk "{gsub(/Listen 80/,\"Listen 80\nListen 8080\");print}" /etc/apache2/ports.conf.bak > /etc/apache2/ports.conf
+fi
+
+#Check if wsgi_module is loaded if not load it
+WSGI=`grep -ri wsgi_module /etc/apache2/*`
+if [ ! -n "$WSGI" ]; then
+    echo "LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so" > /etc/apache2/mods-available/wsgi.load
+    ln -s /etc/apache2/mods-available/wsgi.load /etc/apache2/mods-enabled/
+fi
+
+#set django-admin css files
+if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
+    DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
+    ln -s $DJANGO_MEDIA/css/* $TGZ_LOCATION/django/tangaza/media/css/
+    ln -s $DJANGO_MEDIA/img $TGZ_LOCATION/django/tangaza/media/
+    ln -s $DJANGO_MEDIA/js $TGZ_LOCATION/django/tangaza/media/
+fi
+
+if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/dashboard.css' ]; then
+    DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
+    ln -s $DJANGO_MEDIA/css/* $TGZ_LOCATION/django/tangaza/media/css/
+    ln -s $DJANGO_MEDIA/img $TGZ_LOCATION/django/tangaza/media/
+    ln -s $DJANGO_MEDIA/js $TGZ_LOCATION/django/tangaza/media/
+fi
+
+#check if apache is running and restart it
+/etc/init.d/apache2 restart
+
+#creating django superuser
+echo "Creating django superuser. Please enter user details for accessing the website."
+$TGZ_LOCATION/django/tangaza/manage.py createsuperuser
+
+#execute startup script
+#echo "Adding tangaza to startup scripts"
+#chown root\: /etc/init.d/tangaza
+#chown root\: /etc/default/tangaza
+#chmod +x /etc/init.d/tangaza
+#update-rc.d tangaza defaults
+
+#echo "Starting tangaza"
+#/etc/init.d/tangaza start
+
+#DEBHELPER#
+
+exit 0

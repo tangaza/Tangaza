@@ -21,11 +21,15 @@
 #    Authors: Billy Odero
 #
 
-BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
-TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
-COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
-#TANGAZA_SCRIPTS=$HOME/git/Tangaza
-#COMMON_SCRIPTS=$HOME/git/Common
+TANGAZA_SCRIPTS=$HOME/git/Tangaza
+COMMON_SCRIPTS=$HOME/git/Common
+
+if [ ! -d "/var/lib/tomcat6/webapps/ROOT/jobs" ]; then
+    BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
+    TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
+    COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
+fi
+
 INST_LOCATION=$TANGAZA_SCRIPTS/deb-builder/tangaza/usr/local/lib/tangaza
 
 echo "Exporting Tangaza files"
