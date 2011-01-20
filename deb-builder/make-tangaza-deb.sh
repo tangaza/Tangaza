@@ -24,34 +24,39 @@
 TANGAZA_SCRIPTS=$HOME/git/Tangaza
 COMMON_SCRIPTS=$HOME/git/Common
 
-if [ ! -d "/var/lib/tomcat6/webapps/ROOT/jobs" ]; then
+if [ -d "/var/lib/tomcat6/webapps/ROOT/jobs" ]; then
     BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
     TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
     COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
 fi
 
-INST_LOCATION=$TANGAZA_SCRIPTS/deb-builder/tangaza/usr/local/lib/tangaza
+INST_LOCATION=$TANGAZA_SCRIPTS/deb-builder/tangaza-1.0/
 
+#mkdir $INST_LOCATION
+
+# 1. copy complete source
 echo "Exporting Tangaza files"
 shopt -s extglob
-cp -r $TANGAZA_SCRIPTS/!(deb-builder) $INST_LOCATION/
-rm -rf $INST_LOCATION/.git
-
+cp -r $TANGAZA_SCRIPTS/!(deb-builder|.git) $INST_LOCATION/
 cp -r $COMMON_SCRIPTS $INST_LOCATION/agi-bin/Nokia/
 rm -rf $INST_LOCATION/agi-bin/Nokia/Common/.git
+find . -name *.gitignore -exec rm {} +;
 
-echo "Copying startup script"
-#cp $TANGAZA_SCRIPTS/../daemon/tangaza ./tangaza/etc/init.d/
+# 2. create tar from source
+cd $INST_LOCATION/../
+tar -czf tangaza_1.0.tar.gz tangaza-1.0
 
-echo "Copying sound files"
-if [ ! -d "$INST_LOCATION/../sounds/tangaza/english" ]; then
-    #cp -r $TANGAZA_SCRIPTS../sounds/tangaza/english $INST_LOCATION/../sounds/tangaza/
-    #cp -r $TANGAZA_SCRIPTS../sounds/tangaza/swahili $INST_LOCATION/../sounds/tangaza/
-    echo ""
-fi
+# 3. set env variables
+export DEBFULLNAME="Billy Odero"
+export DEBEMAIL="billy.odero@fakemail.com"
 
-echo "Building deb package"
-cd $TANGAZA_SCRIPTS/deb-builder
-fakeroot dpkg-deb --build tangaza tangaza-1.0.deb
+# 4. generate required files with dh_make
+cd $INST_LOCATION
+dh_make -i -f ../tangaza_1.0.tar.gz
 
-mv tangaza-1.0.deb install/
+# 5. remove example files
+debuild -us -uc
+
+# 6. clean source when done
+rm -rf  $INST_LOCATION/!(debian)
+dh_clean
