@@ -4,3 +4,5 @@
 /var/lib/asterisk/festivalcache
 /var/lib/tangaza/names
 /var/lib/tangaza/status
+/var/log/tangaza
+/var/spool/tangaza/outgoing/

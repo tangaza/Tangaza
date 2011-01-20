@@ -21,11 +21,17 @@
 #    Author: Billy Odero
 #
 
-BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
-TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
-COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
-#TANGAZA_SCRIPTS=$HOME/git/Tangaza
-#COMMON_SCRIPTS=$HOME/git/Common
+set -e
+
+TANGAZA_SCRIPTS=$HOME/git/Tangaza
+COMMON_SCRIPTS=$HOME/git/Common
+
+if [ -d "/var/lib/tomcat6/webapps/ROOT/jobs" ]; then
+    BUILD_BOT_HOME=/var/lib/tomcat6/webapps/ROOT/jobs
+    TANGAZA_SCRIPTS=$BUILD_BOT_HOME/Tangaza/workspace
+    COMMON_SCRIPTS=$BUILD_BOT_HOME/Common/workspace
+fi
+
 DEB_PATH=$TANGAZA_SCRIPTS/deb-builder/install
 
 if [ `id -u` != 0 ]; then
@@ -33,10 +39,10 @@ if [ `id -u` != 0 ]; then
     exit 1
 fi
 
-#check if tangaza-1.0.deb is in the same directory
-if [ ! -f "$DEB_PATH/tangaza-1.0.deb" ]; then
-    echo "tangaza-1.0.deb could not be found. Installation will stop."
-    #echo "Make sure install.sh and tangaza-1.0.deb are the same directory."
+#check if tangaza_1.0-1_all.deb is in the same directory
+if [ ! -f "$DEB_PATH/tangaza_1.0-1_all.deb" ]; then
+    echo "tangaza_1.0-1_all.deb could not be found. Installation will stop."
+    #echo "Make sure install.sh and tangaza_1.0-1_all.deb are the same directory."
     exit 1
 fi
 

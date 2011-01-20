@@ -1,8 +1,0 @@
-
-#set environment variables
-
-export NASI_HOME=/usr/local/lib/tangaza
-export PERL5LIB=$NASI_HOME/agi-bin
-export NASI_TMP=/mnt/tmpfs/
-export NASI_OUTGOING=$NASI_TMP/outgoing/
-export NASI_CONFIG=$NASI_HOME/conf/settings.conf

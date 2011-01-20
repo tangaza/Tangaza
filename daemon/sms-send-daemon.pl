@@ -42,7 +42,7 @@ my $server = Nokia::Common::SMSQueue->new
       sms_url_ke      => '?',  # URL that the SMS gateway uses to send out messages
       sms_username_ke => '?',  # Username for SMS gateway
       sms_password_ke => '?',  # Password for SMS gateway
-      log_file => $prefs->{paths}->{NASI_TMP}.'/log/sms-send-daemon.log',
+      log_file => $prefs->{paths}->{NASI_LOG}.'/log/sms-send-daemon.log',
      });
 
 $server->run;

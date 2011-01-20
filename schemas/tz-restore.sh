@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 #
 #    Tangaza
@@ -21,8 +21,10 @@
 #    Authors: Billy Odero, Jonathan Ledlie
 #
 
-TANGAZA_HOME=/usr/local/lib/tangaza
-CONF_PATH=$TANGAZA_HOME/conf/settings.conf
+set -e
+
+TANGAZA_HOME=/usr/lib/tangaza
+CONF_PATH=/etc/tangaza/settings.conf
 DB_HOST=`awk -F'=' '/^DB_HOST/ {print $2}'  $CONF_PATH`
 DB_USER=`awk -F'=' '/^DB_USER/ {print $2}'  $CONF_PATH`
 DB_PASS=`awk -F'=' '/^DB_PASS/ {print $2}'  $CONF_PATH`
@@ -44,4 +46,3 @@ unset DB_USER
 unset DB_PASS
 unset DB_NAME
 unset MYSQL
-

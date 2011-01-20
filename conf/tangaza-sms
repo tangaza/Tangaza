@@ -1,0 +1,47 @@
+#NameVirtualHost *
+
+<VirtualHost *:8080>
+        ServerAdmin admin@your_server_name
+	
+        ServerName your_server_name
+        
+	DocumentRoot /usr/share/tangaza/media
+        <Directory />
+                #Options FollowSymLinks
+                AllowOverride None
+        </Directory>
+
+        Alias /debug /usr/share/tangaza/media
+        Alias /status /var/lib/tangaza/status
+	Alias /names /var/lib/tangaza/names
+	
+	<Directory /usr/share/tangaza/media>
+                #Options FollowSymLinks
+                AllowOverride None
+        </Directory>
+
+        <Directory /var/lib/tangaza/status>
+		Options -ExecCGI -FollowSymLinks -Includes -IncludesNOEXEC -Indexes
+        </Directory>
+
+        <Directory /var/lib/tangaza/names>
+                Options -ExecCGI -FollowSymLinks -Includes -IncludesNOEXEC -Indexes
+        </Directory>
+	
+        WSGIDaemonProcess asterisk processes=2 maximum-requests=500 threads=1
+        WSGIProcessGroup asterisk
+	WSGIScriptAlias /app /usr/lib/tangaza/django/tangaza/apache/django.wsgi
+        Alias /media /usr/share/tangaza/media
+	
+	ErrorLog /var/log/tangaza/error.log
+	
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        #LogLevel info
+        LogLevel debug
+	
+        #CustomLog /data/apache-log/tangaza-access.log combined
+	CustomLog /var/log/apache2/access.log combined
+        ServerSignature On
+
+</VirtualHost>

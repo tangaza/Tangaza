@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 #    Tangaza
 #
@@ -22,6 +22,8 @@
 
 # add the current directory and the parent directory to PYTHONPATH
 # sets DJANGO_SETTINGS_MODULE
+
+set -e
 
 export PYTHONPATH=$PYTHONPATH:$PWD/..
 export PYTHONPATH=$PYTHONPATH:$PWD

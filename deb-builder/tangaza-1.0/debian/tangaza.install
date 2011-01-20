@@ -1,6 +1,6 @@
 agi-bin/		/usr/lib/tangaza/
-agi-bin/mkdirs.pl       /var/lib/tangaza/status/
-agi-bin/mkdirs.pl       /var/lib/tangaza/names/
+init/mkdirs.pl		/var/lib/tangaza/status/
+init/mkdirs.pl		/var/lib/tangaza/names/
 conf/*			/etc/tangaza/
 daemon/			/usr/lib/tangaza/
 schemas/		/usr/lib/tangaza/

@@ -21,6 +21,8 @@
 #    Authors: Billy Odero
 #
 
+#set -e 
+
 TANGAZA_SCRIPTS=$HOME/git/Tangaza
 COMMON_SCRIPTS=$HOME/git/Common
 
@@ -55,8 +57,10 @@ cd $INST_LOCATION
 dh_make -i -f ../tangaza_1.0.tar.gz
 
 # 5. remove example files
+echo "Starting build process"
 debuild -us -uc
 
 # 6. clean source when done
+echo "Done. Clearing build files"
 rm -rf  $INST_LOCATION/!(debian)
 dh_clean

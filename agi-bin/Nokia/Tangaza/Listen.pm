@@ -262,7 +262,8 @@ sub walk_messages_menu {
     }
     
     my $digits      = "01234*#";
-    my $updates_dir = "/data/status/";
+    my $prefs       = $self->get_property('prefs');
+    my $updates_dir = $prefs->{paths}->{NASI_DATA}."/status/";
     my $done        = 0;
     
     my @msgs = $msgs_rs->all();

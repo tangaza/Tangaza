@@ -31,14 +31,14 @@ fi
 #Generate the sub directories needed in /data
 CURR_DIR=$CWD
 
-cd /data/names && perl mkdirs.pl
+TGZ_LOCATION=/usr/lib/tangaza
+TGZ_HOME=$TGZ_LOCATION
+TGZ_DATA=/var/lib/tangaza
 
-cd /data/status && perl mkdirs.pl
+cd $TGZ_DATA/names && perl mkdirs.pl
+cd $TGZ_DATA/status && perl mkdirs.pl
 
 cd $CURR_DIR
-
-TGZ_LOCATION=/usr/local/lib/tangaza/
-TGZ_HOME=$TGZ_LOCATION
 
 AST_PATH=`which asterisk`
 
@@ -58,21 +58,19 @@ if [ ! -n "$AST_PATH" ]; then
     done
 fi
 
-AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
+#AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
-echo "Setting directory permissions..."
-chown -R $AST_USER\: $TGZ_LOCATION
-chmod a+w  /mnt/tmpfs
-chown -R $AST_USER\: /data
-#chown root\: /data/apache-log
+#echo "Setting directory permissions..."
+#chown -R $AST_USER\: $TGZ_LOCATION
+#chown -R $AST_USER\: $TGZ_DATA
 
 #create the festivalcache directory if it doesnt exists
 
-if [ ! -d "/var/lib/asterisk/festivalcache" ]; then
-    echo "Creating the /var/lib/asterisk/festivalcache"
-    mkdir /var/lib/asterisk/festivalcache
-    chown $AST_USER\: /var/lib/asterisk/festivalcache
-fi
+#if [ ! -d "/var/lib/asterisk/festivalcache" ]; then
+#    echo "Creating the /var/lib/asterisk/festivalcache"
+#    mkdir /var/lib/asterisk/festivalcache
+#    chown $AST_USER\: /var/lib/asterisk/festivalcache
+#fi
 
 #create database if it doesnt exist
 echo 'Checking if the database already exists. Waiting for the database root password'
@@ -87,7 +85,7 @@ fi
 
 #Download and install Asterisk::FastAGI modules if they dont exist
 CURR_DIR=$CWD
-cd $TGZ_LOCATION/depends
+cd $TGZ_LOCATION/init
 FAST_AGI=`perl check_depends.pl Asterisk::FastAGI`
 MATH_RAND=`perl check_depends.pl Math::Random`
 
@@ -112,10 +110,12 @@ cd $CWD
 
 # Replace existing conf files
 #*****************************
+
+TGZ_CONF=/etc/tangaza
 #1. asterisk
 echo "Replacing /etc/asterisk/extensions.conf."
 mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.bak
-cp $TGZ_LOCATION/conf/asterisk/extensions.conf /etc/asterisk/extensions.conf
+cp $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/extensions.conf
 
 #2. kannel
 echo "Replacing /etc/kannel/kannel.conf."
@@ -123,16 +123,16 @@ if [ -f "/etc/kannel/kannel.conf" ]; then
     mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.bak
 fi
 
-cp $TGZ_LOCATION/conf/kannel/kannel.conf /etc/kannel/kannel.conf
+cp $TGZ_CONF/kannel/kannel.conf /etc/kannel/kannel.conf
 
 echo "Replacing /etc/kannel/modem.conf"
 if [ -f "/etc/kannel/modem.conf" ]; then
     mv /etc/kannel/modem.conf /etc/kannel/modem.conf.bak
 fi
 
-cp $TGZ_LOCATION/conf/kannel/modem.conf /etc/kannel/modem.conf
+cp $TGZ_CONF/kannel/modem.conf /etc/kannel/modem.conf
 
-cp $TGZ_LOCATION/conf/kannel/tangaza.conf /etc/kannel/tangaza.conf
+cp $TGZ_CONF/kannel/tangaza.conf /etc/kannel/tangaza.conf
 
 #3. set django permissions and content types
 python $TGZ_LOCATION/django/tangaza/update-permissions.py
@@ -153,10 +153,11 @@ if [ ! -n "$FQDN" ]; then
 fi
 
 echo "Adding tangaza-sms to sites-enabled"
-mv /usr/local/lib/tangaza/conf/tangaza-sms /usr/local/lib/tangaza/conf/tangaza-sms.bak
-awk "{gsub(/your_server_name/,\"$FQDN\");print}" /usr/local/lib/tangaza/conf/tangaza-sms.bak > /usr/local/lib/tangaza/conf/tangaza-sms
+mv $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.bak
 
-ln -s /usr/local/lib/tangaza/conf/tangaza-sms /etc/apache2/sites-enabled/
+awk "{gsub(/your_server_name/,\"$FQDN\");print}" $TGZ_CONF/tangaza-sms.bak > $TGZ_CONF/tangaza-sms
+
+ln -s $TGZ_CONF/tangaza-sms /etc/apache2/sites-enabled/
 chown root\: /etc/apache2/sites-enabled/tangaza-sms
 
 echo "Enabling port 8080"
@@ -173,19 +174,22 @@ if [ ! -n "$WSGI" ]; then
     ln -s /etc/apache2/mods-available/wsgi.load /etc/apache2/mods-enabled/
 fi
 
+TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 #set django-admin css files
+#For ubuntu
 if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
     DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
-    ln -s $DJANGO_MEDIA/css/* $TGZ_LOCATION/django/tangaza/media/css/
-    ln -s $DJANGO_MEDIA/img $TGZ_LOCATION/django/tangaza/media/
-    ln -s $DJANGO_MEDIA/js $TGZ_LOCATION/django/tangaza/media/
+    ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
+    ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
+    ln -s $DJANGO_MEDIA/js $TGZ_DJANGO_MEDIA/
 fi
 
+#For debian
 if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/dashboard.css' ]; then
     DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
-    ln -s $DJANGO_MEDIA/css/* $TGZ_LOCATION/django/tangaza/media/css/
-    ln -s $DJANGO_MEDIA/img $TGZ_LOCATION/django/tangaza/media/
-    ln -s $DJANGO_MEDIA/js $TGZ_LOCATION/django/tangaza/media/
+    ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
+    ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
+    ln -s $DJANGO_MEDIA/js $TGZ_DJANGO_MEDIA/
 fi
 
 #check if apache is running and restart it
