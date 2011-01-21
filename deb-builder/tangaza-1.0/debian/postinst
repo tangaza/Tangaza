@@ -21,7 +21,7 @@
 #    Author: Billy Odero
 #
 
-#set -e
+set -e
 
 if [ `id -u` != 0 ]; then
   echo "You must be root to configure the settings."

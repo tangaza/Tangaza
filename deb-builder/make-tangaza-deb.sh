@@ -55,7 +55,7 @@ export DEBEMAIL="billy.odero@fakemail.com"
 
 # 4. generate required files with dh_make
 cd $INST_LOCATION
-dh_make -i -f ../tangaza_1.0.tar.gz
+dh_make -s -r -f ../tangaza_1.0.tar.gz
 
 # 5. remove example files
 echo "Starting build process"

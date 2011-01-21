@@ -1,4 +1,5 @@
 To create a deb of Tangaza, you need to run make-tangaza-deb.sh
+
 The following variables have to be correctly set BEFORE you run it.
 They should point to the location of the local Tangaza and Common 
 git repositories.
@@ -6,5 +7,12 @@ git repositories.
  - TANGAZA_SCRIPTS=/path/to/git/Tangaza
  - COMMON_SCRIPTS=/path/to/git/Common
 
-The generated deb file will be saved in "install/tangaza-1.0.deb". 
-You should then run install/install.sh to install tangaza-1.0.deb.
+THe build process uses debhelper utility to generate the deb package.
+You therefore have to install the necessary packages for the builder
+to work.
+Use the command below:
+
+sudo apt-get install dh-make devscripts build-essential wget fakeroot liburi-perl debhelper pbuilder
+
+The generated deb file will be saved in "install/tangaza-*.deb".
+You should then run install/install.sh to install tangaza-*.deb.
