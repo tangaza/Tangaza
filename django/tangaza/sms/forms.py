@@ -170,6 +170,9 @@ class ThreadLocals(object):
     def process_request(self, request):
         _thread_locals.request = request
 
+ERR_NO_PROFILE = u'The admin has no Tangaza member profile. ' \
+    'You need to add all details for this admin from the Auth section in the homepage to proceed.'
+
 class OrgForm(forms.ModelForm):
     class Meta:
         model = Organization
@@ -177,28 +180,31 @@ class OrgForm(forms.ModelForm):
     def clean(self):
         org_admin = self.cleaned_data['org_admin']
         if not org_admin.member_profile_id:
-            logger.error(u'User has no no associated member profile')
-            raise forms.ValidationError(u'The admin has no Tangaza member profile. You need to add all details for this admin from the Auth section in the homepage to proceed.')
+            logger.error(ERR_NO_PROFILE)
+            raise forms.ValidationError(ERR_NO_PROFILE)
         return self.cleaned_data
 
 #User customization
 class UserForm(forms.ModelForm):
     class Meta:
         model = Users
-              
-#    def clean(self):
-#        request = getattr(_thread_locals, 'request', None)
-#        if request.user.is_superuser:
-#            msg = u'Superusers cannot edit this form at the moment'
-#            logger.error(msg)
-#            raise forms.ValidationError(msg)
-
-#        return self.cleaned_data
+    
+    def clean(self):
+        request = getattr(_thread_locals, 'request', None)
+        if request.user.is_superuser and not org_admin.member_profile_id:
+            logger.error(ERR_NO_PROFILE)
+            raise forms.ValidationError(ERR_NO_PROFILE)
+        
+        return self.cleaned_data
 
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Groups
     
+    def save(self, force_insert=False, force_update=False, commit=True):
+        logger.error('Doing smthing')
+        group_form = super(GroupForm, self).save(commit=False)
+        
     def clean_is_active(self):
         
         if self.cleaned_data['is_active'] and not self.instance.group_name_file:
@@ -208,13 +214,9 @@ class GroupForm(forms.ModelForm):
             raise forms.ValidationError(msg)
         return self.cleaned_data['is_active']
     
-#    def clean(self):
-#        request = getattr(_thread_locals, 'request', None)
-#        
-#        if request.user.is_superuser:
-#            msg = u'Superusers cannot edit forms at the moment'
-#            logger.error(msg)
-#            raise forms.ValidationError(msg)
-#        
-#        return self.cleaned_data
+    def clean(self):
+        request = getattr(_thread_locals, 'request', None)
+        if request.user.is_superuser and not org_admin.member_profile_id:
+            logger.error(ERR_NO_PROFILE)
+            raise forms.ValidationError(ERR_NO_PROFILE)
 

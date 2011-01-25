@@ -62,12 +62,16 @@ def resolve_user (func):
 def get_user_by_phone (phone):
     return Users.resolve(phone)
 
-def auto_alloc_slot(user):
+def auto_alloc_slot(user, is_super_user = False):
     logger.info("Auto allocation slot number")
     
     from sets import Set
     
-    slots = Set(range(1, 10))
+    if is_super_user:
+        slots = Set(range(1,1000))
+    else:
+        slots = Set(range(1, 10))
+    
     used_slots = Set(user.get_used_slots())
     free_slots = slots.difference(used_slots)
     slots = list(free_slots)

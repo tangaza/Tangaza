@@ -102,11 +102,16 @@ class GroupsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             if request.user.is_superuser:
+                #user picks this from the org field
                 logger.error('Org on form: %s' % obj.org)
             else:
                 org = request.user.organization_set.get()
                 obj.org = org
         obj.save()
+    
+    def delete_model(self, request, obj):
+        logger.error('Trying to delete')
+        obj.delete(request.user.member_profile, obj)
 
 admin.site.register(Groups, GroupsAdmin)
 
@@ -153,14 +158,19 @@ class OrganizationAdmin(admin.ModelAdmin):
     form = OrgForm
     
     def save_model(self, request, obj, form, change):
-        org = obj.save()
         #Note: This will only ever execute for superuser(s)
+        org = obj.save()
+        
         #create group with similar name
         logger.error('Org details %s: ' % obj.org_id)
         grp_name = slugify(obj.org_name).replace('-','')
-        slot = utility.auto_alloc_slot(obj.org_admin.member_profile)
-        g = Groups.create(obj.org_admin.member_profile, grp_name, slot, org = obj)
+        user = request.user
+        slot = utility.auto_alloc_slot(user.member_profile, user.is_super_user)
+        g = Groups.create(user.member_profile, grp_name, slot, org = obj)
         logger.error('Created Group %s for org %s' % (obj, g))
+        
+        #Add root as admin to every group
+        g.add_admin(user.member_profile, user.member_profile)
 
 admin.site.register(Organization, OrganizationAdmin)
 

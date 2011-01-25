@@ -368,6 +368,7 @@ CREATE TABLE `organization` (
   `org_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `org_name` varchar(90) NOT NULL,
   `org_admin_id` int(11) NOT NULL,
+  `is_active` enum('yes') NULL,
   PRIMARY KEY (`org_id`),
   KEY `org_admin_id` (`org_admin_id`),
   CONSTRAINT `organization_ibfk_1` FOREIGN KEY (`org_admin_id`) REFERENCES `auth_user` (`id`)

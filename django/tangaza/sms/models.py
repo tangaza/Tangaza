@@ -35,10 +35,13 @@ logger = logging.getLogger('tangaza_logger')
 
 # Default slot is 1 (not 0)
 
+ACTIVE_CHOICES = ((u'yes', u'Yes'),)
 class Organization(models.Model):
     org_id = models.AutoField(primary_key=True)
     org_name = models.CharField(max_length=100)
     org_admin = models.ForeignKey(AuthUser)
+    is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
+    
     class Meta:
         db_table = u'organization'
         #app_label = u'Tangaza'
@@ -46,6 +49,10 @@ class Organization(models.Model):
     def __unicode__(self):
         return self.org_name
     
+    def delete (self):
+        self.is_active = None
+        self.save()
+        
 class SmsLog (models.Model):
     sms_id = models.AutoField(primary_key=True)
     sender = models.CharField(max_length=20)
@@ -246,7 +253,7 @@ class Users(models.Model):
 YES_NO_CHOICES = ((u'yes', u'Yes'),(u'no', u'No'),)
 
 class Groups(models.Model):
-    ACTIVE_CHOICES = ((u'yes', u'Yes'),)
+    
     GROUP_TYPES = ((u'mine', u'Mine'), (u'private', u'Private'), (u'public', u'Public'))
     
     group_id = models.AutoField(primary_key=True)
@@ -409,9 +416,10 @@ class Groups(models.Model):
         
         #usr_hist = UserGroupHistory(group = group, action = action, user = user)
         #usr_hist.save()
+        return group
 
     @classmethod
-    def delete (cls, admin, group):
+    def delete (cls, admin=None, group=None):
         grp = cls.objects.get(group_id = group.group_id)
         grp.is_active = None
         UserGroups.objects.filter (group = group).delete()
