@@ -28,6 +28,81 @@ import logging
 
 logger = logging.getLogger('tangaza_logger')
 
+
+###############################################################################
+# Copied from actions.py to override the default delete function
+#
+###############################################################################
+admin.site.disable_action('delete_selected')
+def custom_bulk_delete(modeladmin, request, queryset):
+    """
+    Default action which deletes the selected objects.
+    This action first displays a confirmation page whichs shows all the
+    deleteable objects, or, if the user has no permission one of the related
+    childs (foreignkeys), a "permission denied" message.
+
+    Next, it delets all selected objects and redirects back to the change list.
+    """
+    opts = modeladmin.model._meta
+    app_label = opts.app_label
+
+    # Check that the user has delete permission for the actual model
+    if not modeladmin.has_delete_permission(request):
+        raise PermissionDenied
+
+    # Populate deletable_objects, a data structure of all related objects that
+    # will also be deleted.
+
+    # deletable_objects must be a list if we want to use '|unordered_list' in the template
+    deletable_objects = []
+    perms_needed = set()
+    i = 0
+    for obj in queryset:
+        deletable_objects.append([mark_safe(u'%s: <a href="%s/">%s</a>' % (escape(force_unicode(capfirst(opts.verbose_name))), obj.pk, escape(obj))), []])
+        get_deleted_objects(deletable_objects[i], perms_needed, request.user, obj, opts, 1, modeladmin.admin_site, levels_to_root=2)
+        i=i+1
+
+    # The user has already confirmed the deletion.
+    # Do the deletion and return a None to display the change list view again.
+    if request.POST.get('post'):
+        if perms_needed:
+            raise PermissionDenied
+        n = queryset.count()
+        if n:
+            for obj in queryset:
+                obj_display = force_unicode(obj)
+
+                obj.delete()
+
+                modeladmin.log_deletion(request, obj, obj_display)
+            #queryset.delete()
+            modeladmin.message_user(request, _("Successfully deleted %(count)d %(items)s.") % {
+                "count": n, "items": model_ngettext(modeladmin.opts, n)
+            })
+        # Return None to display the change list page again.
+        return None
+
+    context = {
+        "title": _("Are you sure?"),
+        "object_name": force_unicode(opts.verbose_name),
+        "deletable_objects": deletable_objects,
+        'queryset': queryset,
+        "perms_lacking": perms_needed,
+        "opts": opts,
+        "root_path": modeladmin.admin_site.root_path,
+        "app_label": app_label,
+        'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+    }
+
+    # Display the confirmation page
+    return render_to_response(modeladmin.delete_confirmation_template or [
+        "admin/%s/%s/reservation_bulk_delete_confirmation.html" % (app_label, opts.object_name.lower()),
+        "admin/%s/reservation_bulk_delete_confirmation.html" % app_label,
+        "admin/reservation_bulk_delete_confirmation.html"
+    ], context, context_instance=template.RequestContext(request))
+
+###############################################################################
+
 def filtered_user_queryset(request):
     org = request.user.organization_set.get()
     groups = Groups.objects.filter(org = org)
@@ -76,12 +151,13 @@ class UserPhonesInline(admin.TabularInline):
 
 #Groups customization
 class GroupsAdmin(admin.ModelAdmin):
-    list_display = ('group_name', 'group_type', 'is_active')
-    list_filter = ('group_type', 'is_active')
+    list_display = ['group_name', 'group_type', 'is_active']
+    list_filter = ['group_type', 'is_active']
     inlines = [GroupAdminInline, UserGroupInline]
     search_fields = ['group_name']
     form = GroupForm
     fields = ['group_name', 'group_type', 'is_active']
+    actions  = ['custom_delete_selected']
     
     def add_view(self, request, form_url='', extra_context=None):
         if request.user.is_superuser and not self.fields.__contains__('org'):
@@ -109,8 +185,32 @@ class GroupsAdmin(admin.ModelAdmin):
                 obj.org = org
         obj.save()
     
+#    def get_actions(self, request):
+#        actions = super(GroupsAdmin, self).get_actions(request)
+#        del actions['delete_selected']
+#        return actions
+    
+    def custom_delete_selected(self, request, queryset):
+        
+        if request.user.member_profile_id == None:
+            self.message_user(request, "You need to create a member profile for yourself before you can proceed")
+            return 
+        for obj in queryset:
+            Groups.delete(request.user.member_profile, obj)
+        
+        if queryset.count() == 1:
+            message_bit = "1 group  was"
+        else:
+            message_bit = "%s groups were" % queryset.count()
+        self.message_user(request, "%s successfully deleted." % message_bit)
+        
+    custom_delete_selected.short_description = "Delete selected groups"
+    
     def delete_model(self, request, obj):
-        logger.error('Trying to delete')
+        import sys
+        sys.stdout = sys.stderr
+        print 'Trying to delete'
+        
         obj.delete(request.user.member_profile, obj)
 
 admin.site.register(Groups, GroupsAdmin)
@@ -156,21 +256,48 @@ admin.site.register(Users, UserAdmin)
 
 class OrganizationAdmin(admin.ModelAdmin):
     form = OrgForm
+    actions = ['custom_delete_selected', 'activate_selected']
+    list_filter = ['is_active']
+    list_display = ['org_name', 'is_active']
+    
+    def custom_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.delete()
+        
+        if queryset.count() == 1:
+            message_bit = "1 organization was"
+        else:
+            message_bit = "%s organizations were" % queryset.count()
+        self.message_user(request, "%s successfully deleted." % message_bit)
+        
+    custom_delete_selected.short_description = "Delete selected organizations"
+
+    def activate_selected(self, request, queryset):
+        for obj in queryset:
+            obj.activate()
+        
+        if queryset.count() == 1:
+            message_bit = "1 organization was"
+        else:
+            message_bit = "%s organizations were" % queryset.count()
+        self.message_user(request, "%s successfully activated." % message_bit)
+        
+    activate_selected.short_description = "Activate selected organizations"
     
     def save_model(self, request, obj, form, change):
         #Note: This will only ever execute for superuser(s)
         org = obj.save()
-        
-        #create group with similar name
-        logger.error('Org details %s: ' % obj.org_id)
-        grp_name = slugify(obj.org_name).replace('-','')
-        user = request.user
-        slot = utility.auto_alloc_slot(user.member_profile, user.is_super_user)
-        g = Groups.create(user.member_profile, grp_name, slot, org = obj)
-        logger.error('Created Group %s for org %s' % (obj, g))
-        
-        #Add root as admin to every group
-        g.add_admin(user.member_profile, user.member_profile)
+        if not change:
+            #create group with similar name
+            logger.error('Org details %s: ' % obj.org_id)
+            grp_name = slugify(obj.org_name).replace('-','')
+            user = request.user
+            slot = utility.auto_alloc_slot(user.member_profile, user.is_super_user)
+            g = Groups.create(user.member_profile, grp_name, slot, org = obj)
+            logger.error('Created Group %s for org %s' % (obj, g))
+            
+            #Add root as admin to every group
+            g.add_admin(user.member_profile, user.member_profile)
 
 admin.site.register(Organization, OrganizationAdmin)
 

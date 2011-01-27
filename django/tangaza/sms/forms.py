@@ -191,7 +191,7 @@ class UserForm(forms.ModelForm):
     
     def clean(self):
         request = getattr(_thread_locals, 'request', None)
-        if request.user.is_superuser and not org_admin.member_profile_id:
+        if request.user.member_profile_id == None:
             logger.error(ERR_NO_PROFILE)
             raise forms.ValidationError(ERR_NO_PROFILE)
         
@@ -216,7 +216,8 @@ class GroupForm(forms.ModelForm):
     
     def clean(self):
         request = getattr(_thread_locals, 'request', None)
-        if request.user.is_superuser and not org_admin.member_profile_id:
+        
+        if request.user.member_profile_id:
             logger.error(ERR_NO_PROFILE)
             raise forms.ValidationError(ERR_NO_PROFILE)
 

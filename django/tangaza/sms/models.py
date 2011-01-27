@@ -39,7 +39,7 @@ ACTIVE_CHOICES = ((u'yes', u'Yes'),)
 class Organization(models.Model):
     org_id = models.AutoField(primary_key=True)
     org_name = models.CharField(max_length=100)
-    org_admin = models.ForeignKey(AuthUser)
+    org_admin = models.ForeignKey(AuthUser, verbose_name=u'Organization Admin')
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
     
     class Meta:
@@ -52,7 +52,21 @@ class Organization(models.Model):
     def delete (self):
         self.is_active = None
         self.save()
+
+        #Change the users staff status
+        auth_user = AuthUser.objects.get(id = self.org_admin.id)
+        auth_user.is_staff = 0
+        auth_user.save()
         
+    def activate(self):
+        self.is_active = 'yes'
+        self.save()
+        
+        #Change the users staff status
+        auth_user = AuthUser.objects.get(id = self.org_admin.id)
+        auth_user.is_staff = 1
+        auth_user.save()
+
 class SmsLog (models.Model):
     sms_id = models.AutoField(primary_key=True)
     sender = models.CharField(max_length=20)
@@ -694,6 +708,4 @@ def organization_created(sender, **kwargs):
         return
     instance = kwargs['instance']
     
-    #create group with same name
-    
-#post_save.connect(organization_created, sender=Organization)
+post_save.connect(organization_created, sender=Organization)
