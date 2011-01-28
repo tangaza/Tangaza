@@ -34,73 +34,6 @@ logger = logging.getLogger('tangaza_logger')
 #
 ###############################################################################
 admin.site.disable_action('delete_selected')
-def custom_bulk_delete(modeladmin, request, queryset):
-    """
-    Default action which deletes the selected objects.
-    This action first displays a confirmation page whichs shows all the
-    deleteable objects, or, if the user has no permission one of the related
-    childs (foreignkeys), a "permission denied" message.
-
-    Next, it delets all selected objects and redirects back to the change list.
-    """
-    opts = modeladmin.model._meta
-    app_label = opts.app_label
-
-    # Check that the user has delete permission for the actual model
-    if not modeladmin.has_delete_permission(request):
-        raise PermissionDenied
-
-    # Populate deletable_objects, a data structure of all related objects that
-    # will also be deleted.
-
-    # deletable_objects must be a list if we want to use '|unordered_list' in the template
-    deletable_objects = []
-    perms_needed = set()
-    i = 0
-    for obj in queryset:
-        deletable_objects.append([mark_safe(u'%s: <a href="%s/">%s</a>' % (escape(force_unicode(capfirst(opts.verbose_name))), obj.pk, escape(obj))), []])
-        get_deleted_objects(deletable_objects[i], perms_needed, request.user, obj, opts, 1, modeladmin.admin_site, levels_to_root=2)
-        i=i+1
-
-    # The user has already confirmed the deletion.
-    # Do the deletion and return a None to display the change list view again.
-    if request.POST.get('post'):
-        if perms_needed:
-            raise PermissionDenied
-        n = queryset.count()
-        if n:
-            for obj in queryset:
-                obj_display = force_unicode(obj)
-
-                obj.delete()
-
-                modeladmin.log_deletion(request, obj, obj_display)
-            #queryset.delete()
-            modeladmin.message_user(request, _("Successfully deleted %(count)d %(items)s.") % {
-                "count": n, "items": model_ngettext(modeladmin.opts, n)
-            })
-        # Return None to display the change list page again.
-        return None
-
-    context = {
-        "title": _("Are you sure?"),
-        "object_name": force_unicode(opts.verbose_name),
-        "deletable_objects": deletable_objects,
-        'queryset': queryset,
-        "perms_lacking": perms_needed,
-        "opts": opts,
-        "root_path": modeladmin.admin_site.root_path,
-        "app_label": app_label,
-        'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
-    }
-
-    # Display the confirmation page
-    return render_to_response(modeladmin.delete_confirmation_template or [
-        "admin/%s/%s/reservation_bulk_delete_confirmation.html" % (app_label, opts.object_name.lower()),
-        "admin/%s/reservation_bulk_delete_confirmation.html" % app_label,
-        "admin/reservation_bulk_delete_confirmation.html"
-    ], context, context_instance=template.RequestContext(request))
-
 ###############################################################################
 
 def filtered_user_queryset(request):
@@ -168,6 +101,79 @@ class GroupsAdmin(admin.ModelAdmin):
         if request.user.is_superuser and not self.fields.__contains__('org'):
             self.fields.append('org')
         return super(GroupsAdmin, self).change_view(request, object_id, extra_context)
+
+###############################################################################
+# Copied from options.py to override the default delete_view method
+# There has to be a better way to implement my own models delete method
+###############################################################################
+    
+    def delete_view(self, request, object_id, extra_context=None):
+        from django.contrib.admin.util import unquote, get_deleted_objects
+        from django.utils.safestring import mark_safe
+        from django.utils.html import escape
+        from django.utils.encoding import force_unicode
+        from django.utils.text import capfirst
+        from django import forms, template
+        from django.shortcuts import get_object_or_404, render_to_response
+        from django.http import Http404, HttpResponse, HttpResponseRedirect
+        
+        "The 'delete' admin view for this model."
+        opts = self.model._meta
+        app_label = opts.app_label
+
+        try:
+            obj = self.queryset(request).get(pk=unquote(object_id))
+        except self.model.DoesNotExist:
+            # Don't raise Http404 just yet, because we haven't checked
+            # permissions yet. We don't want an unauthenticated user to be able
+            # to determine whether a given object exists.
+            obj = None
+            
+        if not self.has_delete_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
+        
+        # Populate deleted_objects, a data structure of all related objects that
+        # will also be deleted.
+        deleted_objects = [mark_safe(u'%s: <a href="../../%s/">%s</a>' % (escape(force_unicode(capfirst(opts.verbose_name))), object_id, escape(obj))), []]
+        perms_needed = set()
+        get_deleted_objects(deleted_objects, perms_needed, request.user, obj, opts, 1, self.admin_site)
+        
+        if request.POST: # The user has already confirmed the deletion.
+            if perms_needed:
+                raise PermissionDenied
+            obj_display = force_unicode(obj)
+            self.log_deletion(request, obj, obj_display)
+            #obj.delete()
+            # This is the override
+            Groups.delete(request.user.member_profile, obj)
+            
+            self.message_user(request, u'The %(name)s "%(obj)s" was deleted successfully.' % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj_display)})
+            
+            if not self.has_change_permission(request, None):
+                return HttpResponseRedirect("../../../../")
+            return HttpResponseRedirect("../../")
+        
+        context = {
+            "title": u"Are you sure?",
+            "object_name": force_unicode(opts.verbose_name),
+            "object": obj,
+            "deleted_objects": deleted_objects,
+            "perms_lacking": perms_needed,
+            "opts": opts,
+            "root_path": self.admin_site.root_path,
+            "app_label": app_label,
+	}
+        context.update(extra_context or {})
+        context_instance = template.RequestContext(request, current_app=self.admin_site.name)
+        return render_to_response(self.delete_confirmation_template or [
+            "admin/%s/%s/delete_confirmation.html" % (app_label, opts.object_name.lower()),
+            "admin/%s/delete_confirmation.html" % app_label,
+            "admin/delete_confirmation.html"
+        ], context, context_instance=context_instance)
+
+###############################################################################
     
     def queryset(self, request):
         qs = super(GroupsAdmin, self).queryset(request)
@@ -206,13 +212,6 @@ class GroupsAdmin(admin.ModelAdmin):
         
     custom_delete_selected.short_description = "Delete selected groups"
     
-    def delete_model(self, request, obj):
-        import sys
-        sys.stdout = sys.stderr
-        print 'Trying to delete'
-        
-        obj.delete(request.user.member_profile, obj)
-
 admin.site.register(Groups, GroupsAdmin)
 
 #Users customization
@@ -224,6 +223,19 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ['name_text']
     ordering = ['name_text']
     fields = ['name_text', 'user_pin']
+    actions = ['custom_delete_selected']
+    
+    def custom_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.delete()
+        
+        if queryset.count() == 1:
+            message_bit = "1 member was"
+        else:
+            message_bit = "%s members were" % queryset.count()
+        self.message_user(request, "%s successfully deleted." % message_bit)
+        
+    custom_delete_selected.short_description = "Delete selected members"
     
     def save_model(self, request, obj, form, change):
         obj.save()

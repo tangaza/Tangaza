@@ -110,6 +110,10 @@ class Users(models.Model):
         #return self.userphones_set.get().phone_number
         return self.name_text
     
+    def delete(self):
+        #override the default delete for now
+        pass
+    
     def set_name (self, name):
         self.name_text = name
         self.save()
