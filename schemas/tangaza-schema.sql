@@ -385,9 +385,10 @@ CREATE TABLE `groups` (
   `group_name_file` varchar(32) NULL,
   `group_type` enum('mine', 'private', 'public') NOT NULL default 'private',
   `is_active` enum('yes') NULL,
+  `is_deleted` enum('yes') NULL,
   `org_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`group_id`),
-  UNIQUE KEY `group_name` (`group_name`, `is_active`),
+  UNIQUE KEY `group_name` (`group_name`, `is_deleted`),
   KEY `org_id` (`org_id`),
   CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organization` (`org_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

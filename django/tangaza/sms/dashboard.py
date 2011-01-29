@@ -47,7 +47,7 @@ def get_users (request, sort_col="datetime"):
     pub.query.group_by = ['date(timestamp)']
 
     #groups
-    group_count = Groups.objects.extra(where=['group_name not regexp("^[0-9]+$")', 'is_active is not null']).count()
+    group_count = Groups.objects.extra(where=['group_name not regexp("^[0-9]+$")', 'is_deleted is null']).count()
     grp = PubMessages.objects.extra(
         select={'count':'count(group_name)', 'group_name':'group_name'},
         tables=['groups'], where=['group_id=channel'], order_by = ['-count'])[:1]

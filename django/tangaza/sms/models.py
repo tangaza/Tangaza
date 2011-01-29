@@ -49,15 +49,6 @@ class Organization(models.Model):
     def __unicode__(self):
         return self.org_name
     
-    def delete (self):
-        self.is_active = None
-        self.save()
-
-        #Change the users staff status
-        auth_user = AuthUser.objects.get(id = self.org_admin.id)
-        auth_user.is_staff = 0
-        auth_user.save()
-        
     def activate(self):
         self.is_active = 'yes'
         self.save()
@@ -66,6 +57,18 @@ class Organization(models.Model):
         auth_user = AuthUser.objects.get(id = self.org_admin.id)
         auth_user.is_staff = 1
         auth_user.save()
+        
+    def deactivate(self):
+        self.is_active = None
+        self.save()
+        
+        #Change the users staff status
+        auth_user = AuthUser.objects.get(id = self.org_admin.id)
+        auth_user.is_staff = 0
+        auth_user.save()
+        
+    def delete (self):
+        self.deactivate()
 
 class SmsLog (models.Model):
     sms_id = models.AutoField(primary_key=True)
@@ -198,9 +201,7 @@ class Users(models.Model):
 
     def can_send(self, group):
         # assume membership already checked
-        if group.is_public():
-            return True
-        if self.is_mine(group):
+        if (group.is_public() or self.is_mine(group)) and group.is_active == 'yes':
             return True
         return False
 
@@ -241,31 +242,6 @@ class Users(models.Model):
                                  user = user, is_primary = 'yes')
         user_phone.save()
         
-        # NOTE: The commented bit below is now handled by user_created signal
-        # to be removed once fully tested
-        #group = Groups (group_name = own_group, group_type = 'mine', is_active = 'yes')
-        #group.save()
-        
-        #user_group = UserGroups (user = user, group = group, slot = 1, is_quiet = 'no')
-        #user_group.save()
-        
-        #action = Actions.objects.get (action_desc = 'joined group')
-        #user_grp_hist = UserGroupHistory (group = group, action = action,
-        #                                  user = user)
-        #user_grp_hist.save()
-        
-        #grp_admin = GroupAdmin(user = user, group = group)
-        #grp_admin.save()
-        
-        #action = Actions.objects.get (action_desc = 'created user')
-        #admin_group_hist = AdminGroupHistory (group = group, action = action,
-        #                                      user_src = user, user_dst = user)
-        #admin_group_hist.save()
-
-        #additional info
-        #user.phone_number = phone
-        #user.language = ""
-
         return user
     
 YES_NO_CHOICES = ((u'yes', u'Yes'),(u'no', u'No'),)
@@ -279,33 +255,39 @@ class Groups(models.Model):
     group_name_file = models.CharField(max_length=60, null = True, blank = True)
     group_type = models.CharField(max_length=21, choices=GROUP_TYPES[1:], default = u'private')
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
+    is_deleted = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
     org = models.ForeignKey(Organization)
     
     class Meta:
         db_table = u'groups'
         #app_label = u'Tangaza'
-        unique_together = ("group_name","is_active")
+        unique_together = ('group_name','is_deleted')
         ordering = ['group_name']
         verbose_name = u'Group'
         
     def __unicode__(self):
-        #for group admin to work we cant return in this format 
-        #        return '[id=' + str(self.group_id) + ',name=' + self.group_name + ',type=' + self.group_type + ',active=' + self.is_active+']'
         return self.group_name
-
+    
+    def activate(self):
+        self.is_active = 'yes'
+        self.save()
+    
+    def deactivate(self):
+        self.is_active = None
+        self.save()
+    
     def get_admin_count (self):
         admins = GroupAdmin.objects.filter (group = self)
         return admins.count()
-
+    
     def get_user_count(self):
         user_set = UserGroups.objects.filter (group = self)
         #logger.debug ("count = %d" % len(user_set))
         return user_set.count()
-
-
+    
     def is_public(self):
         return self.group_type == 'public'
-
+    
     def is_private(self):
         return self.group_type == 'private'
     
@@ -405,7 +387,7 @@ class Groups(models.Model):
             logger.debug ("used: user_group %s" % grps)
             if len(grps) > 0: group  = grps[0].group
         else:
-            grps = Groups.objects.filter(group_name = name_or_slot, is_active = 'yes')
+            grps = Groups.objects.filter(group_name = name_or_slot, is_deleted = None, is_active = 'yes')
             logger.debug ("used: group %s" % grps)
             if len(grps) > 0: group  = grps[0]
 
@@ -413,7 +395,7 @@ class Groups(models.Model):
 
     @classmethod
     def is_name_available (cls, name):
-        grps = cls.objects.filter(group_name = name, is_active = 'yes')
+        grps = cls.objects.filter(group_name = name, is_deleted = None)
         return len(grps) < 1
     
     @classmethod
@@ -427,24 +409,18 @@ class Groups(models.Model):
         usr_grp = UserGroups(group = group, user = user, is_quiet = 'no', slot = slot)
         usr_grp.save()
         
-        # NOTE: the commented bit handled by signals. still testing
-        #action = Actions.objects.get(action_desc = 'created group')
-        #hist = AdminGroupHistory(group = group, action = action, user_src = user, user_dst = user)
-        #hist.save()
-        
-        #usr_hist = UserGroupHistory(group = group, action = action, user = user)
-        #usr_hist.save()
         return group
-
+    
     @classmethod
     def delete (cls, admin=None, group=None):
         grp = cls.objects.get(group_id = group.group_id)
+        grp.is_deleted = 'yes'
         grp.is_active = None
         UserGroups.objects.filter (group = group).delete()
         GroupAdmin.objects.filter (group = group).delete()
         Invitations.objects.filter (group = group).delete()
         grp.save()
-
+        
         action = Actions.objects.get(action_desc = 'deleted group')
         hist = AdminGroupHistory(group = group, action = action, user_src = admin, user_dst = admin)
         hist.save()
@@ -517,7 +493,7 @@ class GroupAdmin(models.Model):
         unique_together = (('user', 'group'))
     
     def __unicode__(self):
-        return self.group.group_name
+        return "Group: %s, Admin: %s" % (self.group.group_name, self.user.name_text)
     
 class Invitations(models.Model):
     invitation_id = models.AutoField(primary_key=True)
@@ -564,7 +540,7 @@ class UserGroups(models.Model):
         unique_together = (('user','slot'), ('user','group'),)
 
     def __unicode__(self):
-        return "Group: %s, Slot: %d" % (self.group.group_name, self.slot)
+        return "Group: %s, User: %s, Slot: %d" % (self.group.group_name, self.user.name_text, self.slot)
     
 class UserPhones(models.Model):
     phone_id = models.AutoField(primary_key=True)
@@ -674,7 +650,7 @@ def user_created(sender, **kwargs):
     if len(u) > 1:
         return
     
-    group = Groups (group_name = instance.phone_number, group_type = 'mine', is_active = 'yes')
+    group = Groups (group_name = instance.phone_number, group_type = 'mine')
     group.save()
     
     user_group = UserGroups (user = user, group = group, slot = 1, is_quiet = 'no')

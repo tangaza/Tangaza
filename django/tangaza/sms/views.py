@@ -67,7 +67,7 @@ def join_group (request, user, language, group_name, slot, smsc = 'mosms'):
 	if group is None:
 		logger.info ("smsc: %s user: %s unknown_group %s" % (smsc, user, group_name))
 		return language.unknown_group(group_name)
-
+	
 	from django.conf import settings
 	return request_join (user, language, group, slot, settings.SMS_VOICE[smsc])
 
@@ -88,7 +88,7 @@ def index(request, user, language, raw_text, smsc = 'mosms'):
 	
 	raw_text = urllib.unquote_plus(raw_text)
 	logger.debug ("user info " + raw_text)
-
+	
 	sms_log = SmsLog(sender = user.phone_number, text = raw_text)
 	sms_log.save()
 	
@@ -121,10 +121,8 @@ def index(request, user, language, raw_text, smsc = 'mosms'):
 			
 			if user.name_text != None : identity = user.name_text
 			msg_text = "%s %s@%s" % (msg_text[:140], identity, group.group_name)
-			
 		
 	return request_send (user, language, msg_text, group, settings.SMS_VOICE[smsc])
-
 
 ##############################################################################
 def request_join (user, language, group, slot, origin):
@@ -146,7 +144,7 @@ def request_join (user, language, group, slot, origin):
 	if len(slot) < 1: #meaning user never provided a slot number
 		slot = auto_alloc_slot(user)
 	
-	if slot == 0 or (slot > 0 and not user.slot_is_empty(slot)):
+	if slot < 1 or (slot > 0 and not user.slot_is_empty(slot)):
 		return language.slot_not_free(slot)
 	
 	if not group.is_public() and not user.was_invited(group):
@@ -154,7 +152,6 @@ def request_join (user, language, group, slot, origin):
 	
 	if group.get_user_count() >= max_group_size:
 		return 'Sorry, groups sizes are limited, so you cannot be added to %s' % group.group_name
-	
 	
 	user.join_group(group, slot, origin)
 	
@@ -186,7 +183,6 @@ def request_send(user, language, msg_text, group, origin):
 		#else:
 		return ('T<%d>: %s' % (receipt_count, msg_text))
 
-
 ##############################################################################
 
 def request_update (user, language):
@@ -194,30 +190,32 @@ def request_update (user, language):
 	import string
 	# XXX Still have to modify this to be lang indep
 	
-	update = ""
+	update = []
 	#1: current groups
 	groups = UserGroups.objects.filter(user = user).extra(order_by = ['slot'])
 	
-	g = [str(x.slot) + "@" + x.group.group_name for x in groups]
+	g = ["%d@%s" % (x.slot, x.group.group_name) for x in groups]
 	g = string.join(g).replace(user.phone_number, 'mine') + ".\n"
-	update += g
+	update.append(g)
 	
 	#2: invitations
 	invitations = Invitations.objects.filter(completed='no', invitation_to = user)
 	i = ""
 	if len(invitations) > 0:
-		i = ["from: " + x.invitation_from.userphones_set.get().phone_number + "->"
-		     + x.group.group_name + "; " for x in invitations]
-	i = "Invitations(" + str(len(invitations)) + ") " + string.join(i) + ".\n"
-	update += i
+		#i = ["from: " + x.invitation_from.userphones_set.get().phone_number + "->"
+		#     + x.group.group_name for x in invitations]
+		i = [("from: %s->%s" % (x.invitation_from.name_text, 
+				      x.group.group_name)) for x in invitations]
+		inv_text = ''.join(["Invitations(%d) " % len(invitations), string.join(i, '; '),  ".\n"])
+		update.append(inv_text)
 	
 	#3: new messages
 	msgs = SubMessages.objects.filter(dst_user = user, heard = 'no')
-
-	update += "Messages(" + str(len(msgs)) + ")"
+	
+	update.append("Messages(%d)" % len(msgs))
 	
 	logger.debug ("user %s" % user)	
-	return language.user_update(update)
+	return language.user_update(''.join(update))
 
 ##############################################################################
 def request_leave (user, language, group):

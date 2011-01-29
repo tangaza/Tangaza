@@ -82,6 +82,23 @@ class UserPhonesInline(admin.TabularInline):
     max_num = 3
     extra = 1
 
+#recursively removes history objects from list of deleted_objects the user sees
+#on the delete confirmation, since they dont need to know about their existence
+def remove_hist_objects(deleted_objects):
+    new_list = []
+    for item_a in deleted_objects:
+        if type(item_a) == type([]):
+            if len(item_a) > 0:
+                new_list.append(remove_hist_objects(item_a))
+            else:
+                new_list.append(item_a)
+        else: #is unicode
+            if not item_a.__contains__('history'):
+                new_list.append(item_a)
+        
+    #remove the empty sets from new_list
+    return [x for x in new_list if x != [[]]]
+
 #Groups customization
 class GroupsAdmin(admin.ModelAdmin):
     list_display = ['group_name', 'group_type', 'is_active']
@@ -90,7 +107,7 @@ class GroupsAdmin(admin.ModelAdmin):
     search_fields = ['group_name']
     form = GroupForm
     fields = ['group_name', 'group_type', 'is_active']
-    actions  = ['custom_delete_selected']
+    actions  = ['custom_delete_selected', 'activate_selected', 'deactivate_selected']
     
     def add_view(self, request, form_url='', extra_context=None):
         if request.user.is_superuser and not self.fields.__contains__('org'):
@@ -132,14 +149,18 @@ class GroupsAdmin(admin.ModelAdmin):
         if not self.has_delete_permission(request, obj):
             raise PermissionDenied
         if obj is None:
-            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
+            raise Http404(u'%(name)s object with primary key %(key)r does not exist.' % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
         
         # Populate deleted_objects, a data structure of all related objects that
         # will also be deleted.
         deleted_objects = [mark_safe(u'%s: <a href="../../%s/">%s</a>' % (escape(force_unicode(capfirst(opts.verbose_name))), object_id, escape(obj))), []]
+        deleted_objects = remove_hist_objects(deleted_objects)
         perms_needed = set()
         get_deleted_objects(deleted_objects, perms_needed, request.user, obj, opts, 1, self.admin_site)
-        
+        deleted_objects = remove_hist_objects(deleted_objects)
+        import sys
+        sys.stdout = sys.stderr
+        print deleted_objects
         if request.POST: # The user has already confirmed the deletion.
             if perms_needed:
                 raise PermissionDenied
@@ -172,14 +193,15 @@ class GroupsAdmin(admin.ModelAdmin):
             "admin/%s/delete_confirmation.html" % app_label,
             "admin/delete_confirmation.html"
         ], context, context_instance=context_instance)
-
+    
 ###############################################################################
     
     def queryset(self, request):
         qs = super(GroupsAdmin, self).queryset(request)
         if not request.user.is_superuser:
             qs = qs.filter(org = request.user.organization_set.get())
-        return qs.exclude(group_type = 'mine')
+            qs.exclude(group_type = 'mine', is_deleted = 'yes')
+        return qs
     
     def save_model(self, request, obj, form, change):
         if not change:
@@ -212,6 +234,30 @@ class GroupsAdmin(admin.ModelAdmin):
         
     custom_delete_selected.short_description = "Delete selected groups"
     
+    def activate_selected(self, request, queryset):
+        for obj in queryset:
+            obj.activate()
+        
+        if queryset.count() == 1:
+            message_bit = "1 group was"
+        else:
+            message_bit = "%s groups were" % queryset.count()
+        self.message_user(request, "%s successfully activated." % message_bit)
+        
+    activate_selected.short_description = "Activate selected groups"
+    
+    def deactivate_selected(self, request, queryset):
+        for obj in queryset:
+            obj.deactivate()
+        
+        if queryset.count() == 1:
+            message_bit = "1 group was"
+        else:
+            message_bit = "%s groups were" % queryset.count()
+        self.message_user(request, "%s successfully deactivated." % message_bit)
+        
+    deactivate_selected.short_description = "Deactivate selected groups"
+
 admin.site.register(Groups, GroupsAdmin)
 
 #Users customization
@@ -268,22 +314,22 @@ admin.site.register(Users, UserAdmin)
 
 class OrganizationAdmin(admin.ModelAdmin):
     form = OrgForm
-    actions = ['custom_delete_selected', 'activate_selected']
+    actions = ['deactivate_selected', 'activate_selected']
     list_filter = ['is_active']
     list_display = ['org_name', 'is_active']
     
-    def custom_delete_selected(self, request, queryset):
+    def deactivate_selected(self, request, queryset):
         for obj in queryset:
-            obj.delete()
+            obj.deactivate()
         
         if queryset.count() == 1:
             message_bit = "1 organization was"
         else:
             message_bit = "%s organizations were" % queryset.count()
-        self.message_user(request, "%s successfully deleted." % message_bit)
+        self.message_user(request, "%s successfully deactivated." % message_bit)
         
-    custom_delete_selected.short_description = "Delete selected organizations"
-
+    deactivate_selected.short_description = "Deactivate selected organizations"
+    
     def activate_selected(self, request, queryset):
         for obj in queryset:
             obj.activate()
