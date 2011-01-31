@@ -182,6 +182,15 @@ class OrgForm(forms.ModelForm):
         if not org_admin.member_profile_id:
             logger.error(ERR_NO_PROFILE)
             raise forms.ValidationError(ERR_NO_PROFILE)
+        
+        #dont allow someone to be the admin of more than one group
+        orgs = Organization.objects.filter(org_admin = org_admin)
+        if len(orgs) > 0:
+            msg = u'The user is already the administrator for %s. ' \
+                'A user cannot be the administrator for more than one organization' % orgs[0].org_name
+            logger.error(msg)
+            raise forms.ValidationError(msg)
+        
         return self.cleaned_data
 
 #User customization

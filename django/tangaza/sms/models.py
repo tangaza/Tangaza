@@ -39,7 +39,7 @@ ACTIVE_CHOICES = ((u'yes', u'Yes'),)
 class Organization(models.Model):
     org_id = models.AutoField(primary_key=True)
     org_name = models.CharField(max_length=100)
-    org_admin = models.ForeignKey(AuthUser, verbose_name=u'Organization Admin')
+    org_admin = models.ForeignKey(AuthUser, verbose_name=u'Organization Admin', unique=True)
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
     
     class Meta:
@@ -178,7 +178,7 @@ class Users(models.Model):
     def leave_group(self, group):
         UserGroups.objects.filter(user = self, group = group).delete()
         GroupAdmin.objects.filter(user = self, group = group).delete()
-
+        
         #action = Actions.objects.get(action_desc = 'left group')
         #hist = UserGroupHistory(user = self, group = group, action = action)
         #hist.save()
