@@ -170,8 +170,8 @@ class ThreadLocals(object):
     def process_request(self, request):
         _thread_locals.request = request
 
-ERR_NO_PROFILE = u'The admin has no Tangaza member profile. ' \
-    'You need to add all details for this admin from the Auth section in the homepage to proceed.'
+ERR_NO_PROFILE = u'%s has no Tangaza member profile. ' \
+    'You need to add all details for this admin from the Auth section to proceed.'
 
 class OrgForm(forms.ModelForm):
     class Meta:
@@ -179,30 +179,37 @@ class OrgForm(forms.ModelForm):
     
     def clean(self):
         org_admin = self.cleaned_data['org_admin']
-        if not org_admin.member_profile_id:
-            logger.error(ERR_NO_PROFILE)
-            raise forms.ValidationError(ERR_NO_PROFILE)
         
-        #dont allow someone to be the admin of more than one group
-        orgs = Organization.objects.filter(org_admin = org_admin)
-        if len(orgs) > 0:
-            msg = u'The user is already the administrator for %s. ' \
-                'A user cannot be the administrator for more than one organization' % orgs[0].org_name
-            logger.error(msg)
-            raise forms.ValidationError(msg)
+        if not org_admin.member_profile_id:
+            logger.error(ERR_NO_PROFILE % org_admin)
+            raise forms.ValidationError(ERR_NO_PROFILE % org_admin)
         
         return self.cleaned_data
 
 #User customization
 class UserForm(forms.ModelForm):
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
+    
     class Meta:
         model = Users
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs['instance']
+        #set the initial value of org to be the users org
+        if user:
+            ug = UserGroups.objects.filter(user = user)
+            if len(ug) > 0:
+                group = ug[0].group
+                initial = kwargs.get('initial', {})
+                initial['organization'] = group.org.org_id
+                kwargs['initial'] = initial
+        return super(UserForm, self).__init__(*args, **kwargs)
     
     def clean(self):
         request = getattr(_thread_locals, 'request', None)
         if request.user.member_profile_id == None:
-            logger.error(ERR_NO_PROFILE)
-            raise forms.ValidationError(ERR_NO_PROFILE)
+            logger.error(ERR_NO_PROFILE % request.user)
+            raise forms.ValidationError(ERR_NO_PROFILE % request.user)
         
         return self.cleaned_data
 
@@ -211,9 +218,9 @@ class GroupForm(forms.ModelForm):
         model = Groups
     
     def save(self, force_insert=False, force_update=False, commit=True):
-        logger.error('Doing smthing')
         group_form = super(GroupForm, self).save(commit=False)
-        
+        return group_form
+    
     def clean_is_active(self):
         
         if self.cleaned_data['is_active'] and not self.instance.group_name_file:
@@ -226,7 +233,8 @@ class GroupForm(forms.ModelForm):
     def clean(self):
         request = getattr(_thread_locals, 'request', None)
         
-        if request.user.member_profile_id:
-            logger.error(ERR_NO_PROFILE)
-            raise forms.ValidationError(ERR_NO_PROFILE)
-
+        if request.user.member_profile_id == None:
+            logger.error(ERR_NO_PROFILE % request.user)
+            raise forms.ValidationError(ERR_NO_PROFILE % request.user)
+        
+        return self.cleaned_data

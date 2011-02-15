@@ -38,13 +38,14 @@ logger = logging.getLogger('tangaza_logger')
 ACTIVE_CHOICES = ((u'yes', u'Yes'),)
 class Organization(models.Model):
     org_id = models.AutoField(primary_key=True)
-    org_name = models.CharField(max_length=100)
-    org_admin = models.ForeignKey(AuthUser, verbose_name=u'Organization Admin', unique=True)
+    org_name = models.CharField(max_length=100, verbose_name='Name')
+    org_admin = models.ForeignKey(AuthUser, verbose_name=u'Administrator', unique=True)
     is_active = models.CharField(max_length=3, choices=ACTIVE_CHOICES, null=True, blank=True)
     
     class Meta:
         db_table = u'organization'
         #app_label = u'Tangaza'
+        #ordering = ['org_name']
         
     def __unicode__(self):
         return self.org_name

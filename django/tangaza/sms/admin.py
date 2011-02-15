@@ -55,7 +55,7 @@ def custom_delete_view(self, request, object_id, extra_context=None):
         # permissions yet. We don't want an unauthenticated user to be able
         # to determine whether a given object exists.
         obj = None
-        
+    
     if not self.has_delete_permission(request, obj):
         raise PermissionDenied
     if obj is None:
@@ -68,9 +68,7 @@ def custom_delete_view(self, request, object_id, extra_context=None):
     perms_needed = set()
     get_deleted_objects(deleted_objects, perms_needed, request.user, obj, opts, 1, self.admin_site)
     deleted_objects = remove_hist_objects(deleted_objects)
-    #import sys
-    #sys.stdout = sys.stderr
-    #print deleted_objects
+    
     if request.POST: # The user has already confirmed the deletion.
         if perms_needed:
             raise PermissionDenied
@@ -275,9 +273,29 @@ class UserAdmin(admin.ModelAdmin):
     fields = ['name_text', 'user_pin']
     actions = ['custom_delete_selected']
     
+    def add_view(self, request, form_url='', extra_context=None):
+        if request.user.is_superuser and not self.fields.__contains__('organization'):
+            self.fields.append('organization')
+        return super(UserAdmin, self).add_view(request, form_url, extra_context)
+    
+    def change_view(self, request, object_id, extra_context=None):
+        if request.user.is_superuser and not self.fields.__contains__('organization'):
+            self.fields.append('organization')
+        return super(UserAdmin, self).change_view(request, object_id, extra_context)
+    
     def delete_view(self, request, object_id, extra_context=None):
         return custom_delete_view(self, request, object_id, extra_context)
-    
+        
+    def filtered_groups_qs(self, request):
+        groups = map(slugify, orgs)
+        return Groups.objects.filter(group_name__in = groups)
+        
+#    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+#        if db_field.name == 'group' and request.user.is_superuser:
+#            kwargs['queryset'] = self.filtered_groups_qs(request)
+#            return db_field.formfield(**kwargs)
+#        return super(OrgAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        
     def custom_delete_selected(self, request, queryset):
         for obj in queryset:
             obj.delete()
@@ -291,6 +309,16 @@ class UserAdmin(admin.ModelAdmin):
     custom_delete_selected.short_description = "Delete selected members"
     
     def save_model(self, request, obj, form, change):
+        if request.user.is_superuser:
+            #pass #catch this on the form                                                                                                                  
+            
+            org_id = request.POST['organization']
+            slot = utility.auto_alloc_slot(obj)
+            org = Organization.objects.get(org_id = int(org_id))
+            grp_name = slugify(org.org_name).replace('-','')
+            group = Groups.objects.get(group_name = grp_name, org = org)
+            obj.join_group(group, slot, None, False)
+            
         obj.save()
         #if adding new user then they'll be added to default
         #group for that organization
@@ -327,7 +355,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     
     def delete_view(self, request, object_id, extra_context=None):
         return custom_delete_view(self, request, object_id, extra_context)
-    
+
     def deactivate_selected(self, request, queryset):
         for obj in queryset:
             obj.deactivate()
