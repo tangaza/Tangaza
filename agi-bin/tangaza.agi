@@ -35,8 +35,8 @@ foreach my $dir ('record','place_call') {
     make_path ($tmp_dir."/$dir/");
 }
 
-my $root_snd_dir = $prefs->{paths}->{NASI_HOME}.'/sounds';
-my $snd_path = "/usr/share/tangaza/sounds/:$root_snd_dir/tangaza/:$root_snd_dir/:/var/lib/asterisk/sounds/";
+my $root_snd_dir = $prefs->{paths}->{NASI_SOUND};
+my $snd_path = "$root_snd_dir/:/var/lib/asterisk/sounds/";
 
 my $server = Nokia::Tangaza::Entry->new
     ({port => 4674,
@@ -44,7 +44,7 @@ my $server = Nokia::Tangaza::Entry->new
       cidr_allow => '127.0.0.1/32',
       app_name => 'Tangaza',
       log_file => $prefs->{paths}->{NASI_LOG}.'tangaza.log',
-      dsn => 'DBI:mysql:database=tangaza;host='.$prefs->{mysql}->{DB_HOST},
+      dsn => 'DBI:mysql:database='.$prefs->{mysql}->{DB_NAME}.';host='.$prefs->{mysql}->{DB_HOST},
       db_user => $prefs->{mysql}->{DB_USER},
       db_pw => $prefs->{mysql}->{DB_PASS},
       sound_path => $snd_path,

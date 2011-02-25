@@ -8,49 +8,49 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("admin_group_history");
 __PACKAGE__->add_columns(
-  "admin_group_hist_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  "id",
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "group_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "action_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "user_src_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "user_dst_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "timestamp",
   {
-    data_type => "TIMESTAMP",
-    default_value => "CURRENT_TIMESTAMP",
+    data_type => "DATETIME",
+    default_value => undef,
     is_nullable => 0,
-    size => 14,
+    size => 19,
   },
 );
-__PACKAGE__->set_primary_key("admin_group_hist_id");
-__PACKAGE__->belongs_to(
-  "group_id",
-  "Nokia::Tangaza::Schema::Groups",
-  { group_id => "group_id" },
-);
+__PACKAGE__->set_primary_key("id");
 __PACKAGE__->belongs_to(
   "action_id",
   "Nokia::Tangaza::Schema::Actions",
-  { action_id => "action_id" },
+  { id => "action_id" },
 );
 __PACKAGE__->belongs_to(
-  "user_src_id",
-  "Nokia::Tangaza::Schema::Users",
-  { user_id => "user_src_id" },
+  "group_id",
+  "Nokia::Tangaza::Schema::Vikundi",
+  { id => "group_id" },
 );
 __PACKAGE__->belongs_to(
   "user_dst_id",
-  "Nokia::Tangaza::Schema::Users",
-  { user_id => "user_dst_id" },
+  "Nokia::Tangaza::Schema::Watumiaji",
+  { id => "user_dst_id" },
+);
+__PACKAGE__->belongs_to(
+  "user_src_id",
+  "Nokia::Tangaza::Schema::Watumiaji",
+  { id => "user_src_id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2009-11-18 14:16:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z4XVTNggdS/4ndENLk7duA
+# Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-02-25 09:53:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PQovHANnNctIMH+FaGd9tw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

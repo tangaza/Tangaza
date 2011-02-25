@@ -8,28 +8,28 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("countries");
 __PACKAGE__->add_columns(
-  "country_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  "id",
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "country_code",
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
+  "country_name",
   {
-    data_type => "SMALLINT",
+    data_type => "VARCHAR",
     default_value => undef,
     is_nullable => 0,
-    size => 6,
+    size => 27,
   },
-  "country_name",
-  { data_type => "VARCHAR", default_value => undef, is_nullable => 0, size => 9 },
 );
-__PACKAGE__->set_primary_key("country_id");
+__PACKAGE__->set_primary_key("id");
 __PACKAGE__->has_many(
   "user_phones",
   "Nokia::Tangaza::Schema::UserPhones",
-  { "foreign.country_id" => "self.country_id" },
+  { "foreign.country_id" => "self.id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2009-11-18 14:16:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Sh4ZA5vi9u2xUgzImCMxKw
+# Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-02-25 09:53:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uB/T+T53xCDwJSJ2WssnJg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

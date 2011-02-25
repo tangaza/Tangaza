@@ -86,11 +86,11 @@ sub about_socnet_main_menu {
 sub main_menu {
     my ($self) = @_;
     
-    $self->{origin} = $self->agi->get_variable('origin');
-    $self->{callout_ext} = $self->agi->get_variable("callout-ext-$self->{origin}");
-    $self->{sms_number} = $self->agi->get_variable("sms-number-$self->{origin}");
+#    $self->{origin} = $self->agi->get_variable('origin');
+#    $self->{callout_ext} = $self->agi->get_variable("callout-ext-$self->{origin}");
+#    $self->{sms_number} = $self->agi->get_variable("sms-number-$self->{origin}");
     
-    $self->log(4, "Call Origin: ".$self->{origin}." Country Code: ".$self->agi->get_variable("ext-$self->{origin}"));
+#    $self->log(4, "Call Origin: ".$self->{origin}." Country Code: ".$self->agi->get_variable("ext-$self->{origin}"));
     
     if ($self->{newuser} == 1) {
 	my $current_language = $self->{user}->{language};
@@ -99,7 +99,7 @@ sub main_menu {
 	
 	if (!defined($self->{played_intro})) {
 	    $self->log ("playing intro");
-	    &stream_file ($self, 'welcome-to-socnet', "#");
+	    &stream_file ($self, $self->{welcome_msg}, "#");
 	    $self->{played_intro} = 1;
 	} else {
 	    $self->log ("played intro NULL");
@@ -213,8 +213,8 @@ sub end_call {
 sub send_sms_directions {
     my ($self) = @_;
 
-    my $directions = "Tangaza, a Nokia alpha service. Empty msg for updates. Send: 'join groupname' to join. Reply: 'help' for more. Send to $self->{sms_number}. Enjoy!";
-    &sms_enqueue ($self, $self->{callerid}, $directions);
+#    my $directions = "Tangaza, a Nokia alpha service. Empty msg for updates. Send: 'join groupname' to join. Reply: 'help' for more. Send to $self->{sms_number}. Enjoy!";
+#    &sms_enqueue ($self, $self->{callerid}, $directions);
     
 }
 
@@ -222,8 +222,8 @@ sub send_sms_directions {
 sub send_sms_how_to_invite {
     my ($self) = @_;
     
-    my $directions = "Send: 'invite groupname friend1 friend2' to invite your friends to Tangaza.  Use friends phone number. Send to $self->{sms_number}";
-    &sms_enqueue ($self, $self->{callerid}, $directions);
+#    my $directions = "Send: 'invite groupname friend1 friend2' to invite your friends to Tangaza.  Use friends phone number. Send to $self->{sms_number}";
+#    &sms_enqueue ($self, $self->{callerid}, $directions);
     
 }
 
@@ -231,16 +231,9 @@ sub send_sms_how_to_invite {
 sub accepted_terms_and_privacy {
     my ($self) = @_;
     
-    $self->{server}{check_terms_sth} =
-	$self->{server}{dbi}->prepare_cached
-	("SELECT accepted_terms from users where user_id = ?");
-    
-    $self->{server}{check_terms_sth}->execute ($self->{user}->{id});
-    my ($status) = $self->{server}{check_terms_sth}->fetchrow_array();
-    $self->{server}{check_terms_sth}->finish ();
-    
-    $self->log(4, "Accepted terms: $status");
-    return $status;
+    my $user = $self->{server}{schema}->resultset('Watumiaji')->find($self->{user}->{id});
+    $self->log(4, "Accepted terms: $user->accepted_terms");
+    return $user->accepted_terms;
 }
 
 ######################################################################
@@ -300,21 +293,13 @@ sub play_privacy {
 sub accept_terms {
     my ($self) = @_;
     
-    #update users
-    $self->{server}{accept_terms_sth} =
-	$self->{server}{dbi}->prepare_cached
-	("UPDATE users SET accepted_terms = 'yes' WHERE user_id = ?");
-    
-    $self->{server}{accept_terms_sth}->execute ($self->{user}->{id});
-    $self->{server}{accept_terms_sth}->finish ();
+    #update members
+    my $user = $self->{server}{schema}->resultset('Watumiaji')->find($self->{user}->{id});
+    $user->update({accepted_terms => 'yes'});
     
     #log
-    $self->{server}{log_accepted_terms_sth} =
-	$self->{server}{dbi}->prepare_cached
-	("INSERT INTO terms_and_privacy (user_id, status) VALUES (?, 'accepted')");
-    
-    $self->{server}{log_accepted_terms_sth}->execute ($self->{user}->{id});
-    $self->{server}{log_accepted_terms_sth}->finish ();
+    my $terms = $self->{server}{schema}->resultset('terms_and_privacy')->create
+	({user_id => $self->{user}->{id}, status => 'accepted'});
     
     return 'ok';
 }
@@ -322,15 +307,11 @@ sub accept_terms {
 ######################################################################
 sub reject_terms {
     my ($self) = @_;
-    
+    #Dont think we need to log this
     #log
-    $self->{server}{log_rejected_terms_sth} =
-	$self->{server}{dbi}->prepare_cached
-	("INSERT INTO terms_and_privacy (user_id, status) VALUES (?, 'rejected')");
+    my $terms = $self->{server}{schema}->resultset('terms_and_privacy')->create
+	({user_id => $self->{user}->{id}, status => 'rejected'});
     
-    $self->{server}{log_rejected_terms_sth}->execute ($self->{user}->{id});
-    $self->{server}{log_rejected_terms_sth}->finish ();
-
     return 'hangup';
 }
 

@@ -1,4 +1,4 @@
-package Nokia::Tangaza::Schema::Organization;
+package Nokia::Tangaza::Schema::AuthPermission;
 
 use strict;
 use warnings;
@@ -6,44 +6,48 @@ use warnings;
 use base 'DBIx::Class';
 
 __PACKAGE__->load_components("Core");
-__PACKAGE__->table("organization");
+__PACKAGE__->table("auth_permission");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
-  "org_name",
+  "name",
   {
     data_type => "VARCHAR",
     default_value => undef,
     is_nullable => 0,
-    size => 270,
+    size => 50,
   },
-  "org_admin_id",
+  "content_type_id",
   { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
-  "toll_free_number",
+  "codename",
   {
     data_type => "VARCHAR",
     default_value => undef,
     is_nullable => 0,
-    size => 21,
+    size => 100,
   },
-  "is_active",
-  { data_type => "VARCHAR", default_value => undef, is_nullable => 1, size => 9 },
 );
 __PACKAGE__->set_primary_key("id");
+__PACKAGE__->add_unique_constraint("content_type_id", ["content_type_id", "codename"]);
+__PACKAGE__->has_many(
+  "auth_group_permissions",
+  "Nokia::Tangaza::Schema::AuthGroupPermissions",
+  { "foreign.permission_id" => "self.id" },
+);
 __PACKAGE__->belongs_to(
-  "org_admin_id",
-  "Nokia::Tangaza::Schema::AuthUser",
-  { id => "org_admin_id" },
+  "content_type_id",
+  "Nokia::Tangaza::Schema::DjangoContentType",
+  { id => "content_type_id" },
 );
 __PACKAGE__->has_many(
-  "vikundis",
-  "Nokia::Tangaza::Schema::Vikundi",
-  { "foreign.org_id" => "self.id" },
+  "auth_user_user_permissions",
+  "Nokia::Tangaza::Schema::AuthUserUserPermissions",
+  { "foreign.permission_id" => "self.id" },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-02-25 09:53:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Yo08fFQGKlVVp6IjU4mbuQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8EVriCqEVl3qnlW+3KeUYw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

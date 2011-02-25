@@ -44,7 +44,7 @@ my $server = Nokia::Tangaza::Callback->new
       cidr_allow => '127.0.0.1/32',
       app_name => 'Tangaza',
       log_file => $prefs->{paths}->{NASI_LOG}.'cb-tangaza.log',
-      dsn => 'DBI:mysql:database=tangaza;host='.$prefs->{mysql}->{DB_HOST},
+      dsn => 'DBI:mysql:database='.$prefs->{mysql}->{DB_NAME}.';host='.$prefs->{mysql}->{DB_HOST},
       db_user => $prefs->{mysql}->{DB_USER},
       db_pw => $prefs->{mysql}->{DB_PASS},
       prefs => $prefs,

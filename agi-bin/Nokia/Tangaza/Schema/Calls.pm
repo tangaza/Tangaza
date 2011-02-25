@@ -8,32 +8,37 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("calls");
 __PACKAGE__->add_columns(
-  "call_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  "id",
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "user_id",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "timestamp",
   {
-    data_type => "TIMESTAMP",
-    default_value => "CURRENT_TIMESTAMP",
+    data_type => "DATETIME",
+    default_value => undef,
     is_nullable => 0,
-    size => 14,
+    size => 19,
   },
   "seconds",
-  { data_type => "INT", default_value => undef, is_nullable => 0, size => 10 },
+  { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
   "cbstate",
-  { data_type => "ENUM", default_value => undef, is_nullable => 0, size => 10 },
+  {
+    data_type => "VARCHAR",
+    default_value => undef,
+    is_nullable => 0,
+    size => 30,
+  },
 );
-__PACKAGE__->set_primary_key("call_id");
+__PACKAGE__->set_primary_key("id");
 __PACKAGE__->belongs_to(
   "user_id",
-  "Nokia::Tangaza::Schema::Users",
-  { user_id => "user_id" },
+  "Nokia::Tangaza::Schema::Watumiaji",
+  { id => "user_id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2009-11-18 14:16:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zfS87m0p3VbrICEj/4FhDw
+# Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-02-25 09:53:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QPHrplSZYsTjO0m2hhzoPg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

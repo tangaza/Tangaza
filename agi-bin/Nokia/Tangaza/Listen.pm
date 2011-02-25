@@ -59,7 +59,7 @@ sub listen_main_menu {
     #foreach my $network (&get_non_quiet_groups($self)) {}
     foreach my $network (@$groups) {
 	my $new_msg_count =
-	    &get_msg_count_on_network( $self, $self->{user}->{id}, 1, $network->group_id->group_id );
+	    &get_msg_count_on_network( $self, $self->{user}->{id}, 1, $network->group_id->id );
 	
 	if ( $new_msg_count > 0 ) {
 	    $networks_w_updates_count++;

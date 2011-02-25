@@ -59,11 +59,11 @@ sub select_network_menu {
 
     #return the group_id based on the selected slot                                                                                            
     my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
-        (user_id => $self->{user}->{id}, slot => $network_code,
+        ({user_id => $self->{user}->{id}, slot => $network_code},
          {select => [qw/group_id/]});
 
-    my $grp = $group_rs->next;
-    my $group_id = $grp->group_id->group_id if (defined($grp));
+    my $group = $group_rs->next;
+    my $group_id = $group->group_id->id if (defined($group));
     $self->log(4, "Selected group: ".$group_id);
     return $group_id;
 
@@ -74,14 +74,7 @@ sub select_network_menu {
 
 sub get_friend_count_on_network {
     my ($self,$network) = @_;
-	
-    # Caveat: assumes that if its an array,
-    # we want count of all networks.
-	
-    # This is because UI only permits selection of one particular
-    # network or all of them.
-	
-    #0 means send to all
+    
     my $friend_rs = $self->{server}{schema}->resultset('UserGroups')->search
 	({is_quiet => 'no', group_id => $network, user_id => {'!=' => $self->{user}->{id}}});
     
@@ -93,13 +86,18 @@ sub get_friend_count_on_network {
 # returns total number of connections
 
 sub get_total_friend_count {
-    my ($self,$network) = @_;
-
-    my $friend_rs = $self->{server}{schema}->resultset('UserGroups')->search
-        ({is_quiet => 'no', slot => {'<=' => 9},
-	 slot => {'>=' => 0}, user_id => $self->{user}->{id}});
+    my ($self) = @_;
     
-    # deduct 1 for ourselves
+    #return member count on all vikundi that i am part of and that are active and not quiet
+    my @vikundi = $self->{server}{schema}->resultset('UserGroups')->search
+	({ 'group_id.is_active' => 'yes', user_id => $self->{user}->{id}, is_quiet => 'no'},
+	 { join => 'group_id' , #this is a join to vikundi
+	   select => qw/group_id/ });
+    
+    my $friend_rs = $self->{server}{schema}->resultset('UserGroups')->search
+        ({ group_id => {'IN' => \@vikundi} });
+    
+    # -1 to exclude the caller
     return ($friend_rs->count) - 1;
 }
 
@@ -111,7 +109,8 @@ sub get_friends_on_network {
     my ($self,$channels) = @_;
 
     my @friends = $self->{server}{schema}->resultset('UserGroups')->search
-        ({is_quiet => 'no', group_id => $channels, user_id => {'!=' => $self->{user}->{id}}});
+        ({is_quiet => 'no', group_id => $channels, user_id => {'!=' => $self->{user}->{id}}},
+	 {select => qw/user_id/});
 
     
     return \@friends;
@@ -151,16 +150,15 @@ sub get_msg_count_on_network {
 sub set_dirty_bit {
     my ($self,$user_id,$dirty) = @_;
     
-    my $user_rs = $self->{server}{schema}->resultset('Users')->find($user_id);
+    my $user_rs = $self->{server}{schema}->resultset('Watumiaji')->find($user_id);
+    my $now = 'NOW()';
     
     if ($dirty) {
-	$user_rs->update({dirty_time => \'NOW()'});
-
+	$user_rs->update({dirty_time => \$now});
     }
     else {
 	#TODO Not sure if this is a nice way to approach it even if it solves it
-	$user_rs->update({calling_time => \'NOW()'});
-	
+	$user_rs->update({calling_time => \$now});
     }
 
 }

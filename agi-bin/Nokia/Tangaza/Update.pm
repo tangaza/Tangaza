@@ -30,8 +30,9 @@ use Nokia::Tangaza::Network;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 
-my $tmp_dir = '/mnt/tmpfs/';
-my $tmp_rec_dir = $tmp_dir.'record/';
+#The values have been initialized in init
+my $tmp_dir;# = '/mnt/tmpfs/';
+my $tmp_rec_dir;# = $tmp_dir.'record/';
 
 ######################################################################
 sub can_post {
@@ -39,7 +40,8 @@ sub can_post {
     
     #if 'mine' group then you have to be admin to post
     my $count = 0;
-    my $group = $self->{server}{schema}->resultset('Groups')->find($group_id);
+    my $group = $self->{server}{schema}->resultset('Vikundi')->find
+	($group_id, {select => qw/group_type/});
     
     return 1 if ('mine' ne $group->group_type);
 
@@ -51,19 +53,27 @@ sub can_post {
 }
 
 ######################################################################
+sub init {
+    my ($self) = @_;
+    
+    my $prefs = $self->get_property('prefs');
+    $tmp_dir = $prefs->{paths}->{NASI_TMP};
+    $tmp_rec_dir = $tmp_dir.'record/';
+}
 
+######################################################################
 sub update_main_menu {
     my ($self, $annotation) = @_;
-
+    
     $self->log (4, "start update_main_menu");
-
+    &init($self);
+    
     if (&get_total_friend_count($self) == 0) {
 	$self->log (4, "user has no friends");
-	&play_random ($self, &msg($self,'please-add-people-to-network'), 'bummer');
+	&play_random ($self, &msg($self,'please-add-people'), 'bummer');
 	return 'ok';
     }
-
-        
+    
     my @select_network_prompts = &msg ($self, 'select-network');
     
     my $channels = &select_network_menu ($self, \@select_network_prompts, 1);
@@ -135,7 +145,7 @@ sub update_main_menu {
     my @dst_user_ids = ();
     
     foreach my $friend_tuple (@$friend_tuples) {
-	my $dst_user_id = $friend_tuple->user_id->user_id;
+	my $dst_user_id = $friend_tuple->user_id->id;
 	#my $channel = $friend_tuple->{channel};
 	
 	$self->log (4, "dst $dst_user_id channel $channels");
@@ -158,9 +168,9 @@ sub update_main_menu {
 	&stream_file($self,'sent-update', "*#", "0");
     }
     
-    eval {
-	&notify_dest($self, \@dst_user_ids, $channels);
-    };
+#    eval {
+#	&notify_dest($self, \@dst_user_ids, $channels);
+#    };
     
     $self->log (4, "end update_main_menu");
     
@@ -174,9 +184,9 @@ sub notify_dest {
     
     my $user_rs = $self->{server}{schema}->resultset('UserPhones')->search
 	({user_id => {'IN' => [@$friends]}},
-	 {select => 'phone_number'});
+	 {select => qw/'phone_number'/});
     
-    my $group = $self->{server}{schema}->resultset('Groups')->find($channel);
+    my $group = $self->{server}{schema}->resultset('Vikundi')->find($channel);
     
     while (my $phone = $user_rs->next) {
 	my $num = $phone->phone_number;
@@ -184,6 +194,8 @@ sub notify_dest {
 	&flash_update ($self, $num);
 	#&send_sms_update ($self, $$phone->phone_number, $group);
     }
+    
+    return 'ok';
     
 }
 ######################################################################
@@ -225,7 +237,7 @@ sub save_pub_message {
 	({src_user_id => $self->{user}->{id}, channel => $channels,
 	  filename => $update_file});
     
-    my $pub_id = $msg->pub_id;
+    my $pub_id = $msg->id;
     $self->log (4, "created pub_messages id ".$pub_id);
     
     return $pub_id;

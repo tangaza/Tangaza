@@ -76,7 +76,8 @@ def custom_delete_view(self, request, object_id, extra_context=None):
         self.log_deletion(request, obj, obj_display)
             #obj.delete()
             # This is the override
-        if type(self) == Groups:
+        
+        if type(obj) == Groups:
             Groups.delete(request.user.member_profile, obj)
         else:
             obj.delete()
@@ -117,7 +118,7 @@ def filtered_user_queryset(request):
     qs = Users.objects.filter(user_id__in = users)
     
     return qs
-    
+
 #inline definitions
 class GroupAdminInline(admin.TabularInline):
     model = GroupAdmin

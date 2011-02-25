@@ -69,14 +69,39 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("username", ["username"]);
 __PACKAGE__->has_many(
+  "auth_messages",
+  "Nokia::Tangaza::Schema::AuthMessage",
+  { "foreign.user_id" => "self.id" },
+);
+__PACKAGE__->has_many(
+  "auth_user_groups",
+  "Nokia::Tangaza::Schema::AuthUserGroups",
+  { "foreign.user_id" => "self.id" },
+);
+__PACKAGE__->has_many(
+  "auth_user_user_permissions",
+  "Nokia::Tangaza::Schema::AuthUserUserPermissions",
+  { "foreign.user_id" => "self.id" },
+);
+__PACKAGE__->has_many(
+  "django_admin_logs",
+  "Nokia::Tangaza::Schema::DjangoAdminLog",
+  { "foreign.user_id" => "self.id" },
+);
+__PACKAGE__->has_many(
   "organizations",
   "Nokia::Tangaza::Schema::Organization",
   { "foreign.org_admin_id" => "self.id" },
 );
+__PACKAGE__->has_many(
+  "watumiajis",
+  "Nokia::Tangaza::Schema::Watumiaji",
+  { "foreign.user_id" => "self.id" },
+);
 
 
-# Created by DBIx::Class::Schema::Loader v0.04006 @ 2010-12-20 11:06:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lbAK4KhnW9jkmQMl54aFtQ
+# Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-02-25 09:53:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ibf4GEWVoYe/fDaj7BZlSQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

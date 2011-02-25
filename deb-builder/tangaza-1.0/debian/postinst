@@ -60,20 +60,6 @@ fi
 
 AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
-echo "Setting directory permissions..."
-#chown -R $AST_USER\: $TGZ_LOCATION
-chown -R $AST_USER\: $TGZ_DATA
-chown -R $AST_USER\: /etc/tangaza
-chown -R $AST_USER\: /var/log/tangaza
-
-#create the festivalcache directory if it doesnt exists
-
-if [ ! -d "/var/lib/asterisk/festivalcache" ]; then
-#    echo "Creating the /var/lib/asterisk/festivalcache"
-#    mkdir /var/lib/asterisk/festivalcache
-    chown $AST_USER\: /var/lib/asterisk/festivalcache
-fi
-
 #create database if it doesnt exist
 echo 'Checking if the database already exists. Waiting for the database root password'
 DB=`mysql -u root -p -D mysql -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tangaza'"`
@@ -201,15 +187,16 @@ fi
 echo "Creating django superuser. Please enter user details for accessing the website."
 $TGZ_LOCATION/django/tangaza/manage.py createsuperuser
 
-#execute startup script
-#echo "Adding tangaza to startup scripts"
-#chown root\: /etc/init.d/tangaza
-#chown root\: /etc/default/tangaza
-#chmod +x /etc/init.d/tangaza
-#update-rc.d tangaza defaults
 
-#echo "Starting tangaza"
-#/etc/init.d/tangaza start
+AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
+
+echo "Setting directory permissions..."
+#chown -R $AST_USER\: $TGZ_LOCATION                                                                                                                                                                      
+chown -R $AST_USER\: $TGZ_DATA
+chown -R $AST_USER\: /etc/tangaza
+chown -R $AST_USER\: /var/log/tangaza
+chown -R $AST_USER\: /var/spool/tangaza/
+chown $AST_USER\: /var/lib/asterisk/festivalcache
 
 #DEBHELPER#
 

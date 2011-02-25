@@ -192,9 +192,9 @@ class Users(models.Model):
             invitation.invitation_from = self
         
         invitation.save()
-        action = Actions.objects.get(action_desc = 'invited user')
-        hist = UserGroupHistory(user = self, group = group, action = action)
-        hist.save()
+        #action = Actions.objects.get(action_desc = 'invited user')
+        #hist = UserGroupHistory(user = self, group = group, action = action)
+        #hist.save()
         
     def is_member(self, group):
         grps = UserGroups.objects.filter(group = group, user = self)
@@ -479,6 +479,7 @@ class Countries(models.Model):
     
     @classmethod
     def phone2country(cls, phone):
+        #TODO: Fix this to lookup
         return 'kenya'
 
 
@@ -690,3 +691,22 @@ def organization_created(sender, **kwargs):
     instance = kwargs['instance']
     
 post_save.connect(organization_created, sender=Organization)
+
+def user_invited(sender, **kwargs):
+    if not kwargs['created']:
+        return
+    inv = kwargs['instance']
+
+    action = Actions.objects.get(action_desc = 'invited user')
+    hist = UserGroupHistory(user = inv.invitation_from, group = inv.group, action = action)
+    hist.save()
+
+post_save.connect(user_invited, sender=Invitations)
+
+def admin_added(sender, **kwargs):
+    if not kwargs['created']:
+        return
+    group_admin = kwargs['instance']
+    pass
+
+post_save.connect(admin_added, sender=AdminGroupHistory)

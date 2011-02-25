@@ -232,7 +232,7 @@ class GroupForm(forms.ModelForm):
     
     def clean(self):
         request = getattr(_thread_locals, 'request', None)
-        
+         
         if request.user.member_profile_id == None:
             logger.error(ERR_NO_PROFILE % request.user)
             raise forms.ValidationError(ERR_NO_PROFILE % request.user)
