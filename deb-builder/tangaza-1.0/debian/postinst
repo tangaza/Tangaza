@@ -28,13 +28,13 @@ if [ `id -u` != 0 ]; then
   exit 1
 fi
 
-#Generate the sub directories needed in /data
 CURR_DIR=$CWD
 
 TGZ_LOCATION=/usr/lib/tangaza
 TGZ_HOME=$TGZ_LOCATION
 TGZ_DATA=/var/lib/tangaza
 
+#Generate the sub directories for data files
 cd $TGZ_DATA/names && perl mkdirs.pl
 cd $TGZ_DATA/status && perl mkdirs.pl
 
@@ -45,7 +45,6 @@ AST_PATH=`which asterisk`
 if [ ! -n "$AST_PATH" ]; then
     while [ -n "$PROVIDED_PATH" ]; do
 	echo -n "asterisk path to use [$AST_PATH]:"
-	#read PROVIDED_PATH
 	
 	#check if asterisk exists in the path provided
 	if [ -e "$PROVIDED_PATH"]; then
@@ -60,16 +59,8 @@ fi
 
 AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
-#create database if it doesnt exist
-echo 'Checking if the database already exists. Waiting for the database root password'
-DB=`mysql -u root -p -D mysql -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tangaza'"`
-
-if [ ! -n "$DB" ]; then
-    echo "Creating the tangaza database."
-    $TGZ_LOCATION/schemas/install-db.sh
-else
-    echo "Another instance of the  tangaza database already exists. It will not be created."
-fi
+#Generate db 
+python $TGZ_LOCATION/django/tangaza/manage.py syncdb
 
 #Download and install Asterisk::FastAGI modules if they dont exist
 CURR_DIR=$CWD
@@ -136,9 +127,6 @@ echo "Restarting kannel"
 
 #set apache configs
 FQDN=`hostname -f`
-if [ ! -n "$FQDN" ]; then
-    $FQDN=`hostname`
-fi
 
 echo "Adding tangaza-sms to sites-enabled"
 mv $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.bak
@@ -156,9 +144,9 @@ if [ ! -n "$PORT_ENABLED" ]; then
 fi
 
 #Check if wsgi_module is loaded if not load it
-WSGI=`grep -ri wsgi_module /etc/apache2/*`
-if [ ! -n "$WSGI" ]; then
-    echo "LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so" > /etc/apache2/mods-available/wsgi.load
+WSGI=`find /usr/lib/ -name "mod_wsgi.so" -exec ls {} +;`
+if [ -f "/etc/apache2/mods-enabled/wsgi.load" ]; then
+    echo "LoadModule wsgi_module $WSGI" > /etc/apache2/mods-available/wsgi.load
     ln -s /etc/apache2/mods-available/wsgi.load /etc/apache2/mods-enabled/
 fi
 
@@ -183,20 +171,15 @@ fi
 #check if apache is running and restart it
 /etc/init.d/apache2 restart
 
-#creating django superuser
-echo "Creating django superuser. Please enter user details for accessing the website."
-$TGZ_LOCATION/django/tangaza/manage.py createsuperuser
-
-
 AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
 echo "Setting directory permissions..."
-#chown -R $AST_USER\: $TGZ_LOCATION                                                                                                                                                                      
+
 chown -R $AST_USER\: $TGZ_DATA
-chown -R $AST_USER\: /etc/tangaza
-chown -R $AST_USER\: /var/log/tangaza
+chown -R $AST_USER\: /etc/tangaza/
+chown -R $AST_USER\: /var/log/tangaza/
 chown -R $AST_USER\: /var/spool/tangaza/
-chown $AST_USER\: /var/lib/asterisk/festivalcache
+chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
 
 #DEBHELPER#
 
