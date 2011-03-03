@@ -41,26 +41,20 @@ DB_PASS=`awk -F'=' '/^DB_PASS/ {print $2}'  $CONF_PATH`
 DB_NAME=`awk -F'=' '/^DB_NAME/ {print $2}'  $CONF_PATH`
 
 Q1="create database if not exists $DB_NAME;"
-Q2="create user '$DB_USER'@'$DB_HOST' identified by '$DB_PASS';"
-Q3="grant all privileges on $DB_NAME.* to '$DB_USER'@'$DB_HOST' with grant option;"
+Q2="INSERT INTO mysql.user 
+    (host, user, password, select_priv, insert_priv, 
+     update_priv, delete_priv, create_priv, drop_priv, 
+     ssl_cipher, x509_issuer, x509_subject) 
+VALUES 
+    -- check user table for the actual values used in 
+    -- ssl_cipher, x509_issuer, and x509_subject columns
+    ('$DB_HOST','$DB_USER',PASSWORD('$DB_PASS'),
+     'Y','Y','Y','Y','Y','N','','','') 
+ON DUPLICATE KEY UPDATE 
+    password=PASSWORD('$DB_PASS'), select_priv='Y', 
+    insert_priv='Y', update_priv='Y', delete_priv='Y', create_priv='Y', 
+    drop_priv='N', ssl_cipher='', x509_issuer='', x509_subject='';
+FLUSH PRIVILEGES;"
 
-echo "Checking if $DB_USER already exists. Waiting for the database root password"
-SQLUSER=`mysql -u root -p -D mysql -e "select user, host from mysql.user where user='$DB_USER' and host='$DB_HOST'"`
-
-if [ -n "$SQLUSER" ]; then
-    # if user already exists dont try to recreate
-    echo "$DB_USER already exists in mysql and will not be created."
-    Q2=""; Q3=""
-fi
-
-echo "All checks complete. Database creation commencing. Waiting for the database root password"
-mysql -u root -p -D mysql -e "$Q1 $Q2 $Q3"
-
-CWD=$PWD
-echo "Switching working dir /usr/local/lib/tangaza/schemas/"
-
-cd $TANGAZA_HOME/schemas/
-./tz-restore.sh
-
-echo "Switching back Working dir $CWD"
-cd $CWD
+echo "We will now check if the database and user exists and create them if not there. Waiting for the MySQL root password"
+mysql -u root -p -D mysql -e "$Q1 $Q2"

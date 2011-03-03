@@ -18,15 +18,15 @@
 #
 #
 
-from Tangaza.models import *
-from Tangaza.views import *
-from Tangaza.forms import *
-from Tangaza import utility
+from tangaza.Tangaza.models import *
+from tangaza.Tangaza.views import *
+from tangaza.Tangaza.forms import *
+from tangaza.Tangaza import utility
 from django.template.defaultfilters import slugify
 from django.contrib import admin
 import logging
 
-from Tangaza import signals as custom_signal
+from tangaza.Tangaza import signals as custom_signal
 
 logger = logging.getLogger(__name__)
 

@@ -8,9 +8,15 @@ import os
 
 # set up some simple logging
 DEBUG = True
-LOGGING_CONFIG = os.path.join(os.path.dirname(__file__), 'logging.conf')
+#LOGGING_CONFIG = os.path.join(os.path.dirname(__file__), 'logging.conf')
+#logging.config.fileConfig(LOGGING_CONFIG)
 
-logging.config.fileConfig(LOGGING_CONFIG)
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = '[%(asctime)s]:[%(levelname)s][%(name)s:%(lineno)d] %(message)s',
+    filename = '/tmp/tangaza.log',
+    filemode = 'a',
+)
 
 #APP_CONFIG = '/etc/tangaza/settings.conf'
 

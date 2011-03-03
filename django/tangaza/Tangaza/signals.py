@@ -1,8 +1,8 @@
 
-from Tangaza.models import *
+from tangaza.Tangaza.models import *
+from tangaza.Tangaza import utility
 from django.dispatch import Signal
 from django.db.models.signals import *
-from Tangaza import utility
 
 import logging
 

@@ -59,6 +59,10 @@ fi
 
 AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
+#create database if it doesnt exist
+echo 'Checking if the database already exists. Waiting for the database root password'
+$TGZ_LOCATION/schemas/install-db.sh
+
 #Generate db 
 python $TGZ_LOCATION/django/tangaza/manage.py syncdb
 
@@ -113,9 +117,6 @@ cp $TGZ_CONF/kannel/modem.conf /etc/kannel/modem.conf
 
 cp $TGZ_CONF/kannel/tangaza.conf /etc/kannel/tangaza.conf
 
-#3. set django permissions and content types
-python $TGZ_LOCATION/django/tangaza/update-permissions.py
-
 #restart asterisk
 echo "Restarting asterisk"
 /etc/init.d/asterisk restart
@@ -133,8 +134,10 @@ mv $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.bak
 
 awk "{gsub(/your_server_name/,\"$FQDN\");print}" $TGZ_CONF/tangaza-sms.bak > $TGZ_CONF/tangaza-sms
 
-ln -s $TGZ_CONF/tangaza-sms /etc/apache2/sites-enabled/
-chown root\: /etc/apache2/sites-enabled/tangaza-sms
+if [ ! -f "/etc/apache2/sites-enabled/tangaza-sms" ]; then
+    ln -s $TGZ_CONF/tangaza-sms /etc/apache2/sites-enabled/
+    chown root\: /etc/apache2/sites-enabled/tangaza-sms
+fi
 
 echo "Enabling port 8080"
 PORT_ENABLED=`grep -i '^Listen 8080$' /etc/apache2/ports.conf`
@@ -145,7 +148,7 @@ fi
 
 #Check if wsgi_module is loaded if not load it
 WSGI=`find /usr/lib/ -name "mod_wsgi.so" -exec ls {} +;`
-if [ -f "/etc/apache2/mods-enabled/wsgi.load" ]; then
+if [ ! -f "/etc/apache2/mods-enabled/wsgi.load" ]; then
     echo "LoadModule wsgi_module $WSGI" > /etc/apache2/mods-available/wsgi.load
     ln -s /etc/apache2/mods-available/wsgi.load /etc/apache2/mods-enabled/
 fi
@@ -157,7 +160,7 @@ if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; th
     DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
     ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
     ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
-    ln -s $DJANGO_MEDIA/js $TGZ_DJANGO_MEDIA/
+    ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
 fi
 
 #For debian
@@ -165,7 +168,7 @@ if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/
     DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
     ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
     ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
-    ln -s $DJANGO_MEDIA/js $TGZ_DJANGO_MEDIA/
+    ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
 fi
 
 #check if apache is running and restart it

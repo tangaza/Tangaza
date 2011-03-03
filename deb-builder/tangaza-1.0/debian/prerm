@@ -52,10 +52,6 @@ fi
 TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 find $TGZ_DJANGO_MEDIA -type l -exec rm {} +;
 
-#remove all files
-#echo "Removing tangaza files"
-#rm -r /usr/local/lib/tangaza/
-
 #DEBHELPER#
 
 exit 0

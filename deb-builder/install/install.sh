@@ -47,8 +47,12 @@ if [ ! -f "$DEB_PATH/tangaza_1.0-1_all.deb" ]; then
 fi
 
 echo "Initializing install process..."
+echo "Ich $PWD"
+CWD=$PWD
+cd $DEB_PATH
+echo "pin $PWD"
 #check if it has been added to sources.list and add
-dpkg-scanpackages ./ /dev/null |gzip -c -9 > $DEB_PATH/Packages.gz
+dpkg-scanpackages . /dev/null |gzip -c -9 > Packages.gz
 
 VAR=`grep -i "^deb file://$DEB_PATH" /etc/apt/sources.list`
 
@@ -56,8 +60,10 @@ if [ ! -n "$VAR" ]; then
     SOURCES_CHANGED=1
     echo "Updating sources.list"
     cp /etc/apt/sources.list /etc/apt/sources.list.bak
-    echo "deb file://$DEB_PATH /" >> /etc/apt/sources.list
+    #echo "deb file://$DEB_PATH /" >> /etc/apt/sources.list
+    add-apt-repository "deb file://$DEB_PATH /"
 fi
+cd $CWD
 
 echo -n "Would you like apt-get to update [RECOMMENDED]. (If you dont know just press enter.) [Y/n]:"
 read -n 1 update

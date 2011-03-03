@@ -30,7 +30,7 @@ from utility import *
 #from grammar import *
 from appadmin import *
 
-logger = logging.getLogger('tangaza_logger')
+logger = logging.getLogger(__name__)
 
 # XXX for testing, should be put in DB
 max_group_size = 200

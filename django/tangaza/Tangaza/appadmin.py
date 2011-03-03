@@ -28,7 +28,7 @@ import string
 import urllib2, urllib
 
 from django.http import HttpResponse
-from Tangaza.models import Watumiaji, Vikundi
+from models import Watumiaji, Vikundi
 from utility import *
 
 
