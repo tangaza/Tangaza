@@ -32,18 +32,26 @@ logger = logging.getLogger(__name__)
 def resolve_user (func):
     
     def validate (*args):
+        request = args[0]
+        #logger.debug('Starting resolve_user %s' % [x for x in request.META.keys() if x.__contains__('KANNEL')])
+        source_phone = ''
+        if request.method == 'POST':
+            source_phone = request.META['HTTP_X_KANNEL_FROM']
+        else:
+            source_phone = args[1]
         
         #logger.debug ('validate A')
-        p = UserPhones.objects.filter(phone_number = args[1])
-        
+        p = UserPhones.objects.filter(phone_number = source_phone)
+        logger.debug(p)
         if len(p) < 1:
-            user = Users.create_user(args[1], args[1])
+            #user = Watumiaji.create_user(args[1], args[1])
+            return HttpResponse('You cannot use tangaza if you are not a member')
         else:
             user = p[0].user
         
         #logger.debug ('validate A2')
         
-        user.phone_number = args[1]
+        user.phone_number = source_phone
     	
         # XXX pull out the users language from the DB
         language = LanguageFactory.create_language('eng')
@@ -59,7 +67,7 @@ def resolve_user (func):
     return validate
 
 def get_user_by_phone (phone):
-    return Users.resolve(phone)
+    return Watumiaji.resolve(phone)
 
 def auto_alloc_slot(user, is_super_user = False):
     logger.info("Auto allocation slot number")
@@ -87,6 +95,12 @@ def auto_alloc_slot(user, is_super_user = False):
 
 ##############################################################################
 class Language(object):
+    
+     CREATE = ""
+     JOIN = ""
+     INVITE = ""
+     LEAVE = ""
+     
      def slot_not_free(self, slot):
          return self._slot_status % (slot)
 
@@ -109,7 +123,7 @@ class Language(object):
          return self._group_name_not_valid % (group_name)
      
      def unknown_group(self, group_name):
-         return self._unknown_group % (group_name, group_name, group_name)
+         return self._unknown_group % (group_name, group_name)
      
      def admin_privileges_required(self, group):
          return self._admin_privileges_required % (group.group_name)
@@ -117,7 +131,7 @@ class Language(object):
      # XXX when only !foo given (no slot), first was called...
      def group_created(self, group_name, slot, group_type):
          if slot > 0:
-             return self._group_created_w_slot % (group_type, group_name, slot)
+             return self._group_created_w_slot % (group_type, group_name, slot, group_name)
          else:
              return self._group_created_no_slot % (group_name)
      
@@ -215,17 +229,24 @@ class Language(object):
          return self._user_update % (msg)
      
 class EnglishLanguage(Language):
+    #Command names in specified language
+    CREATE = "create"
+    JOIN = "join"
+    INVITE = "invite"
+    LEAVE = "leave"
+    
     def __init__(self):
+        
         self._group_too_big_for_sms = "This group's size has exceeded the maximum allowed of 12, for sending sms Tangazos. Call %s to Tangaza using voice instead."
         self._name_set = "OK. Your name has been set. Your friends will now know you as %s."
         self._slot_status = "Slot %s is not available."
         self._invalid_group_type = "That group type %s does not exist."
         self._user_has_no_empty_slots  = "No more empty slots available."
-        self._group_name_not_available = "The group name %s is already in use, please select another name."
+        self._group_name_not_available = "The group name %s is already in use, try another name."
         self._group_name_not_valid = "That new group name isn't valid: %s. Names must begin with a letter and be at least four letters or numbers."
         self._unknown_group = "The group %s does not exist. Try create %s to create it."
         self._admin_privileges_required = "You have to be the administrator of the %s group to carry out that operation."
-        self._group_created_w_slot = "OK. Created the %s group %s, assigned key %s. Reply: invite groupname yourname friend1 friend2 to invite people. Use friend phone number"
+        self._group_created_w_slot = "OK. Created the %s group %s, assigned key %s. Reply: invite %s friend1 friend2 to invite people."
         self._group_created_no_slot = "OK. Created group %s."
         self._group_deleted = "%s group deleted."
         self._already_member = "You are already a member of the %s group."
@@ -260,7 +281,13 @@ class EnglishLanguage(Language):
         self._user_update = "Groups: %s"
         
 class SwahiliLanguage(Language):
+    CREATE = "unda"
+    JOIN = "unga"
+    INVITE = "karibisha"
+    LEAVE = "toka"
+    
     def __init__(self):
+       
        self._slot_status = "Nafasi %s kinatumika"
        self._group_too_big_for_sms = "Kikundi hiki ni kikubwa na kimepitisha idadi. Piga %s kutangaza ukitimia sauti yako."
        self._name_set = "Sawa. Marafiki wako sasa watakufahamu kama %s."
@@ -270,8 +297,8 @@ class SwahiliLanguage(Language):
        self._group_name_not_valid = "Jina hilo la kikundi sio sahihi: %s"
        self._unknown_group = "Kikundi %s hakiko. Jaribu unda %s kukiunda kikundi hicho"
        self._admin_privileges_required = "Yafaa uwe mtengezaji wa kikundi %s ili kuendeleza kazi hiyo"
-       self._group_created_w_slot = "Sawa. Umeunda kikundi %s kiitwacho %s kwenye nafasi ya %s"
-       self._group_created_no_slot = "Sawa. Kukunid %s kimetengenezwa"
+       self._group_created_w_slot = "Sawa. Umeunda kikundi %s kiitwacho %s kwenye nafasi ya %s. Tuma: " + INVITE  + " rafiki1, rafiki2 kukaribisha rafiki zako." 
+       self._group_created_no_slot = "Sawa. Kukundi %s kimetengenezwa"
        self._group_deleted = "Kikundi %s kimefutwa"
        self._already_member = "Wewe tayari ni memba wa kikundi %s"
        self._unknown_user = "Hawa hawajapatikana %s"
@@ -305,6 +332,7 @@ class SwahiliLanguage(Language):
        self._user_update = "Vikundi: %s"
 
 class ShengLanguage(Language):
+    
     def __init__(self):
         self._group_too_big_for_sms = ""
         self._slot_status = ""
@@ -351,6 +379,7 @@ class ShengLanguage(Language):
 
 class BlankLanguage(Language):
     def __init__(self):
+        self._create = ""
         self._group_too_big_for_sms = ""
         self._name_set = ""
         self._slot_status = ""
@@ -412,7 +441,7 @@ text_characters = "".join(map(chr, range(32, 127))) + "\n\r\t\b"
 _null_trans = string.maketrans("", "")
 def istext (u, text_characters=text_characters, threshold=0.30):
 
-    #logger.debug ('u %s' % u)
+    logger.debug ('u %s' % u)
 
     # if s contains any null, it's not text:
     if "\0" in u:
@@ -421,7 +450,10 @@ def istext (u, text_characters=text_characters, threshold=0.30):
     if not u:
         return True
     # Get the substring of s made up of non-text characters
+    # what??
     s = str (u)
+    
     t = s.translate(_null_trans, text_characters)
     # s is 'text' if less than 30% of its characters are non-text ones:
+    
     return len(t)/len(s) <= threshold

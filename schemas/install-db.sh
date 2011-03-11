@@ -41,7 +41,8 @@ DB_PASS=`awk -F'=' '/^DB_PASS/ {print $2}'  $CONF_PATH`
 DB_NAME=`awk -F'=' '/^DB_NAME/ {print $2}'  $CONF_PATH`
 
 Q1="create database if not exists $DB_NAME;"
-Q2="INSERT INTO mysql.user 
+Q3="ALTER DATABASE $DB_NAME CHARACTER SET utf8 COLLATE utf8_general_ci;"
+Q3="INSERT INTO mysql.user 
     (host, user, password, select_priv, insert_priv, 
      update_priv, delete_priv, create_priv, drop_priv, 
      ssl_cipher, x509_issuer, x509_subject) 
@@ -57,4 +58,4 @@ ON DUPLICATE KEY UPDATE
 FLUSH PRIVILEGES;"
 
 echo "We will now check if the database and user exists and create them if not there. Waiting for the MySQL root password"
-mysql -u root -p -D mysql -e "$Q1 $Q2"
+mysql -u root -p -D mysql -e "$Q1 $Q2 $Q3"

@@ -37,14 +37,14 @@ lock = threading.RLock()
 logger = logging.getLogger(__name__)
 
 ##Admin actions
-@resolve_user
+#@resolve_user
 def request_create_group (request, user, language, group_name, slot):
     
     logger.debug ("user %s group_name %s slot %s" % (user, group_name, slot))
 
     slot = urllib.unquote_plus(slot)
 
-    group_type = 'public'
+    group_type = 'private'
 
     if not user.has_empty_slot ():
         return language.user_has_no_empty_slots ()
@@ -61,7 +61,7 @@ def request_create_group (request, user, language, group_name, slot):
         if group_type != 'private': group_type = 'public' #check to ensure its actually a group type
         slot = ''
     else:
-        group_type = 'public'
+        #group_type = 'po'
         slot = ''
     
     msg_list = []
@@ -74,8 +74,10 @@ def request_create_group (request, user, language, group_name, slot):
     else:
         logger.debug ("slot is %s" % slot)
     
-    regex = re.compile ('^[A-Za-z]')
-    if not regex.match (group_name) or len(group_name) < 4 or len(group_name) > 60:
+    #regex = re.compile ('^[A-Za-z]')
+    #this regex match doesnt work with unicode character set
+    #if not regex.match (group_name) or len(group_name) < 4 or len(group_name) > 60:
+    if not group_name[0].isalpha() or len(group_name) < 4 or len(group_name) > 60:
         msg_list.append (language.group_name_not_valid (group_name))
     
     if slot >= 0 and not user.slot_is_empty (slot):
@@ -89,16 +91,22 @@ def request_create_group (request, user, language, group_name, slot):
     
     # that should take care of the race condition
     with lock:
+        
         if not Vikundi.is_name_available (group_name):
             msg_list.append (language.group_name_not_available (group_name))
             # TODO add suggestions
         
         if len(msg_list) > 0:
             msg_text = " ".join(msg_list)
+            logger.debug("TWIG: %s" % msg_text)
             return msg_text
         
+        #Any time you create a user the first group they join is the 
+        #organization's group
+        default_org = UserGroups.objects.filter(user = user).order_by('pk')[0].group.org
+        logger.debug('default: %s %s %s %s %s' % (user, group_name, slot, group_type, default_org))
         # create group and assign it to the given slot, if one has been provided
-        group = Vikundi.create (user, group_name, slot, group_type)
+        group = Vikundi.create (user, group_name, slot, group_type, org = default_org)
     
     return language.group_created (group_name, slot, group_type)
 
@@ -222,7 +230,7 @@ def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, 
     
     return string.join(msg_list, " ") 
 
-@resolve_user
+#@resolve_user
 def invite_user_to_group (request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms'):
     from django.conf import settings
     
@@ -263,6 +271,7 @@ def invite_user_to_group (request, user, language, group_name_or_slot, invite_us
         phone_regex = re.compile("^\d+$")
         if not phone_regex.match(user_phone):
             continue
+        
         invited_user = Watumiaji.resolve_or_create(request, user, language, user_phone)
         
         if invited_user == None:
@@ -272,7 +281,7 @@ def invite_user_to_group (request, user, language, group_name_or_slot, invite_us
                 user.invite_user (invited_user, group)
                 if invited_user.is_mine (group): group.group_name  = 'mine'
             valid_users.append(user_phone)
-
+            
             origin = settings.SMS_VOICE[smsc]
             
             global_send_sms ("+" + invited_user.phone_number, name + " <"

@@ -60,28 +60,96 @@ def ping(request):
 def update(request, user, language):
 	return request_update (user,language)
 
-@resolve_user
+#@resolve_user
 def join_group (request, user, language, group_name, slot, smsc = 'mosms'):
+	logger.debug("Starting join group user:%s group:%s" % (user, group_name))
+	group = Vikundi.resolve (user, group_name)
 	
-	group = Groups.resolve (user, group_name)
 	if group is None:
 		logger.info ("smsc: %s user: %s unknown_group %s" % (smsc, user, group_name))
 		return language.unknown_group(group_name)
-
+	
 	from django.conf import settings
+	logger.debug('Finish him %s %s' % (user, language))#, group, slot, settings.SMS_VOICE[smsc]))
 	return request_join (user, language, group, slot, settings.SMS_VOICE[smsc])
 
-@resolve_user
+#@resolve_user
 def leave_group (request, user, language, group_or_slot):
-       group = Groups.resolve (user, group_or_slot)
+       group = Vikundi.resolve (user, group_or_slot)
        if group is None:
 	       logger.info ("user %s unknown_group %s" % (user, group_or_slot))
 	       return language.unknown_group(group_or_slot)
        
        return request_leave (user, language, group)
 
+##############################################################################
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 @resolve_user
-def index(request, user, language, raw_text, smsc = 'mosms'):
+def index(request, user, language):
+
+	logger.debug ('entry point')
+	
+	
+	# XXX set language on-the-fly
+	# or pull from db based on users selection on phone
+	#language = LanguageFactory.create_language('eng')
+	
+	if request.method == "GET":
+		logger.debug ('get request')
+		return request_update (user,language)
+	
+	raw_text = request.raw_post_data.decode('UTF8')
+	
+	logger.info ('user %s text %s' % (user, raw_text))
+	
+	# empty request
+	if not raw_text:
+		return request_update (user,language)
+	
+	msg_list = []
+	tokens = raw_text.split()
+	
+	group_name = tokens[1] #this can be group name or slot
+	
+	if raw_text.startswith('@'):
+		#send text message to group
+		pass
+	elif raw_text.startswith(language.CREATE):
+		logger.debug('request create group %s' % group_name)
+		#request, user, language, group_name, slot
+		return request_create_group(request, user, language, group_name, '')
+	elif raw_text.startswith(language.JOIN):
+		logger.debug('request join group %s' % tokens[1])
+		#request, user, language, group_name, slot
+		return join_group(request, user, language, group_name, '')
+	elif raw_text.startswith(language.INVITE):
+		#(request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms')
+		logger.debug('request invite user %s to group %s' % (user, group_name))
+		invited_users = ' '.join(tokens[2:])
+		return invite_user_to_group(request, user, language, group_name, invited_users).encode('UTF8')
+        elif raw_text.startswith(language.LEAVE):
+                logger.debug('request leave group %s' % group_name)
+		#leave_group (request, user, language, group_or_slot)
+		return leave_group (request, user, language, group_name)
+	elif raw_text.startswith(language.DELETE):
+		logger.debug('request delete group %s' % group_name)
+		#delete_group (request, admin, language, group_name_or_slot)
+		return delete_group (request, user, language, group_name)
+        elif raw_text.startswith(language.REMOVE):
+		logger.debug('request remove user %s' % user)
+		#delete_user_from_group (request, admin, language, group_name_or_slot, del_user_phone)
+		removed_users = ' '.join(tokens[2:])
+		return delete_user_from_group (request, user, language, group_name, removed_users)
+	else:
+		return request_update (user,language)
+	
+
+##############################################################################
+
+@resolve_user
+def index_old(request, user, language, raw_text, smsc = 'mosms'):
 	from django.conf import settings
 	
 	logger.debug ('entry point')
@@ -254,7 +322,7 @@ def request_leave (user, language, group):
 				#Groups.delete (user, group)
 				group.delete()
 				logger.info ("user %s leaving and deleting group %s" % (user, group))
-				return language.group_deleted (group)
+				return ' '.join([language.user_left_group , language.group_deleted (group)])
 		else:
 			
 			logger.debug ("admin_count > 1")

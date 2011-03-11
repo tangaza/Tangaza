@@ -13,6 +13,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -176,14 +177,14 @@ class Watumiaji(models.Model):
         '''
         if phone.startswith('07'):
             phone = "254" + phone[1:]
-            
-            user = cls.resolve (phone)
+        
+        user = cls.resolve (phone)
+        
         if not user == None:
             return user
         
         return cls.create_user (phone, phone)
     
-
     def leave_group(self, group):
         '''When a user leaves, this deletes any links to vikundi in the UserGroups and GroupAdmin tables in the database'''
         UserGroups.objects.filter(user = self, group = group).delete()
@@ -236,11 +237,11 @@ class Watumiaji(models.Model):
     def create_user (cls, phone, own_group):
         '''Creates a user with group type mine and assigns phone as primary phone number'''
         logger.debug ('Beginning create user: phone %s' % phone)
-        user = Watumiaji()
+        user = Watumiaji(name_text='User_'+phone)
         
         #additional info
         user.phone_number = phone
-        user.language = ""
+        user.language = Languages.objects.get(name='English')
         user.save()
         
         country_name = Countries.phone2country (phone)
@@ -658,3 +659,35 @@ class Calls(models.Model):
         db_table = u'calls'
 
 
+######################################################
+def global_send_sms (dest_phone, text, origin = 'KE'):
+    from django.conf import settings
+    import urllib
+    
+    username = settings.SMS_VOICE['SMS_USERNAME_%s' % origin]
+    password = settings.SMS_VOICE['SMS_PASSWORD_%s' % origin]
+    source = settings.SMS_VOICE['SMS_FROM_%s' % origin]
+    sms_url = settings.SMS_VOICE['SMS_URL_%s' % origin]
+    
+    sent = False
+    #logger.debug('gun %s' % {'username':username, 'password':password, 'from':source,
+    #                         'to':dest_phone, 'text': text[:160]})
+    params = urllib.urlencode ({'username':username, 'password':password, 'from':source,
+                                'to':dest_phone})#, 'text': text[:160]})
+    params = '%s&text=%s' % (params, urllib.quote(text[:160].encode('UTF8')))
+    
+    if origin == 'KE':
+        params = urllib.urlencode ({'username':username, 'password':password, 'source':source,
+                                    'destination':dest_phone})#, 'message': text[:160]})
+        params = '%s&message=%s' % (params, urllib.quote(text[:160].encode('UTF8')))
+    
+    
+    
+    try:
+        resp = urllib.urlopen ("%s?%s" % (sms_url, params))
+        logger.debug (resp.read())
+        sent = True
+    except URLError:
+        logger.info ('failed: %s' % sms_url)
+        
+        return sent

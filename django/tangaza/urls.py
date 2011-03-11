@@ -27,10 +27,12 @@ admin.autodiscover()
 
 # Currently logging to /tmp/tangaza.log
 
-urlpatterns = patterns('',
-    (r'^$', include('tangaza.Tangaza.urls')),
+urlpatterns = patterns('tangaza.Tangaza.views',
+    #(r'', include('tangaza.Tangaza.urls')),
+    #(r'^from=\+?(\d{1,20})/body=(.{1,160})/$', 'index'),
+    (r'^tangaza/$', 'index'),
     (r'^admin/', include(admin.site.urls)),
-
+    (r'^ping/$', 'ping'),
 )
 
 
