@@ -29,6 +29,7 @@ from django.http import HttpResponse
 from utility import *
 #from grammar import *
 from appadmin import *
+import grammar
 
 logger = logging.getLogger(__name__)
 
@@ -110,37 +111,42 @@ def index(request, user, language):
 	
 	msg_list = []
 	tokens = raw_text.split()
+	parsed_text = grammar.decompose(tokens, language)
+	command = parsed_text['command']
+	extras = parsed_text['extras']
+	member = parsed_text['member']
+	group_name = parsed_text['group']
 	
-	group_name = tokens[1] #this can be group name or slot
+	#group_name = tokens[1] #this can be group name or slot
 	
-	if raw_text.startswith('@'):
-		#send text message to group
-		pass
-	elif raw_text.startswith(language.CREATE):
+#	if raw_text.startswith('@'):
+#		#send text message to group
+#		pass
+	if command == language.CREATE:
 		logger.debug('request create group %s' % group_name)
 		#request, user, language, group_name, slot
 		return request_create_group(request, user, language, group_name, '')
-	elif raw_text.startswith(language.JOIN):
-		logger.debug('request join group %s' % tokens[1])
+	elif command = language.JOIN:
+		logger.debug('request join group %s' % group_name)
 		#request, user, language, group_name, slot
 		return join_group(request, user, language, group_name, '')
-	elif raw_text.startswith(language.INVITE):
+	elif command == language.INVITE:
 		#(request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms')
 		logger.debug('request invite user %s to group %s' % (user, group_name))
-		invited_users = ' '.join(tokens[2:])
-		return invite_user_to_group(request, user, language, group_name, invited_users).encode('UTF8')
-        elif raw_text.startswith(language.LEAVE):
+		invited_users = ' '.join(extras)
+		return invite_user_to_group(request, user, language, group_name, invited_users)
+        elif command == language.LEAVE:
                 logger.debug('request leave group %s' % group_name)
 		#leave_group (request, user, language, group_or_slot)
 		return leave_group (request, user, language, group_name)
-	elif raw_text.startswith(language.DELETE):
+	elif command == language.DELETE:
 		logger.debug('request delete group %s' % group_name)
 		#delete_group (request, admin, language, group_name_or_slot)
 		return delete_group (request, user, language, group_name)
-        elif raw_text.startswith(language.REMOVE):
+        elif command == language.REMOVE:
 		logger.debug('request remove user %s' % user)
 		#delete_user_from_group (request, admin, language, group_name_or_slot, del_user_phone)
-		removed_users = ' '.join(tokens[2:])
+		removed_users = ' '.join(extras)
 		return delete_user_from_group (request, user, language, group_name, removed_users)
 	else:
 		return request_update (user,language)
