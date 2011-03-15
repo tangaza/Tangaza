@@ -24,7 +24,7 @@ True
 from tangaza.Tangaza import grammar
 from tangaza.Tangaza import utility
 
-class ParserTest(TestCase):
+class GroupsCommandsParserTest(TestCase):
     def setUp(self):
         self.lang = utility.LanguageFactory.create_language('eng')
         
@@ -41,10 +41,10 @@ class ParserTest(TestCase):
         self.assertEqual(result, {'member': '', 'group': 'xyz', 'extras': '', 'command': 'join'})
         
     def test_has_at_after_command(self):
-        '''Tests expressions with '@' e.g 'invite @xyz' '''
-        tokens = 'invite @xyz'.split()
+        '''Tests expressions with '@' e.g 'create @xyz' '''
+        tokens = 'create @xyz'.split()
         result = grammar.parse(tokens,self.lang)
-        self.assertEqual(result, {'member': '', 'group': 'xyz', 'extras': '', 'command': 'invite'})
+        self.assertEqual(result, {'member': '', 'group': 'xyz', 'extras': '', 'command': 'create'})
         
     def test_starts_with_groupname(self):
         '''Tests expressions starting with group name '@' e.g 'xyz leave' '''
@@ -57,4 +57,50 @@ class ParserTest(TestCase):
         tokens = 'delete user_a@xyz'.split()
         result = grammar.parse(tokens,self.lang)
         self.assertEqual(result, {'member': 'user_a', 'group': 'xyz', 'extras': '', 'command': 'delete'})
+        
 
+class UserCommandsParserTest(TestCase):
+    def setUp(self):
+        self.lang = utility.LanguageFactory.create_language('eng')
+        
+    def test_starts_with_at(self):
+        '''Tests expressions starting with '@' e.g '@xyz remove member_a' '''
+        tokens = '@xyz remove member_a'.split()
+        result = grammar.parse(tokens,self.lang)
+        self.assertEqual(result, {'member': 'member_a', 'group': 'xyz', 'extras': '', 'command': 'remove'})
+        
+    def test_has_group_keyword(self):
+        '''Tests existence of 'group' in command 'e.g 'invite group xyz member_a' '''
+        tokens = 'invite group xyz member_a'.split()
+        result = grammar.parse(tokens,self.lang)
+        self.assertEqual(result, {'member': 'member_a', 'group': 'xyz', 'extras': '', 'command': 'invite'})
+        
+    def test_has_at_after_command(self):
+        '''Tests expressions with '@' e.g 'invite @xyz member_a' '''
+        tokens = 'invite @xyz member_a'.split()
+        result = grammar.parse(tokens,self.lang)
+        self.assertEqual(result, {'member': 'member_a', 'group': 'xyz', 'extras': '', 'command': 'invite'})
+        
+    def test_starts_with_groupname(self):
+        '''Tests expressions starting with group name '@' e.g 'xyz remove member_a' '''
+        tokens = 'xyz remove member_a'.split()
+        result = grammar.parse(tokens,self.lang)
+        self.assertEqual(result, {'member': 'member_a', 'group': 'xyz', 'extras': '', 'command': 'remove'})
+        
+    def test_has_user(self):
+        '''Tests expressions that specify user '@' e.g 'remove member_a@xyz' '''
+        tokens = 'remove member_a@xyz'.split()
+        result = grammar.parse(tokens,self.lang)
+        self.assertEqual(result, {'member': 'member_a', 'group': 'xyz', 'extras': '', 'command': 'remove'})
+        
+    def test_has_from_keyword(self):
+        '''Tests expressions that have from keyword e.g. remove member1 from xyz'''
+        tokens = 'remove member1 from xyz'.split()
+        result = grammar.parse(tokens, self.lang)
+        self.assertEqual(result, {'member': 'member1', 'group': 'xyz', 'extras': '', 'command': 'remove'})
+        
+    def test_has_to_keyword(self):
+        '''Tests expressions that have from keyword e.g. invite member1 to xyz'''
+        tokens = 'invite member1 to xyz'.split()
+        result = grammar.parse(tokens, self.lang)
+        self.assertEqual(result, {'member': 'member1', 'group': 'xyz', 'extras': '', 'command': 'invite'})

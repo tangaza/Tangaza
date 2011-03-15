@@ -54,6 +54,42 @@ def parse(tokens, language):
             group = tokens[1]
         
         extras = tokens[2:]
+    elif cmd.is_user_command(tokens[0]):
+        command = tokens[0]
+        
+        if tokens[1] == 'group':
+            #e.g remove group xyz member
+            #err: no group called 'group'
+            del tokens[1]
+        if len(tokens) > 2:
+            if tokens[1].startswith('@'):
+                #e.g remove @xyz member
+                group = tokens[1].lstrip('@')
+                member = tokens[2]
+                extras = tokens[3:]
+            elif tokens[-2] == 'from' or tokens[-2] == 'to':
+                #e.g. invite abc to xyz
+                #e.g. remove abc from xyz
+                member = tokens[1]
+                group = tokens[-1]
+                #e.g. invite abc, abcd, abcde to xyz
+                extras = tokens[2:-2]
+                    
+            elif tokens[2].startswith('@'):
+                #e.g. remove member @xyz
+                group = tokens[2].lstrip('@')
+                member = tokens[1]
+                extras = tokens[2:-1]
+            else:
+                #e.g. remove xyz member
+                group = tokens[1]
+                member = tokens[2]
+                extras = tokens[3:]
+        else:
+            if tokens[1].__contains__('@'):
+                #e.g remove member@xyz
+                member, group = tokens[1].split('@')
+            extras = tokens[2:]
     else:
         #e.g @xyz create, @xyz invite
         if tokens[0].startswith('@'):
@@ -65,6 +101,12 @@ def parse(tokens, language):
             if cmd.is_group_command(tokens[1]):
                 command = tokens[1]
                 extras = tokens[2:]
+            elif cmd.is_user_command(tokens[1]):
+                #e.g. @xyz remove user
+                if len(tokens) > 2:
+                    command = tokens[1]
+                    member = tokens[2]
+                    extras = tokens[3:]
         else:
             #e.g. xyz create
             group = tokens[0]
@@ -74,6 +116,12 @@ def parse(tokens, language):
             if cmd.is_group_command(tokens[1]):
                 command = tokens[1]
                 extras = tokens[2:]
+            elif cmd.is_user_command(tokens[1]):
+                #e.g. xyz remove user
+                if len(tokens) > 2:
+                    command = tokens[1]
+                    member = tokens[2]
+                    extras = tokens[3:]
     
     #remove any punctuation in group name
     import string
@@ -88,8 +136,8 @@ def parse(tokens, language):
 class Commands(object):
     
     def __init__(self, lang):
-        self.GROUP_COMMANDS = [lang.CREATE, lang.INVITE, lang.JOIN, lang.LEAVE, lang.DELETE, lang.REMOVE]
-        self.USER_COMMANDS = []
+        self.GROUP_COMMANDS = [lang.CREATE, lang.JOIN, lang.LEAVE, lang.DELETE]
+        self.USER_COMMANDS = [lang.REMOVE, lang.INVITE]
     
     def is_command(self, command):
         return is_group_command(command) or is_user_command(command)

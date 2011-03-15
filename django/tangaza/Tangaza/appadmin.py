@@ -234,7 +234,7 @@ def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, 
 def invite_user_to_group (request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms'):
     from django.conf import settings
     
-    #logger.debug('request: %s, user: %s, language: %s, group: %s, phone: %s, smsc %s' % (request, user, language, group_name_or_slot, invite_user_phone, smsc))
+    #logger.debug('user: %s, language: %s, group: %s, phone: %s, smsc %s' % (user, language, group_name_or_slot, invite_user_phone, smsc))
     
     invited_user_list = invite_user_phone.replace("+", " ").replace(",", " ").split()
     name = ''

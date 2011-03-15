@@ -127,7 +127,7 @@ def index(request, user, language):
 	elif command == language.INVITE:
 		#(request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms')
 		logger.debug('request invite user %s to group %s' % (user, group_name))
-		#invited_users = ' '.join(extras)
+		invited_users = ' '.join([member, extras])
 		return invite_user_to_group(request, user, language, group_name, invited_users)
         elif command == language.LEAVE:
                 logger.debug('request leave group %s' % group_name)

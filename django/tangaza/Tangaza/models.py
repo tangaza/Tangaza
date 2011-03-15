@@ -164,9 +164,10 @@ class Watumiaji(models.Model):
             
             user = UserPhones.objects.get(phone_number = phone).user
             user.phone_number = phone
-            user.language = ""
+            #user.language = ""
         except UserPhones.DoesNotExist:
             user = None
+            
         return user
     
     @classmethod
