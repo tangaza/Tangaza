@@ -100,13 +100,18 @@ class Language(object):
      JOIN = ""
      INVITE = ""
      LEAVE = ""
+     DELETE = ""
+     REMOVE = ""
      
      def slot_not_free(self, slot):
          return self._slot_status % (slot)
 
      def name_set (self, name):
          return self._name_set % (name)
-
+     
+     def no_user_specified(self):
+         return self._no_user_specified
+     
      def group_too_big_for_sms (self, origin):
          return self._group_too_big_for_sms % (settings.SMS_VOICE["VOICE_%s" % origin])
      
@@ -234,9 +239,11 @@ class EnglishLanguage(Language):
     JOIN = "join"
     INVITE = "invite"
     LEAVE = "leave"
+    DELETE = "delete"
+    REMOVE = "remove"
     
     def __init__(self):
-        
+        self._no_user_specified = "You need to specify a user"
         self._group_too_big_for_sms = "This group's size has exceeded the maximum allowed of 12, for sending sms Tangazos. Call %s to Tangaza using voice instead."
         self._name_set = "OK. Your name has been set. Your friends will now know you as %s."
         self._slot_status = "Slot %s is not available."
@@ -285,9 +292,11 @@ class SwahiliLanguage(Language):
     JOIN = "unga"
     INVITE = "karibisha"
     LEAVE = "toka"
+    DELETE = "futa"
+    REMOVE = "ondoa"
     
     def __init__(self):
-       
+       self._no_user_specified = "Haukusema ni memba yupi katika kikundi"
        self._slot_status = "Nafasi %s kinatumika"
        self._group_too_big_for_sms = "Kikundi hiki ni kikubwa na kimepitisha idadi. Piga %s kutangaza ukitimia sauti yako."
        self._name_set = "Sawa. Marafiki wako sasa watakufahamu kama %s."
@@ -334,6 +343,7 @@ class SwahiliLanguage(Language):
 class ShengLanguage(Language):
     
     def __init__(self):
+        self._no_user_specified = ""
         self._group_too_big_for_sms = ""
         self._slot_status = ""
         self._name_set = ""
@@ -380,6 +390,7 @@ class ShengLanguage(Language):
 class BlankLanguage(Language):
     def __init__(self):
         self._create = ""
+        self._no_user_specified = ""
         self._group_too_big_for_sms = ""
         self._name_set = ""
         self._slot_status = ""

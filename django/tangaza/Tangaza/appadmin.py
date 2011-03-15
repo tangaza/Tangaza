@@ -110,7 +110,7 @@ def request_create_group (request, user, language, group_name, slot):
     
     return language.group_created (group_name, slot, group_type)
 
-@resolve_user
+#@resolve_user
 def delete_group (request, admin, language, group_name_or_slot):
     logger.debug("group: %s" % (group_name_or_slot))
     
@@ -317,7 +317,7 @@ def add_user_to_group (request, user, language, user_added_phone, group_name):
     
     return language.added_user_to_group (user, group)
     
-@resolve_user
+#@resolve_user
 def delete_user_from_group (request, admin, language, group_name_or_slot, del_user_phone):
     del_user_list = del_user_phone.replace("+", " ").split()
     logger.debug ("group: %s users: %s" % (group_name_or_slot, del_user_list))
@@ -328,7 +328,14 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
     
     if group is None:
         return language.unknown_group (group_name_or_slot)
-            
+    
+    if len(del_user_list) < 1:
+        return language.no_user_specified()
+    
+    del_user = Watumiaji.objects.filter(name_text = del_user_list[0])
+    if not del_user:
+        return language.unknown_user(del_user_list[0])
+    
     if del_user.user_id == admin.user_id:
         msg_list.append(language.cannot_leave_own_group())
     
