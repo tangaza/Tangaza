@@ -127,6 +127,30 @@ class VikundiAdmin(admin.ModelAdmin):
                 obj.org = org
         obj.save()
         return obj
+    
+    def activate_selected(self, request, queryset):
+        for obj in queryset:
+            obj.activate()
+            
+        if queryset.count() == 1:
+            message_bit = "1 vikundi was"
+        else:
+            message_bit = "%s vikundi were" % queryset.count()
+        self.message_user(request, "%s successfully activated." % message_bit)
+        
+    activate_selected.short_description = "Activate selected vikundi"
+    
+    def deactivate_selected(self, request, queryset):
+        for obj in queryset:
+            obj.deactivate()
+            
+        if queryset.count() == 1:
+            message_bit = "1 vikundi was"
+        else:
+            message_bit = "%s vikundi were" % queryset.count()
+        self.message_user(request, "%s successfully deactivated." % message_bit)
+        
+    deactivate_selected.short_description = "Deactivate selected vikundi"
 
 admin.site.register(Vikundi, VikundiAdmin)
 

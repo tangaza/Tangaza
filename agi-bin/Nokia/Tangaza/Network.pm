@@ -57,13 +57,24 @@ sub select_network_menu {
 
     $self->log (4, "end select_network_menu");
 
-    #return the group_id based on the selected slot                                                                                            
+    #return the group_id based on the selected slot
     my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
         ({user_id => $self->{user}->{id}, slot => $network_code},
-         {select => [qw/group_id/]});
-
+         {join => 'group_id',
+	  select => [qw/group_id group_name_file/]});
+    
     my $group = $group_rs->next;
     my $group_id = $group->group_id->id if (defined($group));
+    my $group_name = $group->group_id->group_name_file if (defined($group));
+    
+    if (defined($group)) {
+	my $prefs = $self->get_property('prefs');
+	$groups_dir = $prefs->{paths}->{NASI_DATA}.'/groups/';
+	
+	&stream_file($self, 'you-entered', "#");
+	$self->agi->stream_file($groups_dir.$group_name, "#");
+    }
+    
     $self->log(4, "Selected group: ".$group_id);
     return $group_id;
 

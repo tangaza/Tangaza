@@ -11,7 +11,7 @@ Section: net
 Priority: optional
 Architecture: all
 Homepage: http://github.com/odero/Tangaza
-Depends: ${misc:Depends}, ${perl:Depends}, ${python:Depends}, libdbix-class-perl (>= 0.08), mysql-server (>= 5.0), asterisk (>= 1.4.21.2), libasterisk-agi-perl, libnet-cidr-perl, kannel (>= 1.4.1), python-django (>= 1.2), festival, libapache2-mod-wsgi, python-mysqldb, libuniversal-require-perl, libmodule-install-perl, libnet-server-perl, libconfig-tiny-perl
+Depends: ${misc:Depends}, ${perl:Depends}, ${python:Depends}, libdbix-class-perl (>= 0.08), mysql-server (>= 5.0), asterisk (>= 1.4.21.2), libasterisk-agi-perl, libnet-cidr-perl, kannel (>= 1.4.1), python-django (>= 1.2), festival, libapache2-mod-wsgi, python-mysqldb, libuniversal-require-perl, libmodule-install-perl, libnet-server-perl, libconfig-tiny-perl, libmath-random-perl
 Recommends: libdbix-class-schema-loader-perl
 Description: A mobile phone-based group messaging system.
  Tangaza provides both voice and text as mediums of group communication.
