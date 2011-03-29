@@ -36,7 +36,7 @@ def read_config():
 SMS_VOICE = {
     'SMS_USERNAME_KE': '',
     'SMS_PASSWORD_KE': '',
-    'SMS_URL_KE': '',
+    'SMS_URL_KE': 'http://localhost/test.php',
     'SMS_FROM_KE': '',
     'SMS_SMSC_KE': '',
     'VOICE_KE': '',
@@ -44,7 +44,7 @@ SMS_VOICE = {
 
     'SMS_USERNAME_US': '',
     'SMS_PASSWORD_US': '',
-    'SMS_URL_US': '',
+    'SMS_URL_US': 'http://localhost/test.php',
     'SMS_FROM_US': '',
     'SMS_SMSC_US': '',
     'VOICE_US': '',
@@ -77,9 +77,11 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         'OPTIONS': {
             'init_command': 'SET storage_engine=INNODB',
-        }
+        },
+        'TEST_CHARSET': 'UTF8',
     }
 }
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

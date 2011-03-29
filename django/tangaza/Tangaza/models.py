@@ -254,7 +254,7 @@ class Watumiaji(models.Model):
         return user
 
 class Organization(models.Model):
-    org_name = models.CharField(max_length=270, db_index=True, verbose_name=u'Name', help_text="The name of the Organisation")
+    org_name = models.CharField(max_length=210, db_index=True, verbose_name=u'Name', help_text="The name of the Organisation")
     org_admin = models.ForeignKey(User, verbose_name=u'Administrator', help_text="Who is the administrator of this organization?")
     #tangaza_account = models.ForeignKey(Watumiaji, help_text="What is their Tangaza account?")
     toll_free_number  = models.CharField(max_length=21,help_text="What is the toll free number this organisation are using?")

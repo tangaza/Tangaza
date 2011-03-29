@@ -39,13 +39,22 @@ logger = logging.getLogger(__name__)
 ##Admin actions
 #@resolve_user
 def request_create_group (request, user, language, group_name, slot):
+    from django.template.defaultfilters import slugify
     
     logger.debug ("user %s group_name %s slot %s" % (user, group_name, slot))
 
     slot = urllib.unquote_plus(slot)
 
     group_type = 'private'
-
+    
+    #only allow group leaders to create groups
+    #group leader is the group admin of the main/default organization's group
+    default_org = UserGroups.objects.filter(user = user).order_by('pk')[0].group.org
+    groups = Vikundi.objects.filter(group_name = slugify(default_org))
+    if len(groups) > 0:
+        if not user.is_admin(groups[0]):
+            return lang.action_not_allowed()
+    
     if not user.has_empty_slot ():
         return language.user_has_no_empty_slots ()
                 
@@ -65,7 +74,6 @@ def request_create_group (request, user, language, group_name, slot):
         slot = ''
     
     msg_list = []
-    
     
     if slot is None or len(slot) < 1:
         logger.debug ("slot is none")
@@ -336,7 +344,7 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
     if not del_user:
         return language.unknown_user(del_user_list[0])
     
-    if del_user.user_id == admin.user_id:
+    if del_user[0].pk == admin.pk:
         msg_list.append(language.cannot_leave_own_group())
     
     if not admin.is_admin (group):
@@ -351,8 +359,15 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
     non_members = []
     
     for user_phone in del_user_list:
-        del_user = Watumiaji.resolve(user_phone)
-        if del_user == None:
+        if user_phone.isdigit():
+            del_user = Watumiaji.resolve(user_phone)
+        else:
+            #in case the admin used the members nickname
+            del_user = Watumiaji.objects.filter(name_text = user_phone)
+            if len(del_user) > 0:
+                del_user = del_user[0]
+        
+        if not del_user:
             invalid_users.append(user_phone)
         else:
             if del_user.is_member (group):
@@ -366,7 +381,7 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
     if len(valid_users) > 0:
         valid_users = string.join(valid_users, ",")
         msg_list.append(language.deleted_user_from_group (valid_users, group))
-        
+    
     if len(invalid_users) > 0:
         invalid_users = string.join(invalid_users, ",")
         msg_list.append(language.unknown_user (invalid_users))

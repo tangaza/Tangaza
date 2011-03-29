@@ -89,7 +89,7 @@ class VikundiAdmin(admin.ModelAdmin):
     
     #NOTE: Reason for overriding changelist_view, add_view, change_view
     #####################
-    #Since the superusers is not associated with any particular organization
+    #Since the superusers are not associated with any particular organization
     #they should be able to select an organization from a dropdown.
     #Other users are already associated with specific organizations
     def changelist_view(self, request, extra_context=None):
@@ -110,14 +110,14 @@ class VikundiAdmin(admin.ModelAdmin):
     
     def queryset(self, request):
         #Limit the groups that are displayed
-        #Superuser sees all; other users only see groups belonging to their organization
+        #Superuser sees all; other system admins only see groups belonging to their organization
         qs = super(VikundiAdmin, self).queryset(request)
         if not request.user.is_superuser:
             qs = qs.filter(org = request.user.organization_set.get())
         return qs.exclude(group_type = 'mine')
     
     def save_model(self, request, obj, form, change):
-        #Members organization = sytem admins (system admin == request.user)
+        #Members organization = system admins (system admin == request.user)
         #If its the superuser, this is already retrieved from org dropdown field
         if not change:
             if request.user.is_superuser:
@@ -192,7 +192,7 @@ class WatumiajiAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         new_watumiaji = form.save(commit=False)
         new_watumiaji.save()
-        #Super users dont belong to any group so have to display an dropdown organization field
+        #Super users dont belong to any group so have to display a dropdown field for organization
         #that they can use to allocate the user
         if request.user.is_superuser:
             org_id = request.POST['organization']

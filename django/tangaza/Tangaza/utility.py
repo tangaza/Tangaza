@@ -43,9 +43,13 @@ def resolve_user (func):
         #logger.debug ('validate A')
         p = UserPhones.objects.filter(phone_number = source_phone)
         logger.debug(p)
+        
+        # XXX pull out the users language from the DB
+        language = LanguageFactory.create_language('eng')
+        
         if len(p) < 1:
             #user = Watumiaji.create_user(args[1], args[1])
-            return HttpResponse('You cannot use tangaza if you are not a member')
+            return HttpResponse(language.not_allowed_to_use_tangaza())
         else:
             user = p[0].user
         
@@ -54,7 +58,6 @@ def resolve_user (func):
         user.phone_number = source_phone
     	
         # XXX pull out the users language from the DB
-        language = LanguageFactory.create_language('eng')
         new_args = [args[0], user, language]
         arg_data = args[2:] #the other data e.g. slot, group name etc
         new_args.extend(arg_data)
@@ -103,12 +106,18 @@ class Language(object):
      DELETE = ""
      REMOVE = ""
      
+     def action_not_allowed(self):
+         return self._action_not_allowed
+     
+     def not_allowed_to_use_tangaza(self):
+         return self._not_allowed_to_use_tangaza
+     
      def slot_not_free(self, slot):
          return self._slot_status % (slot)
 
      def name_set (self, name):
          return self._name_set % (name)
-     
+
      def no_user_specified(self):
          return self._no_user_specified
      
@@ -243,6 +252,8 @@ class EnglishLanguage(Language):
     REMOVE = "remove"
     
     def __init__(self):
+        self._action_not_allowed = "You are not allowed to perform that action. You have to be a group leader."
+        self._not_allowed_to_use_tangaza = "You cannot use tangaza if you are not a member" 
         self._no_user_specified = "You need to specify a user"
         self._group_too_big_for_sms = "This group's size has exceeded the maximum allowed of 12, for sending sms Tangazos. Call %s to Tangaza using voice instead."
         self._name_set = "OK. Your name has been set. Your friends will now know you as %s."
@@ -296,6 +307,8 @@ class SwahiliLanguage(Language):
     REMOVE = "ondoa"
     
     def __init__(self):
+       self._action_not_allowed = "Hauruhusiwi kufanya hivyo. Lazima uwe kiongozi wa kikundi."
+       self._not_allowed_to_use_tangaza = "Lazima kwanza uwe member wa Tangaza ndio uweze kuitumia."
        self._no_user_specified = "Haukusema ni memba yupi katika kikundi"
        self._slot_status = "Nafasi %s kinatumika"
        self._group_too_big_for_sms = "Kikundi hiki ni kikubwa na kimepitisha idadi. Piga %s kutangaza ukitimia sauti yako."
@@ -343,6 +356,8 @@ class SwahiliLanguage(Language):
 class ShengLanguage(Language):
     
     def __init__(self):
+        self._action_not_allowed = ""
+        self._not_allowed_to_use_tangaza = ""
         self._no_user_specified = ""
         self._group_too_big_for_sms = ""
         self._slot_status = ""
@@ -389,7 +404,8 @@ class ShengLanguage(Language):
 
 class BlankLanguage(Language):
     def __init__(self):
-        self._create = ""
+        self._action_not_allowed = ""
+        self._not_allowed_to_use_tangaza = ""
         self._no_user_specified = ""
         self._group_too_big_for_sms = ""
         self._name_set = ""
