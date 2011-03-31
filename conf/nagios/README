@@ -1,0 +1,33 @@
+These files are used to configure nagios to monitor tangaza services
+To access nagios admin go to "http://your_server/nagios3/"
+
+1. contacts.cfg
+   - Defines the contact(s) to be notified of the server and service problems
+   - Edit Email and pager in contacts.cfg. Pager should just be a mobile phone number to be notified via SMS
+   - Appended to /etc/nagios3/conf.d/contacts_nagios2.cfg
+
+2. kannel.cfg
+   - Defines the nagios command that monitors kannel 
+   - Copied to /etc/nagios-plugins/config/kannel.cfg
+
+3. nagios_service.cfg
+   - Defines the kannel service that is to be monitored
+   - Appended to /etc/nagios3/conf.d/services_nagios2.cfg 
+
+4. notify-command.cfg
+   - Defines the nagios command that send sends sms notifications
+   - Appended to /etc/nagios3/commands.cfg
+
+5. hostgroups.cfg
+   - Defines the kannel hostgroup
+   - Appended to /etc/nagios3/conf.d/hostgroups_nagios2.cfg
+    
+6. send_sms.py
+   - A script that sends sms to the admin in case the service has problems.
+   - Modify the username, password and host values to point to your sms server
+   - Copied to /usr/lib/nagios/plugins/tangaza-monitor/send_sms.py
+
+7. check_kannel
+   - A script that monitors kannel status
+   - Downloaded from http://www.fantacast.it/files/check_kannel/check_kannel-1.1.1.tar.gz (GPL)
+   - Copied to /usr/lib/nagios/plugins/tangaza-monitor/check_kannel

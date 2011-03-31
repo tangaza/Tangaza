@@ -1,0 +1,512 @@
+#! /usr/bin/perl
+#
+# (C)2006 Luca Corti, Lorenzo Vigano' - (C) 2007 Luca Corti
+# $Id: check_kannel.pl,v 1.1.1 2007/09/03 15:36:23 lcorti Exp $
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
+require 5.004;
+use strict;
+use POSIX;
+use LWP::UserAgent;
+use XML::DOM;
+use XML::XPath;
+use XML::XPath::XMLParser;
+use Getopt::Long;
+use vars qw($opt_V $opt_v $opt_P $opt_p $opt_h $opt_H $opt_s $opt_t $opt_w $opt_c $opt_i $opt_j $opt_k $opt_o $opt_q $opt_r $opt_S $opt_W %kannel %plugin $response $ua $xp $PROGNAME $PROGREV);
+use lib "/usr/lib/nagios/plugins";
+use utils qw($TIMEOUT %ERRORS &print_revision);
+
+$PROGNAME="check_kannel";
+$PROGREV='$Revision: 1.1.1 $';
+
+$ENV{'PATH'}='';
+$ENV{'BASH_ENV'}='';
+$ENV{'ENV'}='';
+
+sub print_output($);
+sub print_help();
+sub print_usage();
+
+# Plugin data
+%plugin = (
+	hostname    => 'localhost',
+	password    => '',
+	port        => '13000',
+	timeout     => "$TIMEOUT",
+	url         => '',
+	verbose     => '0',
+	check       => {
+		smsbox => 0,
+		wapbox => 0
+	},
+	thresholds  => {
+		sms => {
+			received => {
+				total => {
+					warning  => 0,
+					critical => 0
+				},
+				queued => {
+					warning  => 0,
+					critical => 0
+				}
+			},
+			sent => {
+				total => {
+					warning  => 0,
+					critical => 0
+				},
+				queued => {
+					warning  => 0,
+					critical => 0
+				}
+			}
+		},
+		dlr => {
+			queued => {
+				warning  => 0,
+				critical => 0
+			}
+		},
+		boxes => {
+			smsbox => {
+				online => {
+					warning  => 1,
+					critical => 0
+				}
+			},
+			wapbox => {
+				online => {
+					warning  => 1,
+					critical => 0
+				}
+			}
+		},
+		smscs => {
+			online => {
+				warning  => 1,
+				critical => 0
+			}
+		}
+	}
+);
+
+# Kannel status.xml imported data structure
+%kannel = (
+	version => '',
+	status  => '',
+	wdp => {
+		received => {
+			total  => 0,
+			queued => 0
+		},
+		sent => {
+			total  => 0,
+			queued => 0
+		},
+	},
+	sms => {
+		received => {
+			total  => 0,
+			queued => 0
+		},
+		sent => {
+			total  => 0,
+			queued => 0
+		},
+		storesize => '',
+		inbound   => '',
+		outbound  => ''
+	},
+	dlr  => {
+		queued  => '',
+		storage => ''
+	},
+	boxes => {
+		smsbox => {
+			count  => 0,
+			online => 0
+		},
+		wapbox => {
+			count  => 0,
+			online => 0
+		}
+	},
+	smscs => {
+		count  => '',
+		online => 0
+	}
+);
+
+Getopt::Long::Configure('bundling');
+GetOptions
+	("V"   => \$opt_V, "version"        => \$opt_V,
+	 "h"   => \$opt_h, "help"           => \$opt_h,
+	 "v"   => \$opt_v, "verbose"        => \$opt_v,
+	 "s"   => \$opt_s, "secure"         => \$opt_s,
+	 "S"   => \$opt_S, "smsbox"         => \$opt_S,
+	 "W"   => \$opt_W, "wapbox"         => \$opt_W,
+	 "w=i" => \$opt_w, "warning=i"      => \$opt_w,
+	 "c=i" => \$opt_c, "critical=i"     => \$opt_c,
+	 "i=i" => \$opt_i, "smsrecvqwarn=i" => \$opt_i,
+	 "j=i" => \$opt_j, "smsrecvqcrit=i" => \$opt_j,
+	 "k=i" => \$opt_k, "smsrecvrate=i"  => \$opt_k,
+	 "o=i" => \$opt_o, "smssendqwarn=i" => \$opt_o,
+	 "q=i" => \$opt_q, "smssendqcrit=i" => \$opt_q,
+	 "r=i" => \$opt_r, "smssendrate=i"  => \$opt_r,
+	 "t=i" => \$opt_t, "timeout=i"      => \$opt_t,
+	 "H=s" => \$opt_H, "host=s"         => \$opt_H,
+	 "P=i" => \$opt_P, "port=i"         => \$opt_P,
+	 "p=s" => \$opt_p, "password=s"     => \$opt_p);
+
+if ($opt_V)
+{
+	print_revision($PROGNAME,$PROGREV);
+	exit $ERRORS{'UNKNOWN'};
+}
+
+if ($opt_h)
+{
+	print_help();
+	exit $ERRORS{'UNKNOWN'};
+}
+
+if ($opt_v)
+{
+	$plugin{verbose} = 1;
+}
+
+if ($opt_H and $opt_H =~ m/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[a-zA-Z][-a-zA-Z0-9]+(\.[a-zA-Z][-a-zA-Z0-9]+)*)$/)
+{
+	$plugin{hostname} = $opt_H;
+}
+
+if ($opt_P and $opt_P =~ /^([0-9]+)$/)
+{
+	$plugin{port} = $1;
+}
+
+if ($opt_p)
+{
+	$plugin{password} = $opt_p;
+}
+
+if ($opt_t and $opt_t =~ /^([0-9]+)$/)
+{
+	$plugin{timeout} = $1;
+}
+
+if ($opt_S)
+{
+	$plugin{check}{smsbox} = 1;
+}
+
+if ($opt_W)
+{
+	$plugin{check}{wapbox} = 1;
+}
+
+if ($opt_w and $opt_w =~ /^([0-9]+)$/)
+{
+	$plugin{thresholds}{smscs}{online}{warning} = $1;
+}
+
+if ($opt_c and $opt_c =~ /^([0-9]+)$/)
+{
+	$plugin{thresholds}{smscs}{online}{critical} = $1;
+}
+
+if ($opt_i and $opt_i =~ /^([0-9]+)$/)
+{
+	$plugin{thresholds}{sms}{received}{queued}{warning} = $1;
+}
+
+if ($opt_j and $opt_j =~ /^([0-9]+)$/)
+{
+	$plugin{thresholds}{sms}{received}{queued}{warning} = $1;
+}
+
+if ($opt_o and $opt_o =~ /^([0-9]+)$/)
+{
+	$plugin{thresholds}{sms}{sent}{queued}{warning} = $1;
+}
+
+if ($opt_q and $opt_q =~ /^([0-9]+)$/)
+{
+	$plugin{thresholds}{sms}{sent}{queued}{critical} = $1;
+}
+
+if ($plugin{thresholds}{smscs}{online}{critical} > $plugin{thresholds}{smscs}{online}{warning})
+{
+	print "Fatal: Online SMSCs critical offset ($plugin{thresholds}{smscs}{online}{critical}) must be smaller than warning offset ($plugin{thresholds}{smscs}{online}{warning}).\n";
+	print_usage();
+	exit $ERRORS{"UNKNOWN"};
+}
+
+#if ($plugin{thresholds}{sms}{received}{queued}{warning} >= $plugin{thresholds}{sms}{received}{queued}{critical})
+#{
+#	print "Fatal: SMS received queues critical offset must be smaller than warning offset.\n";
+#	print_usage();
+#	exit $ERRORS{"UNKNOWN"};
+#}
+
+#if ($plugin{thresholds}{sms}{sent}{queued}{warning} >= $plugin{thresholds}{sms}{sent}{queued}{critical})
+#{
+#	print "Fatal: SMS sent queues critical offset must be smaller than warning offset.\n";
+#	print_usage();
+#	exit $ERRORS{"UNKNOWN"};
+#}
+
+# Just in case of problems, let's not hang Nagios
+$SIG{'ALRM'} = sub
+{
+	print ("UNKNOWN: No response from Kannel server (timeout)\n");
+	exit $ERRORS{"UNKNOWN"};
+};
+
+alarm($plugin{timeout});
+
+$plugin{url}="http://".$plugin{hostname}.":".$plugin{port}."/status.xml?password=".$plugin{password};
+$plugin{verbose} and print"Will try to get status from ".$plugin{url}."...";
+
+# Get status.xml from server
+$ua = LWP::UserAgent->new;
+if ($opt_s)
+{
+	$ua->protocols_allowed([ 'https' ]);
+}
+else
+{
+	$ua->protocols_allowed([ 'http' ]);
+}
+$ua->timeout(10);
+$ua->env_proxy;
+ 
+$response = $ua->get($plugin{url});
+
+if ($response->is_success)
+{
+	$plugin{verbose} and print " got response from server!\n" and print "\n".$response->content."\n";
+}
+else
+{
+	print "CRITICAL: Can't connect to Kannel: ".$response->status_line."\n";
+	exit $ERRORS{"CRITICAL"};
+}
+ 
+$xp = XML::XPath->new(xml => $response->content);
+
+if ($xp->getNodeText("/gateway") =~ /Denied/)
+{
+	print "UNKNOWN: Can't connect to Kannel: Access Denied (wrong password?)\n";
+	exit $ERRORS{"UNKNOWN"};
+}
+
+$kannel{status} = $xp->getNodeText("/gateway/status");
+($kannel{status}, $kannel{uptime}) = split(/,/,$kannel{status});
+$kannel{sms}{received}{queued} = $xp->getNodeText("/gateway/sms/received/queued");
+$kannel{sms}{sent}{queued} = $xp->getNodeText("/gateway/sms/sent/queued");
+$kannel{sms}{inbound} = $xp->getNodeText("/gateway/sms/inbound");
+$kannel{sms}{outbound} = $xp->getNodeText("/gateway/sms/outbound");
+$kannel{sms}{storesize} = $xp->getNodeText("/gateway/sms/storesize");
+$kannel{dlr}{queued} = $xp->getNodeText("/gateway/dlr/queued");
+$kannel{dlr}{storage} = $xp->getNodeText("/gateway/dlr/storage");
+$kannel{smscs}{count} = $xp->getNodeText("/gateway/smscs/count");
+
+# Get number of total/online sms/wap boxes
+foreach my $box ($xp->findnodes("/gateway/boxes/box"))
+{
+
+	my $type = $box->findnodes("type");
+	my $status = $box->findnodes("status");
+
+	# smsboxes
+	if ($type->string_value eq "smsbox")
+	{
+		$kannel{boxes}{smsbox}{count}++;
+		
+		if ($status->string_value =~ /^on-line/)
+		{
+			$kannel{boxes}{smsbox}{online}++;
+		}
+	# wapboxes
+	}
+	elsif ($type->string_value eq "wapbox")
+	{
+		$kannel{boxes}{wapbox}{count}++;
+		if ($status->string_value =~ /^on-line/)
+		{
+			$kannel{boxes}{wapbox}{online}++;
+		}
+	}
+
+}
+
+# Get number of total/online smscs
+foreach my $smsc ($xp->findnodes("/gateway/smscs/smsc/status"))
+{
+	if ($smsc->string_value =~ /^online/)
+	{
+		$kannel{smscs}{online}++;
+	}
+}
+
+# Kannel running
+if ($kannel{status} eq 'running')
+{
+
+	# smsboxes connected
+	if ($plugin{check}{smsbox} and $kannel{boxes}{smsbox}{online} >= 0 and $kannel{boxes}{smsbox}{online} <= $plugin{thresholds}{boxes}{smsbox}{online}{critical})
+	{
+
+		exit print_output('CRITICAL');
+
+	}
+	elsif ($kannel{boxes}{smsbox}{online} >= $plugin{thresholds}{boxes}{smsbox}{online}{critical} and $kannel{boxes}{smsbox}{online} <= $plugin{thresholds}{boxes}{smsbox}{online}{warning} and $kannel{boxes}{smsbox}{online} > 1)
+	{
+		exit print_output('WARNING');
+	}
+
+	# wapboxes running
+	if ($plugin{check}{wapbox} and $kannel{boxes}{wapbox}{online} >= 0 and $kannel{boxes}{wapbox}{online} <= $plugin{thresholds}{boxes}{wapbox}{online}{critical})
+	{
+
+		exit print_output('CRITICAL');
+
+	}
+	elsif ($kannel{boxes}{wapbox}{online} >= $plugin{thresholds}{boxes}{wapbox}{online}{critical} and $kannel{boxes}{wapbox}{online} <= $plugin{thresholds}{boxes}{wapbox}{online}{warning} and $kannel{boxes}{wapbox}{online} > 1)
+	{
+
+		exit print_output('WARNING');
+
+	}
+
+	# smscs online
+	if ($kannel{smscs}{online} >= 0 and $kannel{smscs}{online} <= $plugin{thresholds}{smscs}{online}{critical})
+	{
+
+		exit print_output('CRITICAL');
+
+	}
+	elsif ($kannel{smscs}{online} >= $plugin{thresholds}{smscs}{online}{critical} and $kannel{smscs}{online} <= $plugin{thresholds}{smscs}{online}{warning} and $kannel{smscs}{online} > 1)
+	{
+		exit print_output('WARNING');
+	}
+
+	if ($plugin{thresholds}{sms}{received}{queued}{warning} != 0 and $plugin{thresholds}{sms}{received}{queued}{critical} != 0)
+	{
+		if ($kannel{sms}{received}{queued} > $plugin{thresholds}{sms}{received}{queued}{critical} or $kannel{sms}{sent}{queued} > $plugin{thresholds}{sms}{sent}{queued}{critical})
+		{
+			exit print_ouput{'CRITICAL'};
+		}
+	}
+
+	if ($plugin{thresholds}{sms}{sent}{queued}{warning} != 0 and $plugin{thresholds}{sms}{sent}{queued}{critical} != 0)
+	{
+
+		if ($kannel{sms}{received}{queued} > $plugin{thresholds}{sms}{received}{queued}{warning} or $kannel{sms}{sent}{queued} > $plugin{thresholds}{sms}{sent}{queued}{warning})
+		{
+			exit print_output('WARNING');
+		}
+
+	}
+	else
+	{
+		exit print_output('OK');
+	}
+
+}
+elsif ($kannel{status} =~ /^(suspended|isolated|full|shutdown)/)
+{
+	exit print_output('WARNING');
+}
+else
+{
+	exit print_output('CRITICAL');
+}
+
+#### subs
+
+sub print_output($)
+{
+	my $state = shift;
+	print "Kannel $state - $kannel{status},$kannel{uptime}, $kannel{boxes}{smsbox}{online}/$kannel{boxes}{smsbox}{count} SMSBOX, $kannel{boxes}{wapbox}{online}/$kannel{boxes}{wapbox}{count} WAPBOX, $kannel{smscs}{online}/$kannel{smscs}{count} SMSC, $kannel{sms}{received}{queued}/$kannel{sms}{sent}{queued} SMS queued in/out, $kannel{dlr}{queued} DLR queued ($kannel{dlr}{storage}), store-file $kannel{sms}{storesize} bytes\n";
+	return $ERRORS{"$state"};
+}
+
+sub print_usage()
+{
+	print "Usage: $PROGNAME [ OPTIONS ]\n";
+}
+
+sub print_help()
+{
+	print_revision($PROGNAME, $PROGREV);
+	print "Copyright (c) 2006 Luca Corti, Lorenzo Vigano - 2007 Luca Corti\n";
+	print "\n";
+	print "Checks the status of the process, online sms and wap boxes, connected SMSCs, SMS queues and delivery rate for a kannel instance via the status.xml interface.";
+	print "\n";
+	print_usage();
+	print "Checks the Kannel, configured SMSCs and SMS received/sent queues/rates on <host> via the status.xml interface.
+
+-w (--warning)
+     Number of connected SMSCs below which a warning status will be generated.
+     Defaults to 1.
+-c (--critical) 
+     Number of connected SMSCs below which a critical status will be generated.
+     Defaults to 0.
+-S (--smsbox)
+     Consider absence of at least a SMSBOX process a critical condition.
+     Defaults to false.
+-W (--wapbox) 
+     Consider absence of at least a WAPBOX process a critical condition.
+     Defaults to false.
+-i (--smsrecvqwarn)
+     Number of SMSs in the receive queue above which a warning status will be generated.
+     Defaults to 0.
+-j (--smsrecvqcrit)	
+     Number of SMSs in the receive queue above which a critical status will be generated.
+     Defaults to 0.
+-k (--smsrecvrate)	
+     Receive rate of SMSs below which a critical status will be generated.
+     Defaults to 0.
+-o (--smssendqwarn)
+     Number of SMSs in the receive queue above which a warning status will be generated.
+     Defaults to 0.
+-q (--smssendqcrit)	
+     Number of SMSs in the receive queue above which a critical status will be generated.
+     Defaults to 0.
+-r (--smssendrate)	
+     Send rate of SMSs below which a critical status will be generated.
+     Defaults to 0.
+-t (--timeout) 
+     Timeout in seconds at which an unknown status will be generated.
+     Defaults to $TIMEOUT.
+-s (--secure)
+     Connect to the serverly using HTTPS instead of HTTP.
+     Defaults to false. (HTTP)
+-H (--host)
+     Hostname of the Kannel server on which the status interface is running.
+     Defaults to localhost.
+-P (--port)
+     Port number at which the status interface is reachable on the server.
+     Defaults to 13000.
+-p (--password)
+     Password needed to access the status interface.
+     Defaults to blank (no password).
+\n";	
+
+}

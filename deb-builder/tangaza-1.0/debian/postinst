@@ -155,20 +155,22 @@ fi
 
 TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 #set django-admin css files
-#For ubuntu
-if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
-    DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
-    ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
-    ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
-    ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
-fi
-
-#For debian
-if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/dashboard.css' ]; then
-    DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
-    ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
-    ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
-    ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
+if [ -f "$TGZ_DJANGO_MEDIA/css/dashboard.css" ]; then
+    #For ubuntu
+    if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
+	DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
+	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
+	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
+	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
+    fi
+    
+    #For debian
+    if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/dashboard.css' ]; then
+	DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
+	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
+	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
+	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
+    fi
 fi
 
 #check if apache is running and restart it
@@ -183,6 +185,32 @@ chown -R $AST_USER\: /etc/tangaza/
 chown -R $AST_USER\: /var/log/tangaza/
 chown -R $AST_USER\: /var/spool/tangaza/
 chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
+
+
+#Configuring  nagios
+echo "Configuring nagios..."
+
+if [ ! -f "/usr/lib/nagios/plugins/tangaza-monitor/contacts_nagios2.cfg-tgzbak" ]; then
+    # Backup
+    cp /etc/nagios3/conf.d/contacts_nagios2.cfg /etc/nagios3/conf.d/contacts_nagios2.cfg-tgzbak
+    cp /etc/nagios3/conf.d/services_nagios2.cfg /etc/nagios3/conf.d/services_nagios2.cfg-tgzbak
+    cp /etc/nagios3/commands.cfg /etc/nagios3/commands.cfg-tgzbak
+    cp /etc/nagios3/conf.d/hostgroups_nagios2.cfg  /etc/nagios3/conf.d/hostgroups_nagios2.cfg-tgzbak
+    
+    # Add configs to nagios
+    ln -s $TGZ_CONF/nagios/kannel.cfg /etc/nagios-plugins/config/
+    ln -s $TGZ_CONF/nagios/send_sms.py /usr/lib/nagios/plugins/tangaza-monitor/
+    ln -s $TGZ_CONF/nagios/check_kannel /usr/lib/nagios/plugins/tangaza-monitor/
+    
+    # Append to nagios configs
+    cat $TGZ_CONF/nagios/contacts.cfg >> /etc/nagios3/conf.d/contacts_nagios2.cfg
+    cat $TGZ_CONF/nagios/nagios_service.cfg >> /etc/nagios3/conf.d/services_nagios2.cfg
+    cat $TGZ_CONF/nagios/notify-command.cfg >> /etc/nagios3/commands.cfg
+    cat $TGZ_CONF/nagios/hostgroups.cfg >> /etc/nagios3/conf.d/hostgroups_nagios2.cfg
+    
+    /etc/init.d/nagios3 restart
+fi
+
 
 #DEBHELPER#
 

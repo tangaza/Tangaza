@@ -47,10 +47,10 @@ if [ ! -f "$DEB_PATH/tangaza_1.0-1_all.deb" ]; then
 fi
 
 echo "Initializing install process..."
-echo "Ich $PWD"
+
 CWD=$PWD
 cd $DEB_PATH
-echo "pin $PWD"
+
 #check if it has been added to sources.list and add
 dpkg-scanpackages . /dev/null |gzip -c -9 > Packages.gz
 

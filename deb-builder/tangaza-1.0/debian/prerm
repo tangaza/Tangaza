@@ -52,6 +52,11 @@ fi
 TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 find $TGZ_DJANGO_MEDIA -type l -exec rm {} +;
 
+#5. Nagios symlinks
+rm -rf /usr/lib/nagios/plugins/tangaza-monitor
+rm /etc/nagios-plugins/config/kannel.cfg
+
+
 #DEBHELPER#
 
 exit 0
