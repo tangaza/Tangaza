@@ -38,7 +38,7 @@ def filtered_user_queryset(request):
     user_groups = UserGroups.objects.filter(group__in = groups)
     users = [ug.user.user_id for ug in user_groups]
     
-    qs = Users.objects.filter(user_id__in = users)
+    qs = Watumiaji.objects.filter(id__in = users)
     
     return qs
 
@@ -79,8 +79,8 @@ class UserPhonesInline(admin.TabularInline):
 
 #Groups customization
 class VikundiAdmin(admin.ModelAdmin):
-    list_display = ('group_name', 'group_type', 'is_active')
-    list_filter = ('group_type', 'is_active')
+    list_display = ['group_name', 'group_type', 'is_active', 'user_count', 'admin_count']
+    list_filter = ['group_type', 'is_active']
     inlines = [GroupAdminInline, UserGroupInline]
     search_fields = ['group_name']
     form = VikundiForm
@@ -93,6 +93,7 @@ class VikundiAdmin(admin.ModelAdmin):
     #they should be able to select an organization from a dropdown.
     #Other users are already associated with specific organizations
     def changelist_view(self, request, extra_context=None):
+        #self.list_display.append('user_count')
         if request.user.is_superuser and not self.list_display.__contains__('org'):
             #self.list_display.append('is_deleted')
             self.list_display.append('org')
@@ -109,11 +110,13 @@ class VikundiAdmin(admin.ModelAdmin):
         return super(VikundiAdmin, self).change_view(request, object_id, extra_context)
     
     def queryset(self, request):
+        from django.db.models import Count
         #Limit the groups that are displayed
         #Superuser sees all; other system admins only see groups belonging to their organization
         qs = super(VikundiAdmin, self).queryset(request)
         if not request.user.is_superuser:
             qs = qs.filter(org = request.user.organization_set.get())
+            #qs = qs.annotate(user_count=Count('usergroups'))
         return qs.exclude(group_type = 'mine')
     
     def save_model(self, request, obj, form, change):
@@ -223,8 +226,8 @@ class WatumiajiAdmin(admin.ModelAdmin):
             org = request.user.organization_set.get()
             groups = Vikundi.objects.filter(org = org)
             user_groups = UserGroups.objects.filter(group__in = groups)
-            users = [ug.user.user_id for ug in user_groups]
-            qs = qs.filter(user_id__in = users)
+            users = [ug.user.id for ug in user_groups]
+            qs = qs.filter(id__in = users)
         
         return qs
 

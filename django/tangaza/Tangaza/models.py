@@ -106,7 +106,8 @@ class Watumiaji(models.Model):
     
     class Meta:
         db_table = u'watumiaji'
-        verbose_name_plural = u'Watumiaji'
+        verbose_name_plural = u'Members'
+        verbose_name = u'Member'
         ordering = [u'name_text']
     
     def __unicode__(self):
@@ -298,6 +299,12 @@ class Organization(models.Model):
 #    def delete (self):
 #        self.deactivate()
 
+class VikundiManager(models.Manager):
+    def get_query_set(self):
+        return super(VikundiManager, self).get_query_set().annotate(
+            models.Count('usergroups')).annotate(
+            models.Count('groupadmin'))
+
 class Vikundi(models.Model):
     '''
     A group within Tangaza. People using Tangaza have to be members to send/receive messages
@@ -312,12 +319,22 @@ class Vikundi(models.Model):
     is_active = models.CharField(max_length=9, blank=True, choices=YES_NO, default='yes')
     is_deleted = models.CharField(unique=True, max_length=9, choices=YES_NULL, default=None, null=True, blank=True)
     org = models.ForeignKey(Organization, verbose_name=u'Organization')
+    objects = VikundiManager()
     
     class Meta:
         db_table = u'vikundi'
-        verbose_name_plural = u'Vikundi'
+        verbose_name_plural = u'Groups'
+        verbose_name = u'Group'
         ordering = [u'group_name']
         unique_together = ('group_name','is_deleted')
+    
+    def user_count(self):
+        return u'%s' % UserGroups.objects.filter(group=self).count()
+    user_count.admin_order_field = 'usergroups__count'
+    
+    def admin_count(self):
+        return u'%s' % GroupAdmin.objects.filter(group=self).count()
+    admin_count.admin_order_field = 'groupadmin__count'
     
     def __unicode__(self):
         return self.group_name

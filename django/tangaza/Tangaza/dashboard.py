@@ -34,31 +34,32 @@ def get_users (request, sort_col="datetime"):
     most_active_user = PubMessages.objects.extra(
         select={'count':'count(phone_number)', 'phone':'phone_number'},
         tables=['user_phones'], where=['user_id=src_user_id'], order_by = ['-count'])[:1]
-    most_active_user = most_active_user.values('count', 'phone')
+    most_active_user = most_active_user.values('phone')
     most_active_user.query.group_by = ['phone']
     
     #tangazos
     tangazo_count = PubMessages.objects.count()
     
     #last 5 days
-    pub = PubMessages.objects.filter()#timestamp__gt=dt.date(dt.today() - timedelta(days=5)))
-    pub = pub.extra(select={'count':'count(date(timestamp))', 'pub_date':'date(timestamp)'}, order_by = ['-pub_date'])[:5]
-    pub = pub.values('count', 'pub_date')
-    pub.query.group_by = ['date(timestamp)']
+#    pub = PubMessages.objects.filter()#timestamp__gt=dt.date(dt.today() - timedelta(days=5)))
+#    pub = pub.extra(select={'count':'count(date(timestamp))', 'pub_date':'date(timestamp)'}, order_by = ['-pub_date'])[:5]
+#    pub = pub.values('count')#, 'pub_date')
+#    pub.query.group_by = ['date(timestamp)']
+    pub = PubMessages.objects.values('timestamp').annotate(msg_count=Count('timestamp')).order_by('-timestamp')[:5]
 
     #groups
-    group_count = Groups.objects.extra(where=['group_name not regexp("^[0-9]+$")', 'is_active is not null']).count()
+    group_count = Vikundi.objects.extra(where=['group_name not regexp("^[0-9]+$")', 'is_active is not null']).count()
     grp = PubMessages.objects.extra(
         select={'count':'count(group_name)', 'group_name':'group_name'},
-        tables=['groups'], where=['group_id=channel'], order_by = ['-count'])[:1]
+        tables=['vikundi'], where=['vikundi.id=channel'], order_by = ['-count'])[:1]
     grp = grp.values('count', 'group_name')
-    grp.query.group_by = ['group_name']
+    #grp.query.group_by = ['group_name']
 
     largest_group = UserGroups.objects.extra(
-        select={'count':'count(user_groups.group_id)', 'group_name':'group_name'},
-        tables=['groups'], where=['user_groups.group_id=groups.group_id'], order_by = ['-count'])[:1]
+        select={'count':'count(user_groups.id)', 'group_name':'group_name'},
+        tables=['vikundi'], where=['user_groups.id=vikundi.id'], order_by = ['-count'])[:1]
     largest_group = largest_group.values('count', 'group_name')
-    largest_group.query.group_by = ['group_name']
+    #largest_group.query.group_by = ['group_name']
     
     #list of tangazos
     tangazos = get_tangazos(sort_col)
@@ -70,7 +71,7 @@ def get_users (request, sort_col="datetime"):
                                 'tangazos':tangazos})
 
 def get_groups (request):
-    groups = Groups.objects.all()
+    groups = Vikundi.objects.all()
 
 def get_calls (request):
     calls = PubMessages.objects.all()
@@ -88,8 +89,8 @@ def get_tangazos (sort_col):
     tangazos = PubMessages.objects.extra(
         select={'filename':'filename', 'phone_number':'phone_number',
                 'group_name':'group_name', 'datetime':'timestamp', 'name_file':'name_file'},
-        tables=['user_phones', 'groups', 'users'],
-        where =['user_phones.user_id=src_user_id', 'users.user_id=src_user_id', 'channel=group_id'], order_by = [sort_col])
+        tables=['user_phones', 'vikundi', 'watumiaji'],
+        where =['user_phones.user_id=src_user_id', 'watumiaji.id=src_user_id', 'channel=vikundi.id'], order_by = [sort_col])
 
     return tangazos
         

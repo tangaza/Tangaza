@@ -36,4 +36,7 @@ urlpatterns = patterns('tangaza.Tangaza.views',
 )
 
 
-
+urlpatterns += patterns('tangaza.Tangaza.dashboard',
+    (r'^web/dashboard/$', 'get_users'),
+    (r'^web/dashboard/(\w{0,20})/$', 'get_users'),
+)

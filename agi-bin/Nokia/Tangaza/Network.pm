@@ -69,7 +69,7 @@ sub select_network_menu {
     
     if (defined($group)) {
 	my $prefs = $self->get_property('prefs');
-	$groups_dir = $prefs->{paths}->{NASI_DATA}.'/groups/';
+	my $groups_dir = $prefs->{paths}->{NASI_DATA}.'/groups/';
 	
 	&stream_file($self, 'you-entered', "#");
 	$self->agi->stream_file($groups_dir.$group_name, "#");
