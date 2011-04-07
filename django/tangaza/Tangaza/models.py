@@ -303,8 +303,9 @@ class VikundiManager(models.Manager):
     def get_query_set(self):
         return super(VikundiManager, self).get_query_set().annotate(
             models.Count('usergroups')).annotate(
-            models.Count('groupadmin'))
-
+            models.Count('groupadmin')).annotate(
+                models.Count('pubmessages'))
+            
 class Vikundi(models.Model):
     '''
     A group within Tangaza. People using Tangaza have to be members to send/receive messages
@@ -335,6 +336,10 @@ class Vikundi(models.Model):
     def admin_count(self):
         return u'%s' % GroupAdmin.objects.filter(group=self).count()
     admin_count.admin_order_field = 'groupadmin__count'
+    
+    def msg_count(self):
+        return u'%s' % PubMessages.objects.filter(channel=self).count()
+    msg_count.admin_order_field = 'pubmessages__count'
     
     def __unicode__(self):
         return self.group_name
@@ -563,10 +568,12 @@ class GroupAdmin(models.Model):
     class Meta:
         db_table = u'group_admin'
         unique_together = ('user', 'group')
-        verbose_name_plural = u'Vikundi administrators'
+        verbose_name_plural = u'Group Leaders'
+        verbose_name = u'Group Leader'
         
     def __unicode__(self):
-        return "Group: %s, Admin: %s" % (self.group.group_name, self.user.name_text)
+        return self.user.name_text
+        #return "Group: %s, Admin: %s" % (self.group.group_name, self.user.name_text)
 
 class Invitations(models.Model):
     '''
@@ -638,7 +645,8 @@ class UserGroups(models.Model):
     
     class Meta:
         db_table = u'user_groups'
-        verbose_name_plural = u"Watumiaji who are members of this Vikundi"
+        verbose_name_plural = u"Group Members"
+        verbose_name = u'Group Member'
         unique_together = (('user','slot'), ('user','group'),)
     
     def __unicode__(self):

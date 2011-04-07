@@ -36,7 +36,7 @@ def filtered_user_queryset(request):
     groups = Vikundi.objects.filter(org = org)
     
     user_groups = UserGroups.objects.filter(group__in = groups)
-    users = [ug.user.user_id for ug in user_groups]
+    users = [ug.user_id for ug in user_groups]
     
     qs = Watumiaji.objects.filter(id__in = users)
     
@@ -74,12 +74,12 @@ class UserPhonesInline(admin.TabularInline):
     model = UserPhones
     form = UserPhonesForm
     formset = UserPhonesInlineFormset
-    max_num = 3
+    max_num = 1
     extra = 1
 
 #Groups customization
 class VikundiAdmin(admin.ModelAdmin):
-    list_display = ['group_name', 'group_type', 'is_active', 'user_count', 'admin_count']
+    list_display = ['group_name', 'group_type', 'is_active', 'user_count', 'admin_count', 'msg_count']
     list_filter = ['group_type', 'is_active']
     inlines = [GroupAdminInline, UserGroupInline]
     search_fields = ['group_name']
@@ -163,7 +163,8 @@ class WatumiajiAdmin(admin.ModelAdmin):
     form = WatumiajiForm
     search_fields = ['name_text']
     ordering = ['name_text']
-    fields = ['name_text', 'user_pin']
+    fields = ['name_text', 'user_pin']#, 'organization']
+    exclude = ['organization']
     
     def add_view(self, request, form_url='', extra_context=None):
         if request.user.is_superuser and not self.fields.__contains__('organization'):
@@ -193,6 +194,7 @@ class WatumiajiAdmin(admin.ModelAdmin):
 #    custom_delete_selected.short_description = "Delete selected members"
     
     def save_model(self, request, obj, form, change):
+        
         new_watumiaji = form.save(commit=False)
         new_watumiaji.save()
         #Super users dont belong to any group so have to display a dropdown field for organization
@@ -212,6 +214,7 @@ class WatumiajiAdmin(admin.ModelAdmin):
         #group for that organization
         if not change:
             if not request.user.is_superuser:
+                
                 slot = utility.auto_alloc_slot(obj)
                 org = Organization.objects.get(org_admin = request.user)
                 grp_name = slugify(org.org_name).replace('-','')
@@ -287,8 +290,23 @@ class UserProfileInline(admin.StackedInline):
     fields = ['name_text', 'user_pin']
     #exclude = ['place_id', 'name_file', 'dirty', 'modify_stamp']
 
+class OrgInline(admin.StackedInline):
+    model = Organization
+    max_num = 1
 
 class CustomUserAdmin(UserAdmin):
-    inlines = [UserProfileInline]
-    
+    inlines = [UserProfileInline, OrgInline]
+
 admin.site.register(User, CustomUserAdmin)
+
+class GroupLeaderAdmin(admin.ModelAdmin):
+    form = GroupLeaderForm
+    list_display = ['user', 'group']
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'group' and not request.user.is_superuser:
+            kwargs['queryset'] = Vikundi.objects.filter(org = request.user.organization_set.get())
+            return db_field.formfield(**kwargs)
+        return super(GroupLeaderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+admin.site.register(GroupAdmin, GroupLeaderAdmin)

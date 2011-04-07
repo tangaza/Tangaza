@@ -41,10 +41,11 @@ class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
                     #must have at least one phone number
                     if not form.cleaned_data['DELETE']:
                         form_count += 1
-                    
+                    '''
                     #make sure at least/at most one is_primary
                     if form.cleaned_data['is_primary'] == 'yes':
                         primary_nums += 1
+                    '''
             except AttributeError:
                 #raised coz of the extra field(s) so just ignore
                 pass
@@ -52,7 +53,7 @@ class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
         msg = u''
         if form_count < 1: msg = u'Users must have a phone number'
         if primary_nums > 1: msg = u'A user can only have one primary number'
-        if primary_nums < 1: msg = u'There must be  at least one primary number'
+        #if primary_nums < 1: msg = u'There must be  at least one primary number'
         
         if len(msg) > 0:
             logger.error(msg)
@@ -61,7 +62,7 @@ class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
 class UserPhonesForm(forms.ModelForm):
     class Meta:
         model = UserPhones
-        exclude = ['country']
+        exclude = ['country', 'is_primary']
     
     def save(self, force_insert=False, force_update=False, commit=True):
         user_form = super(UserPhonesForm, self).save(commit=False)
@@ -69,6 +70,7 @@ class UserPhonesForm(forms.ModelForm):
         country_name = Countries.phone2country (user_form.phone_number)
         country = Countries.objects.get(country_name=country_name)
         user_form.country = country
+        user_form.is_primary = 'yes'
         last = Watumiaji.objects.latest('id')
         user_form.user_id = last.id
         user_form.save()
@@ -184,15 +186,17 @@ class OrgForm(forms.ModelForm):
 class WatumiajiForm(forms.ModelForm):
     #This organization field is needed to link user to organization
     #NOTE: This will only be visible to superuser who is not linked to any organization
-    organization = forms.ModelChoiceField(queryset = Organization.objects.all())
+    organization = forms.ModelChoiceField(queryset = Organization.objects.all(),
+                                          required=False)#lambda: True if _thread_locals.request.user.is_superuser else False)
     
     class Meta:
         model = Watumiaji
-    
+        
     def __init__(self, *args, **kwargs):
         #Set the initial value of org in the dropdown list displayed, to be the users org
         user = kwargs.get('instance', {})
-        logger.debug('something')
+        logger.debug('something user %s' % user)
+        
         if user:
             ug = UserGroups.objects.filter(user = user)
             
@@ -201,7 +205,35 @@ class WatumiajiForm(forms.ModelForm):
                 initial = kwargs.get('initial', {})
                 initial['organization'] = group.org.pk
                 kwargs['initial'] = initial
+                
+        if not _thread_locals.request.user.is_superuser:
+            initial = kwargs.get('initial', {})
+            initial['organization'] = _thread_locals.request.user.organization_set.get().pk
+            kwargs['initial'] = initial
+            logger.debug('spot %s' % kwargs)
         return super(WatumiajiForm, self).__init__(*args, **kwargs)
+    
+    def clean(self):
+        user = _thread_locals.request.user
+        cleaned_data = self.cleaned_data
+        
+        if not user.is_superuser:
+            cleaned_data['organization'] = user.organization_set.get()
+            logger.debug('Smooth %s' % cleaned_data)        
+        else:
+            if not cleaned_data['organization']:
+                raise forms.ValidationError(u'Select the organization')
+            
+        return cleaned_data
+    
+    def save(self, force_insert=False, force_update=False, commit=True):
+        user_form = super(WatumiajiForm, self).save(commit=False)
+        if not _thread_locals.request.user.is_superuser:
+            logger.debug('smith')
+            user_form.org = _thread_locals.request.user.organization_set.get()
+        
+        user_form.save()
+        return user_form
 
 class VikundiForm(forms.ModelForm):
     class Meta:
@@ -216,3 +248,6 @@ class VikundiForm(forms.ModelForm):
             raise forms.ValidationError(msg)
         return self.cleaned_data['is_active']
 
+class GroupLeaderForm(forms.ModelForm):
+    class Meta:
+        model = GroupAdmin

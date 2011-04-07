@@ -1,0 +1,53 @@
+#header {
+    background: #124191;
+    color: #ffc;
+    overflow: hidden;
+}
+
+#branding h1 {
+    padding: 0 10px;
+    font-size: 18px;
+    margin: 8px 0;
+    font-weight: normal;
+    color: #ffffff;
+}
+
+#footer_menu{
+        margin-top:100px;
+        margin-right:20px;
+        width:auto;
+        float:right;
+	#margin-right: 20%;
+}
+
+#footer_copyright{
+        margin-top:100px;
+        margin-left:20px;
+        width:auto;
+        float:left;
+	#margin-left: 20%;
+}
+
+#footer_menu a{
+        text-decoration:none;
+        color:#124191;
+        font-size:10px;
+        font-family:Geneva, Arial, Helvetica, sans-serif;
+	
+}
+
+#footer_copyright a{
+        text-decoration:none;
+        color:#124191;
+        font-size:12px;
+        font-family:Geneva, Arial, Helvetica, sans-serif;
+
+}
+
+#footer_menu a:hover{
+        text-decoration:underline;
+}
+
+#footer_copyright a:hover{
+        text-decoration:underline;
+}

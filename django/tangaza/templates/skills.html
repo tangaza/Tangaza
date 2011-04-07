@@ -1,0 +1,21 @@
+
+<br />
+<br />
+<hr />
+<div style="margin-left:5px">
+  <div style="font-weight:bold">Group Leaders</div>
+  
+  <ul>
+    {% for admin in admins %}
+    <li>
+      <a href="../groupadmin/{% block user_id %}{{ admin.id }}{% endblock %}/" style="font-weight:bold">
+	{{ admin }}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  <br />
+  <table>
+    
+    <a href="../groupadmin/add" class="addlink">Add Group Leader</a>
+</div>
