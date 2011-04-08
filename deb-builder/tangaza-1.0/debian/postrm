@@ -1,0 +1,15 @@
+#! /bin/bash
+
+set -e
+
+rm -rf /var/lib/tangaza
+rm -rf /usr/lib/tangaza
+rm -rf /var/spool/tangaza
+rm -rf /usr/share/tangaza
+rm -rf /var/log/tangaza
+
+#DEBHELPER#
+
+exit 0
+
+

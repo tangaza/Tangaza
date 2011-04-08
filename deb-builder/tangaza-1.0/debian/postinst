@@ -155,7 +155,7 @@ fi
 
 TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 #set django-admin css files
-if [ -f "$TGZ_DJANGO_MEDIA/css/dashboard.css" ]; then
+if [ -f "$TGZ_DJANGO_MEDIA/css/activity.css" ]; then
     #For ubuntu
     if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
 	DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media

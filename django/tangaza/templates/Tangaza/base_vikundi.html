@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+  
+  
+<div id="container">
+
+  <div id="internalContent">
+    <div id="internalContentBox" align="center">
+   
+      <div id="internal_content_box"> 
+   
+        <table>
+        <tr>
+          <td><b>Group</b></td><td><b>Group Leader</b></td><td><b>Number of Users</b></td><td><b>Total Messages</b></td>
+        </tr>
+  
+        {% if organizations_groups %}
+        {% for all_groups in organizations_groups %}
+        <tr>
+           <td>{{all_groups.group.group_name}}</td><td>{{all_groups.user.name_text}}</td><td>{{user_count}}</td><td>{{tangazo_count}}</td>
+        </tr>
+        
+        {% endfor %}
+        </table>
+         {% else %}
+          No groups available
+          {% endif %}
+      
+          <a href="">Add Group</a><br>
+          <a href="">Add Group Leader</a><br>
+
+         <table>
+        <tr>
+          <td><b>List of Group Leaders</b></td>
+        </tr>
+        <tr>
+          <td>Add something here</td>
+        </tr>
+        </table>
+         <br><br>    
+      <div class="alignClear"></div>
+      
+
+        <div class="alignClear"></div>
+      </div>
+    
+      <div id="buttons">
+                <div id="button1"><a href="../">Back</a>
+                </div>
+        <div id="button2"></div>
+      	<div class="alignClear"></div>
+
+      </div>
+      <div class="alignClear"></div>
+       
+      
+      <div class="alignClear"></div>
+        </div>
+  </div>
+  
+      {% endblock %}
