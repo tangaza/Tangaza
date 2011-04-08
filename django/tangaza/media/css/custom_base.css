@@ -51,3 +51,10 @@
 #footer_copyright a:hover{
         text-decoration:underline;
 }
+
+a img {
+    color:Brown; 
+    text-decoration: none;
+    border: none;
+    border-bottom:1px dotted gray;
+}

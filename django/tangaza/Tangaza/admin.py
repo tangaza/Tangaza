@@ -269,12 +269,12 @@ class OrganizationAdmin(admin.ModelAdmin):
     
     activate_selected.short_description = "Activate selected organizations"
     
-    def save_model(self, request, obj, form, change):
-        org = obj.save()
-        group_name = slugify(obj.org_name).replace('-','')
-        
-        custom_signal.create_vikundi_object.send(sender=obj, auth_user=obj.org_admin,
-                                                 group_name=group_name, org=obj)
+#    def save_model(self, request, obj, form, change):
+#        org = obj.save()
+#        group_name = slugify(obj.org_name).replace('-','')
+#        
+#        custom_signal.create_vikundi_object.send(sender=obj, auth_user=obj.org_admin,
+#                                                 group_name=group_name, org=obj)
 
 admin.site.register(Organization, OrganizationAdmin)
 
@@ -300,7 +300,7 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 
 class GroupLeaderAdmin(admin.ModelAdmin):
-    form = GroupLeaderForm
+    model = GroupAdmin
     list_display = ['user', 'group']
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -310,3 +310,14 @@ class GroupLeaderAdmin(admin.ModelAdmin):
         return super(GroupLeaderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(GroupAdmin, GroupLeaderAdmin)
+
+class PubMessagesAdmin(admin.ModelAdmin):
+    model = PubMessages
+    list_display = ['filename', 'src_user', 'channel', 'play_message']
+    
+    def get_actions(self, request):
+        actions = super(PubMessagesAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions    
+
+admin.site.register(PubMessages, PubMessagesAdmin)

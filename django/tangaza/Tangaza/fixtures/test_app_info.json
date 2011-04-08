@@ -54,6 +54,15 @@
         }
     }, 
     {
+        "pk": 13, 
+        "model": "contenttypes.contenttype", 
+        "fields": {
+            "model": "vikundi", 
+            "name": "Group", 
+            "app_label": "Tangaza"
+        }
+    }, 
+    {
         "pk": 2, 
         "model": "contenttypes.contenttype", 
         "fields": {
@@ -67,7 +76,16 @@
         "model": "contenttypes.contenttype", 
         "fields": {
             "model": "groupadmin", 
-            "name": "group admin", 
+            "name": "Group Leader", 
+            "app_label": "Tangaza"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "contenttypes.contenttype", 
+        "fields": {
+            "model": "usergroups", 
+            "name": "Group Member", 
             "app_label": "Tangaza"
         }
     }, 
@@ -99,12 +117,30 @@
         }
     }, 
     {
+        "pk": 11, 
+        "model": "contenttypes.contenttype", 
+        "fields": {
+            "model": "watumiaji", 
+            "name": "Member", 
+            "app_label": "Tangaza"
+        }
+    }, 
+    {
         "pk": 4, 
         "model": "contenttypes.contenttype", 
         "fields": {
             "model": "message", 
             "name": "message", 
             "app_label": "auth"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "contenttypes.contenttype", 
+        "fields": {
+            "model": "pubmessages", 
+            "name": "Messages", 
+            "app_label": "Tangaza"
         }
     }, 
     {
@@ -123,15 +159,6 @@
             "model": "permission", 
             "name": "permission", 
             "app_label": "auth"
-        }
-    }, 
-    {
-        "pk": 18, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "pubmessages", 
-            "name": "pub messages", 
-            "app_label": "Tangaza"
         }
     }, 
     {
@@ -198,15 +225,6 @@
         }
     }, 
     {
-        "pk": 22, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "usergroups", 
-            "name": "user groups", 
-            "app_label": "Tangaza"
-        }
-    }, 
-    {
         "pk": 23, 
         "model": "contenttypes.contenttype", 
         "fields": {
@@ -216,52 +234,18 @@
         }
     }, 
     {
-        "pk": 13, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "vikundi", 
-            "name": "vikundi", 
-            "app_label": "Tangaza"
-        }
-    }, 
-    {
-        "pk": 11, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "watumiaji", 
-            "name": "watumiaji", 
-            "app_label": "Tangaza"
-        }
-    }, 
-    {
-        "pk": "3d6c506787ec7a4f4716eb2ef06c3f21", 
+        "pk": "ab906558fdfcfe06c0161675093c6da0", 
         "model": "sessions.session", 
         "fields": {
-            "expire_date": "2011-04-07 09:58:32", 
-            "session_data": "gAJ9cQFVCnRlc3Rjb29raWVxAlUGd29ya2VkcQNzLjI5N2FlYWU4YjQ3OWE3MGEwN2IxNTlhNDNk\nNzVmNGRk\n"
+            "expire_date": "2011-04-22 17:57:21", 
+            "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEEigEDdS43MTFmYTVjZDFkMjY1ODE5MjI1\nOTcyNDZlNzgwNmIyZQ==\n"
         }
     }, 
     {
-        "pk": "7c315452c73100d5eca2b4916c834239", 
+        "pk": "b47a743046a0cf90c9e79393991ba11e", 
         "model": "sessions.session", 
         "fields": {
-            "expire_date": "2011-03-17 11:22:18", 
-            "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEEigEBdS42MmU2OGM5NTc4MjY2MWEwOTdj\nOTEwMmQ0NTY5OGM3Nw==\n"
-        }
-    }, 
-    {
-        "pk": "8d9dc9ca078da819b4c9cbf8005279c2", 
-        "model": "sessions.session", 
-        "fields": {
-            "expire_date": "2011-04-05 12:43:43", 
-            "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEEigEBdS42MmU2OGM5NTc4MjY2MWEwOTdj\nOTEwMmQ0NTY5OGM3Nw==\n"
-        }
-    }, 
-    {
-        "pk": "caf97dbacdb00d5b13ff469fae07cc2b", 
-        "model": "sessions.session", 
-        "fields": {
-            "expire_date": "2011-04-07 11:17:06", 
+            "expire_date": "2011-04-22 17:26:20", 
             "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEEigEBdS42MmU2OGM5NTc4MjY2MWEwOTdj\nOTEwMmQ0NTY5OGM3Nw==\n"
         }
     }, 
@@ -372,217 +356,76 @@
         }
     }, 
     {
-        "pk": 2, 
+        "pk": 5, 
         "model": "Tangaza.watumiaji", 
         "fields": {
             "status": "good", 
-            "modify_stamp": "2011-03-04 06:30:09", 
+            "modify_stamp": "2011-04-08 18:33:29", 
             "place_id": 1, 
-            "create_stamp": "2011-03-04 06:30:09", 
+            "create_stamp": "2011-04-08 17:32:31", 
             "accepted_terms": "no", 
             "language": 1, 
             "level": "advanced", 
             "notify_status": "on", 
-            "user": 1, 
+            "user": 3, 
             "callback_limit": 60, 
             "dirty_time": null, 
             "calling_time": null, 
-            "name_text": "billy", 
+            "name_text": "janedoe", 
             "dirty": "no", 
             "invitations_remaining": 100, 
             "user_pin": "", 
             "notify_time": null, 
             "notify_stamp": null, 
-            "notify_period": "06:30:09", 
+            "notify_period": "17:32:31", 
+            "name_file": ""
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "Tangaza.watumiaji", 
+        "fields": {
+            "status": "good", 
+            "modify_stamp": "2011-04-08 18:28:28", 
+            "place_id": 1, 
+            "create_stamp": "2011-04-08 17:59:00", 
+            "accepted_terms": "no", 
+            "language": 1, 
+            "level": "advanced", 
+            "notify_status": "on", 
+            "user": null, 
+            "callback_limit": 60, 
+            "dirty_time": null, 
+            "calling_time": null, 
+            "name_text": "rodrigo", 
+            "dirty": "no", 
+            "invitations_remaining": 100, 
+            "user_pin": "", 
+            "notify_time": null, 
+            "notify_stamp": null, 
+            "notify_period": "17:59:00", 
             "name_file": ""
         }
     }, 
     {
         "pk": 3, 
-        "model": "Tangaza.watumiaji", 
-        "fields": {
-            "status": "good", 
-            "modify_stamp": "2011-03-04 06:50:02", 
-            "place_id": 1, 
-            "create_stamp": "2011-03-04 06:30:57", 
-            "accepted_terms": "no", 
-            "language": 1, 
-            "level": "advanced", 
-            "notify_status": "on", 
-            "user": 2, 
-            "callback_limit": 60, 
-            "dirty_time": null, 
-            "calling_time": null, 
-            "name_text": "house", 
-            "dirty": "no", 
-            "invitations_remaining": 100, 
-            "user_pin": "", 
-            "notify_time": null, 
-            "notify_stamp": null, 
-            "notify_period": "06:30:57", 
-            "name_file": ""
-        }
-    }, 
-    {
-        "pk": 61, 
-        "model": "Tangaza.watumiaji", 
-        "fields": {
-            "status": "good", 
-            "modify_stamp": "2011-03-25 08:21:41", 
-            "place_id": 1, 
-            "create_stamp": "2011-03-25 08:21:41", 
-            "accepted_terms": "no", 
-            "language": 1, 
-            "level": "advanced", 
-            "notify_status": "on", 
-            "user": null, 
-            "callback_limit": 60, 
-            "dirty_time": null, 
-            "calling_time": null, 
-            "name_text": "smallville", 
-            "dirty": "no", 
-            "invitations_remaining": 100, 
-            "user_pin": "", 
-            "notify_time": null, 
-            "notify_stamp": null, 
-            "notify_period": "08:21:41", 
-            "name_file": ""
-        }
-    }, 
-    {
-        "pk": 59, 
-        "model": "Tangaza.watumiaji", 
-        "fields": {
-            "status": "good", 
-            "modify_stamp": "2011-03-10 12:52:17", 
-            "place_id": 1, 
-            "create_stamp": "2011-03-10 12:52:17", 
-            "accepted_terms": "no", 
-            "language": 1, 
-            "level": "advanced", 
-            "notify_status": "on", 
-            "user": null, 
-            "callback_limit": 60, 
-            "dirty_time": null, 
-            "calling_time": null, 
-            "name_text": "User_254777888991", 
-            "dirty": "no", 
-            "invitations_remaining": 100, 
-            "user_pin": null, 
-            "notify_time": null, 
-            "notify_stamp": null, 
-            "notify_period": "12:52:17", 
-            "name_file": ""
-        }
-    }, 
-    {
-        "pk": 58, 
-        "model": "Tangaza.watumiaji", 
-        "fields": {
-            "status": "good", 
-            "modify_stamp": "2011-03-10 12:48:25", 
-            "place_id": 1, 
-            "create_stamp": "2011-03-10 12:48:25", 
-            "accepted_terms": "no", 
-            "language": 1, 
-            "level": "advanced", 
-            "notify_status": "on", 
-            "user": null, 
-            "callback_limit": 60, 
-            "dirty_time": null, 
-            "calling_time": null, 
-            "name_text": "User_254777888992", 
-            "dirty": "no", 
-            "invitations_remaining": 100, 
-            "user_pin": null, 
-            "notify_time": null, 
-            "notify_stamp": null, 
-            "notify_period": "12:48:25", 
-            "name_file": ""
-        }
-    }, 
-    {
-        "pk": 60, 
-        "model": "Tangaza.watumiaji", 
-        "fields": {
-            "status": "good", 
-            "modify_stamp": "2011-03-10 12:52:44", 
-            "place_id": 1, 
-            "create_stamp": "2011-03-10 12:52:44", 
-            "accepted_terms": "no", 
-            "language": 1, 
-            "level": "advanced", 
-            "notify_status": "on", 
-            "user": null, 
-            "callback_limit": 60, 
-            "dirty_time": null, 
-            "calling_time": null, 
-            "name_text": "User_254777888993", 
-            "dirty": "no", 
-            "invitations_remaining": 100, 
-            "user_pin": null, 
-            "notify_time": null, 
-            "notify_stamp": null, 
-            "notify_period": "12:52:44", 
-            "name_file": ""
-        }
-    }, 
-    {
-        "pk": 1, 
         "model": "Tangaza.organization", 
         "fields": {
-            "org_name": "NRC", 
-            "toll_free_number": "0800-555-666", 
+            "org_name": "special", 
+            "toll_free_number": "111111", 
             "is_active": "yes", 
-            "org_admin": 2
+            "org_admin": 3
         }
     }, 
     {
         "pk": 5, 
         "model": "Tangaza.vikundi", 
         "fields": {
-            "is_deleted": null, 
-            "is_active": "yes", 
+            "org": 3, 
+            "is_active": "no", 
             "group_name_file": "", 
-            "group_name": "cari\u00f1o", 
-            "org": 1, 
-            "group_type": "private"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "Tangaza.vikundi", 
-        "fields": {
-            "is_deleted": null, 
-            "is_active": "yes", 
-            "group_name_file": "", 
-            "group_name": "nrc", 
-            "org": 1, 
-            "group_type": "private"
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "Tangaza.vikundi", 
-        "fields": {
-            "is_deleted": null, 
-            "is_active": "yes", 
-            "group_name_file": "", 
-            "group_name": "\u03bf\u03c1\u03bf\u03cd", 
-            "org": 1, 
-            "group_type": "private"
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "Tangaza.vikundi", 
-        "fields": {
-            "is_deleted": null, 
-            "is_active": "yes", 
-            "group_name_file": "", 
-            "group_name": "\u0e42\u0e2d\u0e40\u0e1e\u0e19\u0e0b\u0e2d\u0e23\u0e4c\u0e2a", 
-            "org": 1, 
-            "group_type": "private"
+            "group_type": "private", 
+            "group_name": "special"
         }
     }, 
     {
@@ -674,258 +517,31 @@
         }
     }, 
     {
-        "pk": 1, 
-        "model": "Tangaza.groupadmin", 
-        "fields": {
-            "group": 2, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "Tangaza.groupadmin", 
-        "fields": {
-            "group": 5, 
-            "user": 3
-        }
-    }, 
-    {
         "pk": 5, 
         "model": "Tangaza.groupadmin", 
         "fields": {
-            "group": 6, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "Tangaza.groupadmin", 
-        "fields": {
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 27, 
-        "model": "Tangaza.invitations", 
-        "fields": {
-            "create_stamp": "2011-03-10 12:48:25", 
-            "completed": "no", 
-            "group": 8, 
-            "invitation_to": 58, 
-            "invitation_from": 3
-        }
-    }, 
-    {
-        "pk": 28, 
-        "model": "Tangaza.invitations", 
-        "fields": {
-            "create_stamp": "2011-03-10 12:52:17", 
-            "completed": "no", 
-            "group": 8, 
-            "invitation_to": 59, 
-            "invitation_from": 3
-        }
-    }, 
-    {
-        "pk": 29, 
-        "model": "Tangaza.invitations", 
-        "fields": {
-            "create_stamp": "2011-03-10 12:52:44", 
-            "completed": "no", 
-            "group": 8, 
-            "invitation_to": 60, 
-            "invitation_from": 3
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 5, 
-            "create_stamp": "2011-03-04 06:31:38", 
-            "group": 2, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 5, 
-            "create_stamp": "2011-03-08 18:28:36", 
             "group": 5, 
-            "user": 3
+            "user": 5
         }
     }, 
     {
-        "pk": 5, 
+        "pk": 7, 
         "model": "Tangaza.usergrouphistory", 
         "fields": {
             "action": 5, 
-            "create_stamp": "2011-03-09 07:18:31", 
-            "group": 6, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 5, 
-            "create_stamp": "2011-03-09 12:18:23", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 33, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-10 12:48:25", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 34, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-10 12:52:17", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 35, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-10 12:52:44", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 37, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 12:44:14", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 38, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 12:44:15", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 39, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 12:46:13", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 40, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 12:46:13", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 41, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 19:47:53", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 42, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 19:48:04", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 43, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 11, 
-            "create_stamp": "2011-03-15 19:48:04", 
-            "group": 8, 
-            "user": 3
-        }
-    }, 
-    {
-        "pk": 44, 
-        "model": "Tangaza.usergrouphistory", 
-        "fields": {
-            "action": 5, 
-            "create_stamp": "2011-03-25 08:21:41", 
-            "group": 2, 
-            "user": 61
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "Tangaza.usergroups", 
-        "fields": {
-            "slot": 1, 
-            "group": 2, 
-            "user": 3, 
-            "is_quiet": "no"
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "Tangaza.usergroups", 
-        "fields": {
-            "slot": 4, 
+            "create_stamp": "2011-04-08 17:32:31", 
             "group": 5, 
-            "user": 3, 
-            "is_quiet": "no"
+            "user": 5
         }
     }, 
     {
-        "pk": 5, 
-        "model": "Tangaza.usergroups", 
+        "pk": 8, 
+        "model": "Tangaza.usergrouphistory", 
         "fields": {
-            "slot": 5, 
-            "group": 6, 
-            "user": 3, 
-            "is_quiet": "no"
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "Tangaza.usergroups", 
-        "fields": {
-            "slot": 3, 
-            "group": 8, 
-            "user": 3, 
-            "is_quiet": "no"
+            "action": 5, 
+            "create_stamp": "2011-04-08 17:59:00", 
+            "group": 5, 
+            "user": 6
         }
     }, 
     {
@@ -933,81 +549,39 @@
         "model": "Tangaza.usergroups", 
         "fields": {
             "slot": 1, 
-            "group": 2, 
-            "user": 61, 
+            "group": 5, 
+            "user": 5, 
             "is_quiet": "no"
         }
     }, 
     {
-        "pk": 36, 
-        "model": "Tangaza.userphones", 
+        "pk": 8, 
+        "model": "Tangaza.usergroups", 
         "fields": {
-            "phone_number": "254777888991", 
-            "country": 1, 
-            "user": 59, 
-            "is_primary": "yes"
-        }
-    }, 
-    {
-        "pk": 35, 
-        "model": "Tangaza.userphones", 
-        "fields": {
-            "phone_number": "254777888992", 
-            "country": 1, 
-            "user": 58, 
-            "is_primary": "yes"
-        }
-    }, 
-    {
-        "pk": 37, 
-        "model": "Tangaza.userphones", 
-        "fields": {
-            "phone_number": "254777888993", 
-            "country": 1, 
-            "user": 60, 
-            "is_primary": "yes"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "Tangaza.userphones", 
-        "fields": {
-            "phone_number": "254777888999", 
-            "country": 1, 
-            "user": 3, 
-            "is_primary": "yes"
-        }
-    }, 
-    {
-        "pk": 38, 
-        "model": "Tangaza.userphones", 
-        "fields": {
-            "phone_number": "255777888999", 
-            "country": 1, 
-            "user": 61, 
-            "is_primary": "yes"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "Tangaza.admingrouphistory", 
-        "fields": {
-            "action": 8, 
-            "timestamp": "2011-03-04 06:31:38", 
-            "group": 2, 
-            "user_dst": 3, 
-            "user_src": 3
+            "slot": 1, 
+            "group": 5, 
+            "user": 6, 
+            "is_quiet": "no"
         }
     }, 
     {
         "pk": 4, 
-        "model": "Tangaza.admingrouphistory", 
+        "model": "Tangaza.userphones", 
         "fields": {
-            "action": 8, 
-            "timestamp": "2011-03-08 18:28:36", 
-            "group": 5, 
-            "user_dst": 3, 
-            "user_src": 3
+            "phone_number": "254777888999", 
+            "country": 1, 
+            "user": 5, 
+            "is_primary": "yes"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "Tangaza.userphones", 
+        "fields": {
+            "phone_number": "255777888999", 
+            "country": 1, 
+            "user": 6, 
+            "is_primary": "yes"
         }
     }, 
     {
@@ -1015,10 +589,10 @@
         "model": "Tangaza.admingrouphistory", 
         "fields": {
             "action": 8, 
-            "timestamp": "2011-03-09 07:18:31", 
-            "group": 6, 
-            "user_dst": 3, 
-            "user_src": 3
+            "timestamp": "2011-04-08 17:32:31", 
+            "group": 5, 
+            "user_dst": 5, 
+            "user_src": 5
         }
     }, 
     {
@@ -1026,23 +600,88 @@
         "model": "Tangaza.admingrouphistory", 
         "fields": {
             "action": 8, 
-            "timestamp": "2011-03-09 12:18:23", 
-            "group": 8, 
-            "user_dst": 3, 
-            "user_src": 3
+            "timestamp": "2011-04-08 17:59:18", 
+            "group": 5, 
+            "user_dst": 6, 
+            "user_src": 6
         }
     }, 
     {
-        "pk": 22, 
+        "pk": 21, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 2, 
+            "action_time": "2011-04-08 18:33:29", 
+            "object_repr": "janedoe", 
+            "object_id": "5", 
+            "change_message": "Added User Phone \"254777888999\".", 
+            "user": 3, 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 2, 
+            "action_time": "2011-04-08 18:32:20", 
+            "object_repr": "special", 
+            "object_id": "5", 
+            "change_message": "Deleted Group Leader \"rodrigo\".", 
+            "user": 1, 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 2, 
+            "action_time": "2011-04-08 18:28:28", 
+            "object_repr": "rodrigo", 
+            "object_id": "6", 
+            "change_message": "Changed phone_number for User Phone \"255777888999\".", 
+            "user": 1, 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 2, 
+            "action_time": "2011-04-08 17:59:18", 
+            "object_repr": "special", 
+            "object_id": "5", 
+            "change_message": "Changed is_active. Added Group Leader \"rodrigo\".", 
+            "user": 3, 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 17, 
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 1, 
-            "action_time": "2011-03-25 08:21:41", 
-            "object_repr": "smallville", 
-            "object_id": "61", 
+            "action_time": "2011-04-08 17:59:00", 
+            "object_repr": "rodrigo", 
+            "object_id": "6", 
+            "change_message": "", 
+            "user": 3, 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 1, 
+            "action_time": "2011-04-08 17:32:31", 
+            "object_repr": "special", 
+            "object_id": "3", 
             "change_message": "", 
             "user": 1, 
-            "content_type": 11
+            "content_type": 12
         }
     }, 
     {
@@ -1050,9 +689,9 @@
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "", 
-            "object_id": "68", 
+            "action_time": "2011-04-08 17:30:29", 
+            "object_repr": "janedoe", 
+            "object_id": "2", 
             "change_message": "", 
             "user": 1, 
             "content_type": 11
@@ -1063,100 +702,9 @@
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_123123", 
-            "object_id": "61", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 16, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_1234234", 
-            "object_id": "64", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 17, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_223123", 
-            "object_id": "63", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 18, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_234234", 
-            "object_id": "62", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 19, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_3234", 
-            "object_id": "67", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 20, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_568123", 
-            "object_id": "65", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 21, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-22 12:45:17", 
-            "object_repr": "User_7897234", 
-            "object_id": "66", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 12, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-09 12:47:22", 
-            "object_repr": "", 
-            "object_id": "28", 
+            "action_time": "2011-04-08 17:30:29", 
+            "object_repr": "madge", 
+            "object_id": "4", 
             "change_message": "", 
             "user": 1, 
             "content_type": 11
@@ -1167,9 +715,22 @@
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 3, 
-            "action_time": "2011-03-09 12:47:22", 
-            "object_repr": "User_254711222333", 
-            "object_id": "32", 
+            "action_time": "2011-04-08 17:30:12", 
+            "object_repr": "awkward", 
+            "object_id": "2", 
+            "change_message": "", 
+            "user": 1, 
+            "content_type": 12
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 3, 
+            "action_time": "2011-04-08 17:27:16", 
+            "object_repr": "jsmith", 
+            "object_id": "1", 
             "change_message": "", 
             "user": 1, 
             "content_type": 11
@@ -1180,9 +741,9 @@
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 3, 
-            "action_time": "2011-03-07 12:09:57", 
-            "object_repr": "", 
-            "object_id": "27", 
+            "action_time": "2011-04-08 17:27:10", 
+            "object_repr": "homer", 
+            "object_id": "3", 
             "change_message": "", 
             "user": 1, 
             "content_type": 11
@@ -1193,60 +754,8 @@
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 3, 
-            "action_time": "2011-03-07 12:07:46", 
-            "object_repr": "", 
-            "object_id": "26", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 9, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-07 12:05:35", 
-            "object_repr": "", 
-            "object_id": "14", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-07 11:52:37", 
-            "object_repr": "", 
-            "object_id": "4", 
-            "change_message": "", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 2, 
-            "action_time": "2011-03-04 06:50:02", 
-            "object_repr": "house", 
-            "object_id": "3", 
-            "change_message": "Added User Phone \"254777888999\".", 
-            "user": 1, 
-            "content_type": 11
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "admin.logentry", 
-        "fields": {
-            "action_flag": 1, 
-            "action_time": "2011-03-04 06:31:38", 
-            "object_repr": "NRC", 
+            "action_time": "2011-04-08 17:26:49", 
+            "object_repr": "special", 
             "object_id": "1", 
             "change_message": "", 
             "user": 1, 
@@ -1254,13 +763,65 @@
         }
     }, 
     {
+        "pk": 9, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 1, 
+            "action_time": "2011-04-08 16:15:15", 
+            "object_repr": "awkwardsub", 
+            "object_id": "4", 
+            "change_message": "", 
+            "user": 3, 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 1, 
+            "action_time": "2011-04-08 16:15:13", 
+            "object_repr": "madge", 
+            "object_id": "4", 
+            "change_message": "", 
+            "user": 3, 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 1, 
+            "action_time": "2011-04-08 16:14:29", 
+            "object_repr": "specialsub", 
+            "object_id": "3", 
+            "change_message": "", 
+            "user": 2, 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 1, 
+            "action_time": "2011-04-08 16:14:14", 
+            "object_repr": "homer", 
+            "object_id": "3", 
+            "change_message": "", 
+            "user": 2, 
+            "content_type": 11
+        }
+    }, 
+    {
         "pk": 5, 
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 2, 
-            "action_time": "2011-03-04 06:31:18", 
-            "object_repr": "house", 
-            "object_id": "2", 
+            "action_time": "2011-04-08 16:13:34", 
+            "object_repr": "janedoe", 
+            "object_id": "3", 
             "change_message": "Changed is_staff and groups.", 
             "user": 1, 
             "content_type": 3
@@ -1271,23 +832,23 @@
         "model": "admin.logentry", 
         "fields": {
             "action_flag": 1, 
-            "action_time": "2011-03-04 06:31:14", 
-            "object_repr": "SystemAdmin", 
-            "object_id": "1", 
+            "action_time": "2011-04-08 16:13:26", 
+            "object_repr": "janedoe", 
+            "object_id": "3", 
             "change_message": "", 
             "user": 1, 
-            "content_type": 2
+            "content_type": 3
         }
     }, 
     {
         "pk": 3, 
         "model": "admin.logentry", 
         "fields": {
-            "action_flag": 1, 
-            "action_time": "2011-03-04 06:30:57", 
-            "object_repr": "house", 
+            "action_flag": 2, 
+            "action_time": "2011-04-08 16:12:41", 
+            "object_repr": "jsmith", 
             "object_id": "2", 
-            "change_message": "", 
+            "change_message": "Changed is_staff and groups.", 
             "user": 1, 
             "content_type": 3
         }
@@ -1296,24 +857,24 @@
         "pk": 2, 
         "model": "admin.logentry", 
         "fields": {
-            "action_flag": 3, 
-            "action_time": "2011-03-04 06:30:41", 
-            "object_repr": "", 
+            "action_flag": 1, 
+            "action_time": "2011-04-08 16:12:38", 
+            "object_repr": "SystemAdmin", 
             "object_id": "1", 
             "change_message": "", 
             "user": 1, 
-            "content_type": 11
+            "content_type": 2
         }
     }, 
     {
         "pk": 1, 
         "model": "admin.logentry", 
         "fields": {
-            "action_flag": 2, 
-            "action_time": "2011-03-04 06:30:09", 
-            "object_repr": "billy", 
-            "object_id": "1", 
-            "change_message": "Added watumiaji \"billy\".", 
+            "action_flag": 1, 
+            "action_time": "2011-04-08 16:12:07", 
+            "object_repr": "jsmith", 
+            "object_id": "2", 
+            "change_message": "", 
             "user": 1, 
             "content_type": 3
         }

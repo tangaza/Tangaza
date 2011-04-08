@@ -89,7 +89,7 @@ class Watumiaji(models.Model):
     invitations_remaining = models.IntegerField(default = 100, help_text=u'How many invitations remaining to be sent out?')
     language = models.ForeignKey(Languages, default=1, help_text=u'Preferred language')
     name_file = models.CharField(max_length=96, blank=True, help_text=u'File path to the speech recorded name')
-    name_text = models.CharField(unique=True, max_length=255, db_index=True, verbose_name=u'Nickname')
+    name_text = models.CharField(max_length=255, db_index=True, verbose_name=u'Username')
     create_stamp = models.DateTimeField(auto_now_add=True)
     modify_stamp = models.DateTimeField(auto_now=True)
     notify_stamp = models.DateTimeField(null=True, help_text=u'When were they last notified that you have new messages?')
@@ -314,11 +314,10 @@ class Vikundi(models.Model):
     Private - You can only send messages if you are a member. You have to be invited to join
     Public - Anyone can send messages to these. You can join without being invited
     '''
-    group_name = models.CharField(unique=True, max_length=180,db_index=True)
+    group_name = models.CharField(max_length=180,db_index=True)
     group_name_file = models.CharField(max_length=96, blank=True, help_text=u'File path to the speech recorded group name')
     group_type = models.CharField(max_length=7,choices=GROUPTYPE[1:], default='private')
     is_active = models.CharField(max_length=9, blank=True, choices=YES_NO, default='yes')
-    is_deleted = models.CharField(unique=True, max_length=9, choices=YES_NULL, default=None, null=True, blank=True)
     org = models.ForeignKey(Organization, verbose_name=u'Organization')
     objects = VikundiManager()
     
@@ -327,7 +326,7 @@ class Vikundi(models.Model):
         verbose_name_plural = u'Groups'
         verbose_name = u'Group'
         ordering = [u'group_name']
-        unique_together = ('group_name','is_deleted')
+        unique_together = ('group_name','org')
     
     def user_count(self):
         return u'%s' % UserGroups.objects.filter(group=self).count()
@@ -338,8 +337,14 @@ class Vikundi(models.Model):
     admin_count.admin_order_field = 'groupadmin__count'
     
     def msg_count(self):
-        return u'%s' % PubMessages.objects.filter(channel=self).count()
+        count = PubMessages.objects.filter(channel=self).count()
+        if count > 0:
+            return u'<a href="/admin/Tangaza/pubmessages/">%s</a>' % PubMessages.objects.filter(channel=self).count()
+        return count
+    
     msg_count.admin_order_field = 'pubmessages__count'
+    msg_count.short_description = u'Number of Messages'
+    msg_count.allow_tags = True
     
     def __unicode__(self):
         return self.group_name
@@ -461,7 +466,7 @@ class Vikundi(models.Model):
             logger.debug ("used: user_group %s" % grps)
             if len(grps) > 0: group  = grps[0].group
         else:
-            grps = Vikundi.objects.filter(group_name = name_or_slot, is_deleted = None, is_active = 'yes')
+            grps = Vikundi.objects.filter(group_name = name_or_slot, is_active = 'yes')
             logger.debug ("used: group %s" % grps)
             if len(grps) > 0: group  = grps[0]
             
@@ -469,7 +474,7 @@ class Vikundi(models.Model):
 
     @classmethod
     def is_name_available (cls, name):
-        grps = cls.objects.filter(group_name = name, is_deleted = None)
+        grps = cls.objects.filter(group_name = name)
         return len(grps) < 1
     
     @classmethod
@@ -490,7 +495,6 @@ class Vikundi(models.Model):
     @classmethod
     def destroy (cls, admin=None, group=None):
         grp = cls.objects.get(group_id = group.group_id)
-        grp.is_deleted = 'yes'
         grp.is_active = 'no'
         UserGroups.objects.filter (group = group).delete()
         GroupAdmin.objects.filter (group = group).delete()
@@ -594,14 +598,26 @@ class PubMessages(models.Model):
     Each new message sent by a user is a pub message. (See sub message)
     '''
     timestamp = models.DateTimeField(auto_now_add=True)
-    src_user = models.ForeignKey(Watumiaji)
-    channel = models.ForeignKey(Vikundi, db_column='channel')
-    filename = models.CharField(unique=True, max_length=96)
-    text = models.CharField(max_length=768, blank=True)
+    src_user = models.ForeignKey(Watumiaji, verbose_name = u'Sender')
+    channel = models.ForeignKey(Vikundi, db_column='channel', verbose_name=u'Group')
+    filename = models.CharField(unique=True, max_length=96, verbose_name=u'Voice Message')
+    text = models.CharField(max_length=768, blank=True, verbose_name=u'Text Message')
     class Meta:
         db_table = u'pub_messages'
-
-
+        verbose_name = u'Messages'
+        verbose_name_plural = u'Messages'
+        
+    def __unicode__(self):
+        return self.filename
+    
+    def play_message(self):
+        msg = u'/status/%s.gsm' % self.filename
+        
+        return u'''<a href="%s" onClick="window.open(this, '_window', 'width=400,height=200,scrollbars=no,status=no,location=no'); return false;">
+<img src="/media/speaker-small.png" width="25" height="25" alt="Play" /></a>''' % msg
+    
+    play_message.allow_tags = True
+    
 class SubMessages(models.Model):
     '''
     A message associated with a member. A message is sent to vikundi but each member

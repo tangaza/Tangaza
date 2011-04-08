@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 class UserPhonesInlineFormset(forms.models.BaseInlineFormSet):
     
     def clean(self):
+        
         form_count = 0
         primary_nums = 0
         already_primary = False
@@ -214,8 +215,9 @@ class WatumiajiForm(forms.ModelForm):
         return super(WatumiajiForm, self).__init__(*args, **kwargs)
     
     def clean(self):
+        cleaned_data = super(WatumiajiForm, self).clean()
         user = _thread_locals.request.user
-        cleaned_data = self.cleaned_data
+        #cleaned_data = self.cleaned_data
         
         if not user.is_superuser:
             cleaned_data['organization'] = user.organization_set.get()
@@ -223,6 +225,22 @@ class WatumiajiForm(forms.ModelForm):
         else:
             if not cleaned_data['organization']:
                 raise forms.ValidationError(u'Select the organization')
+        
+        org = cleaned_data['organization']
+        
+        #get all groups in org
+        groups = Vikundi.objects.filter(org = org)
+        #logger.debug("test %s" % self.instance.id)
+        users = Watumiaji.objects.filter(id = self.instance.id)
+        
+        # only check if new user
+        if len(users) < 1:
+            # get all users in org with same_name
+            ug = UserGroups.objects.filter(group__in = groups, user__name_text = cleaned_data['name_text'])
+            
+            # if there's any user with same name, raise error
+            if len(ug) > 0:
+                raise forms.ValidationError(u'A user with that name already exists in the organization.')
             
         return cleaned_data
     
@@ -247,7 +265,3 @@ class VikundiForm(forms.ModelForm):
             logger.error(msg)
             raise forms.ValidationError(msg)
         return self.cleaned_data['is_active']
-
-class GroupLeaderForm(forms.ModelForm):
-    class Meta:
-        model = GroupAdmin

@@ -54,8 +54,10 @@
         {% block nav-global %}{% endblock %}
     </div>
     <!-- END Header -->
+    <!--
     {% block breadcrumbs %}<div class="breadcrumbs"><a href="/">{% trans 'Home' %}</a>{% if title %} &rsaquo; {{ title }}{% endif %}</div>{% endblock %}
     {% endif %}
+       -->
 
         {% if messages %}
         <ul class="messagelist">{% for message in messages %}
@@ -89,10 +91,14 @@
       </div>
       <div id="footer_menu">
         <a href="/">HOME</a> |
-        <a href="/about">ABOUT</a>  |
-        <a href="/credits">CREDITS</a>  |
-        <a href="/terms">TERMS OF USE</a> {% if user.is_authenticated %}|
-        <a href="/accounts/logout/">LOGOUT</a>{% endif %}
+        <a href="/#">ABOUT</a>  |
+        <a href="/#">CREDITS</a>  |
+        <a href="/#">TERMS OF USE</a>
+	<!--
+	{% if user.is_authenticated %}|
+        <a href="/admin/logout/">LOGOUT</a>
+	{% endif %}
+	-->
       </div>
       <div class="alignClear"></div>
       <br /><br />

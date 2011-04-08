@@ -32,10 +32,21 @@ from appadmin import *
 logger = logging.getLogger(__name__)
 
 ############################################################
-@resolve_user
-def set_username (request, user, language, name):
-	user.set_name(name)
-	return language.name_set(name)
+#@resolve_user
+def set_username (request, user, language, username):
+	# check if there's another in the organization with that name
+	ug = UserGroups.objects.filter(user = user)
+	if len(ug) > 0:
+		groups = Vikundi.objects.filter(org = org)
+		
+		ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = username)
+		
+		if len(ug_b) > 0:
+			# TODO: algorithm for suggesting alternative username
+			return language.username_taken(username)
+	
+	user.set_name(username)
+	return language.name_set(username)
 
 @resolve_user
 def quiet_group (request, user, language, name_or_slot):
@@ -46,13 +57,13 @@ def quiet_group (request, user, language, name_or_slot):
 	
 	if not user.is_member(group):
 		return language.user_not_in_group(user, group)
-
-	group.set_quiet(user)
-
-	logger.info ("user %s group %s" % (user, group))
-
-	return language.group_quieted(group)
 	
+	group.set_quiet(user)
+	
+	logger.info ("user %s group %s" % (user, group))
+	
+	return language.group_quieted(group)
+
 @resolve_user
 def unquiet_group (request, user, language, name_or_slot):
 	group = Groups.resolve(user, name_or_slot)

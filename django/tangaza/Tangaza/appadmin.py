@@ -53,7 +53,7 @@ def request_create_group (request, user, language, group_name, slot):
     groups = Vikundi.objects.filter(group_name = slugify(default_org))
     if len(groups) > 0:
         if not user.is_admin(groups[0]):
-            return lang.action_not_allowed()
+            return language.action_not_allowed()
     
     if not user.has_empty_slot ():
         return language.user_has_no_empty_slots ()

@@ -30,6 +30,7 @@ admin.autodiscover()
 urlpatterns = patterns('tangaza.Tangaza.views',
     #(r'', include('tangaza.Tangaza.urls')),
     #(r'^from=\+?(\d{1,20})/body=(.{1,160})/$', 'index'),
+    (r'^$', 'welcome'),
     (r'^tangaza/$', 'index'),
     (r'^admin/', include(admin.site.urls)),
     (r'^ping/$', 'ping'),

@@ -104,6 +104,12 @@ class UserCommandsParserTest(TestCase):
         tokens = 'invite member1 to xyz'.split()
         result = grammar.parse(tokens, self.lang)
         self.assertEqual(result, {'member': 'member1', 'group': 'xyz', 'extras': '', 'command': 'invite'})
+        
+    def test_join_with_username(self):
+        '''Tests joining with username provided'''
+        tokens = 'join xyz as member1'.split()
+        result = grammar.parse(tokens, self.lang)
+        self.assertEqual(result, {'member': 'member1', 'group': 'xyz', 'extras': '', 'command': 'join'})
 
 
 from tangaza.Tangaza.models import *
@@ -119,7 +125,7 @@ class SMSTest(TestCase):
         self.invalid_member = '222111333'
         self.valid_member = '254777888999'
         self.lang = utility.LanguageFactory.create_language('eng')
-        self.member = Watumiaji.objects.get(name_text = 'house')
+        self.member = Watumiaji.objects.get(name_text = 'rodrigo')
         self.c = Client()
         
     def test_create_group(self):
@@ -154,6 +160,11 @@ class SMSTest(TestCase):
         admin.invite_user(member, vikundi)
         
         response = self.c.post('/tangaza/', data='join projects',
+                               content_type='application/x-www-form-urlencoded',
+                               HTTP_X_KANNEL_FROM = member_phone)
+        self.assertEqual(response.content, self.lang.joined_group(vikundi, 2))
+        
+        response = self.c.post('/tangaza/', data='join projects as member1',
                                content_type='application/x-www-form-urlencoded',
                                HTTP_X_KANNEL_FROM = member_phone)
         self.assertEqual(response.content, self.lang.joined_group(vikundi, 2))
@@ -214,7 +225,7 @@ class SMSTest(TestCase):
         vikundi = Vikundi.resolve(admin, 'nrc')
         
         #tests non-admin trying to remove a user
-        response = self.c.post('/tangaza/', data='remove house from nrc',
+        response = self.c.post('/tangaza/', data='remove janedoe from nrc',
                                content_type='application/x-www-form-urlencoded',
                                HTTP_X_KANNEL_FROM = member_phone)
         self.assertEqual(response.content, self.lang.admin_privileges_required(vikundi))

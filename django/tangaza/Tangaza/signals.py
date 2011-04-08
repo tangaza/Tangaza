@@ -76,6 +76,11 @@ def organization_created(sender, **kwargs):
     if not kwargs['created']:
         return
     instance = kwargs['instance']
+    
+    group_name = slugify(instance.org_name).replace('-','')
+    
+    create_vikundi_object.send(sender=instance, auth_user=instance.org_admin,
+                                             group_name=group_name, org=instance)
 
 post_save.connect(organization_created, sender=Organization)
 

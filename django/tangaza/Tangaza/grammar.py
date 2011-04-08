@@ -67,9 +67,10 @@ def parse(tokens, language):
                 group = tokens[1].lstrip('@')
                 member = tokens[2]
                 extras = tokens[3:]
-            elif tokens[-2] == 'from' or tokens[-2] == 'to':
+            elif tokens[-2] == 'from' or tokens[-2] == 'to' or tokens[-2] == 'as':
                 #e.g. invite abc to xyz
                 #e.g. remove abc from xyz
+                #e.g. join abc as xyz
                 member = tokens[1]
                 group = tokens[-1]
                 #e.g. invite abc, abcd, abcde to xyz
@@ -136,7 +137,9 @@ def parse(tokens, language):
 class Commands(object):
     
     def __init__(self, lang):
-        self.GROUP_COMMANDS = [lang.CREATE, lang.JOIN, lang.LEAVE, lang.DELETE]
+        # GROUP_COMMANDS directed towards entire group
+        # USER_COMMANDS directed towards specific members of a group
+        self.GROUP_COMMANDS = [lang.CREATE, lang.JOIN, lang.LEAVE, lang.DELETE] 
         self.USER_COMMANDS = [lang.REMOVE, lang.INVITE]
     
     def is_command(self, command):

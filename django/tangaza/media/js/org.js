@@ -1,3 +1,14 @@
+function popup(mylink, windowname) {
+    if (! window.focus)return true;
+    var href;
+    if (typeof(mylink) == 'string')
+	href=mylink;
+    else
+	href=mylink.href;
+    window.open(href, windowname, 'width=400,height=200,scrollbars=no,status=no,location=no');
+    return false;
+}
+
 $(document).ready(function() {
 	$(".module").delegate("#id_org", "change", function() {
 		//var row = $(this).attr("id").split('id_org')[1].split("-user")[0];
