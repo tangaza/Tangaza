@@ -103,7 +103,7 @@ sub listen_main_menu {
 	push( @prompts, &msg( $self, 'select-network' ) );
     }
     
-    my $channels = &select_network_menu( $self, \@prompts, 1 );
+    my ($channels, $has_name) = &select_network_menu( $self, \@prompts, 1 );
     
     $self->log( 4, "received channel " . $channels );
     
@@ -221,10 +221,10 @@ sub walk_messages_menu {
     # Base select statement
     my $msgs_rs = $self->{server}{schema}->resultset('SubMessages')->search
 	({dst_user_id => $self->{user}->{id}},
-	 {columns => [qw/pub_messages.timestamp sub_id message_id heard flagged filename src_user_id/]},
+	 {columns => [qw/pub_messages.timestamp id message_id heard flagged filename src_user_id/]},
 	 {prefetch => 'message_id'},
-	 #{order_by => 'sub_id desc'}
-	 #{order_by => {desc => 'sub_id'}}
+	 #{order_by => 'id desc'}
+	 #{order_by => {desc => 'id'}}
 	 );
     
     $msgs_rs = $msgs_rs->search({'me.channel' => $channels}) if (defined($channels));
@@ -274,11 +274,11 @@ sub walk_messages_menu {
 	
 	$self->log( 4,
 		    "m $m msg_id "
-		    . $msg->message_id->pub_id
+		    . $msg->message_id->id
 		    . " sub_id "
-		    . $msg->sub_id
+		    . $msg->id
 		    . " src_user_id "
-		    . $msg->message_id->src_user_id->user_id );
+		    . $msg->message_id->src_user_id->id );
 	
 	
 	
@@ -291,7 +291,7 @@ sub walk_messages_menu {
 	    $dtmf = $self->agi->get_option( $updates_dir . $msg->message_id->filename, "$digits", 250 );
 	    
 	    # set listened bit
-	    my $sub_msg = $self->{server}{schema}->resultset('SubMessages')->find($msg->sub_id);
+	    my $sub_msg = $self->{server}{schema}->resultset('SubMessages')->find($msg->id);
 	    $sub_msg->update({heard => 'yes'});
 	    
 	    # if the user did not hit a key while listening
@@ -371,7 +371,7 @@ sub walk_messages_menu {
 		
 		$self->log( 4, "flagging m $m" );
 		
-		my $sub_msg = $self->{server}{schema}->resultset("SubMessages")->find($msg->sub_id);
+		my $sub_msg = $self->{server}{schema}->resultset("SubMessages")->find($msg->id);
 		
 		if ( $sub_msg->flagged eq 'yes' ) {
 		    

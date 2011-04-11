@@ -37,6 +37,7 @@ TGZ_DATA=/var/lib/tangaza
 #Generate the sub directories for data files
 cd $TGZ_DATA/names && perl mkdirs.pl
 cd $TGZ_DATA/status && perl mkdirs.pl
+cd $TGZ_DATA/groups && perl mkdirs.pl
 
 cd $CURR_DIR
 

@@ -54,9 +54,9 @@ sub select_network_menu {
 	$network_code eq 'cancel') {
 	return $network_code;
     }
-
+    
     $self->log (4, "end select_network_menu");
-
+    
     #return the group_id based on the selected slot
     my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
         ({user_id => $self->{user}->{id}, slot => $network_code},
@@ -66,17 +66,21 @@ sub select_network_menu {
     my $group = $group_rs->next;
     my $group_id = $group->group_id->id if (defined($group));
     my $group_name = $group->group_id->group_name_file if (defined($group));
+    my $has_name = 1;
     
-    if (defined($group)) {
+    if (defined($group_name) && length($group_name) > 0) {
 	my $prefs = $self->get_property('prefs');
 	my $groups_dir = $prefs->{paths}->{NASI_DATA}.'/groups/';
 	
 	&stream_file($self, 'you-entered', "#");
 	$self->agi->stream_file($groups_dir.$group_name, "#");
     }
+    else {
+	$has_name = -1;
+    }
     
-    $self->log(4, "Selected group: ".$group_id);
-    return $group_id;
+    $self->log(4, "Selected group: ".$group_id. ", has group_name: ".$has_name);
+    return ($group_id, $has_name);
 
 }
 

@@ -34,7 +34,7 @@ def parse(tokens, language):
     cmd = Commands(language)
     
     if len(tokens) <= 1:
-        return [command, group, extras]
+        return {'command':command, 'group':group, 'member':member, 'extras':' '.join(extras)}
     
     if cmd.is_group_command(tokens[0]):
         command = tokens[0]    

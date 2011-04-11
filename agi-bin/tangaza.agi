@@ -33,6 +33,7 @@ my $tmp_dir = $prefs->{paths}->{NASI_TMP};
 
 foreach my $dir ('record','place_call') {
     make_path ($tmp_dir."/$dir/");
+    chown('asterisk', '', $tmp_dir."/$dir/");
 }
 
 my $root_snd_dir = $prefs->{paths}->{NASI_SOUND};

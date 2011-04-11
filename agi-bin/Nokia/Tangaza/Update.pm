@@ -76,11 +76,28 @@ sub update_main_menu {
     
     my @select_network_prompts = &msg ($self, 'select-network');
     
-    my $channels = &select_network_menu ($self, \@select_network_prompts, 1);
+    my ($channels, $has_name) = &select_network_menu ($self, \@select_network_prompts, 1);
     
     if (!defined($channels)) {
 	&stream_file ($self, "no-network-defined-on-that-slot");
 	return 'ok';
+    }
+    
+    if ($has_name < 1) {
+        my $rs = $self->{server}{schema}->resultset('GroupAdmin')->search
+            (group_id => $channels, user_id => $self->{user}->{id});
+
+        #if its the group admin ask them to record a new group name
+        if ($rs->count() > 0) {
+	    my $group_name_file = &set_group_name($self, $channels, &msg($self, 'record-name-for-group'));
+	    if (!defined($group_name_file)) {
+		return 'ok';
+	    }
+        }
+	else {
+	    &stream_file ($self, "group-not-active");
+	    return 'ok';
+	}
     }
     
     if (!&can_post($self, $channels)) {
@@ -232,10 +249,13 @@ sub flash_update {
 sub save_pub_message {
     my ($self, $update_file, $channels) = @_;
     $self->log (4, "START save_pub_message: $update_file $channels");
+    
+    my $now = 'NOW()';
+    
     # Insert into pub_messages
     my $msg = $self->{server}{schema}->resultset('PubMessages')->create
 	({src_user_id => $self->{user}->{id}, channel => $channels,
-	  filename => $update_file});
+	  filename => $update_file, timestamp => \$now});
     
     my $pub_id = $msg->id;
     $self->log (4, "created pub_messages id ".$pub_id);
@@ -246,10 +266,11 @@ sub save_pub_message {
 ######################################################################
 sub save_sub_message {
     my ($self, $pub_id, $dst_user_id, $channel, $dst_user_ids) = @_;
+    my $now = 'NOW()';
     
     my $msg = $self->{server}{schema}->resultset('SubMessages')->create
 	({message_id => $pub_id, dst_user_id => $dst_user_id, 
-	  channel => $channel});
+	  channel => $channel, timestamp => \$now, heard => 'no', flagged => 'no'});
     
     push (@$dst_user_ids, $dst_user_id);
 }

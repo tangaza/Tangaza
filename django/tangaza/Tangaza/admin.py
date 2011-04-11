@@ -309,15 +309,47 @@ class GroupLeaderAdmin(admin.ModelAdmin):
             return db_field.formfield(**kwargs)
         return super(GroupLeaderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-admin.site.register(GroupAdmin, GroupLeaderAdmin)
+    def queryset(self, request):
+        #Only returns users that belong to groups from this users organization
+        #There has to be a better way of doing this
+        qs = super(GroupLeaderAdmin, self).queryset(request)
+        if not request.user.is_superuser:
+            org = request.user.organization_set.get()
+            groups = GroupAdmin.objects.filter(group__org = org)
+            users = [ug.user.id for ug in groups]
+            qs = qs.filter(id__in = users)
+
+        return qs
+
+#admin.site.register(GroupAdmin, GroupLeaderAdmin)
 
 class PubMessagesAdmin(admin.ModelAdmin):
     model = PubMessages
-    list_display = ['filename', 'src_user', 'channel', 'play_message']
+    list_display = ['timestamp', 'src_user', 'channel', 'play_message']
     
     def get_actions(self, request):
         actions = super(PubMessagesAdmin, self).get_actions(request)
         del actions['delete_selected']
         return actions    
+    
+    def queryset(self, request):
+        # Only returns users that belong to groups from this users organization
+        # There has to be a better way of doing this
+        
+        qs = super(PubMessagesAdmin, self).queryset(request)
+        if not request.user.is_superuser:
+            org = request.user.organization_set.get()
+            #messages = PubMessages.objects.filter(group__org = org)
+            #users = [ug.user.id for ug in groups]
+            qs = qs.filter(channel__org = org)
+        
+        return qs
+    
+    valid_lookups = ('channel')
+    
+    def lookup_allowed(self, lookup, *args, **kwargs):
+        if lookup.startswith(self.valid_lookups):
+            return True
+        return super(PubMessagesAdmin, self).lookup_allowed(lookup, *args, **kwargs)
 
 admin.site.register(PubMessages, PubMessagesAdmin)

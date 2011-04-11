@@ -339,7 +339,7 @@ class Vikundi(models.Model):
     def msg_count(self):
         count = PubMessages.objects.filter(channel=self).count()
         if count > 0:
-            return u'<a href="/admin/Tangaza/pubmessages/">%s</a>' % PubMessages.objects.filter(channel=self).count()
+            return u'<a href="/admin/Tangaza/pubmessages/?channel__id=%s">%s</a>' % (self.id, count)
         return count
     
     msg_count.admin_order_field = 'pubmessages__count'
@@ -597,7 +597,7 @@ class PubMessages(models.Model):
     '''
     Each new message sent by a user is a pub message. (See sub message)
     '''
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=u'Date Sent')
     src_user = models.ForeignKey(Watumiaji, verbose_name = u'Sender')
     channel = models.ForeignKey(Vikundi, db_column='channel', verbose_name=u'Group')
     filename = models.CharField(unique=True, max_length=96, verbose_name=u'Voice Message')

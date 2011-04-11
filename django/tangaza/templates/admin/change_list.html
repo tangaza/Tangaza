@@ -33,10 +33,19 @@
 {% endif %}{% endif %}
 {% endblock %}
 
+
 {% block bodyclass %}change-list{% endblock %}
 
 {% if not is_popup %}
   {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="/">Home</a> 
+      {% if user.is_superuser %}
+      | <a href="/admin/">Site Admin</a>
+      {% endif %}
+    </div>
+
+<!--
     <div class="breadcrumbs">
       <a href="../../">
         {% trans "Home" %}
@@ -48,6 +57,7 @@
       &rsaquo; 
       {{ cl.opts.verbose_name_plural|capfirst }}
     </div>
+-->
   {% endblock %}
 {% endif %}
 

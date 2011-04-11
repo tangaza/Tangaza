@@ -28,15 +28,11 @@ __PACKAGE__->add_columns(
   { data_type => "VARCHAR", default_value => undef, is_nullable => 0, size => 7 },
   "is_active",
   { data_type => "VARCHAR", default_value => undef, is_nullable => 0, size => 9 },
-  "is_deleted",
-  { data_type => "VARCHAR", default_value => undef, is_nullable => 1, size => 9 },
   "org_id",
   { data_type => "INT", default_value => undef, is_nullable => 0, size => 11 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("group_name_2", ["group_name", "is_deleted"]);
-__PACKAGE__->add_unique_constraint("group_name", ["group_name"]);
-__PACKAGE__->add_unique_constraint("is_deleted", ["is_deleted"]);
+__PACKAGE__->add_unique_constraint("group_name", ["group_name", "org_id"]);
 __PACKAGE__->has_many(
   "admin_group_histories",
   "Nokia::Tangaza::Schema::AdminGroupHistory",
@@ -79,8 +75,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-02-25 09:53:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:llgIXxZyrU9VK9s9xRlDdg
+# Created by DBIx::Class::Schema::Loader v0.04006 @ 2011-04-11 18:46:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vp67BLanMLFGL5QPCxFdrw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
