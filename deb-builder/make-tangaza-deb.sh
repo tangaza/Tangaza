@@ -51,8 +51,8 @@ cd $INST_LOCATION/../
 tar -czf tangaza_1.0.tar.gz tangaza-1.0
 
 # 3. set env variables
-export DEBFULLNAME="Billy Odero"
-export DEBEMAIL="billy.odero@fakemail.com"
+export DEBFULLNAME="Tangaza DevTeam"
+export DEBEMAIL="tangaza-dev@nokia.com"
 
 # 4. generate required files with dh_make
 cd $INST_LOCATION

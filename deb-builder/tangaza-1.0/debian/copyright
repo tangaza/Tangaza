@@ -1,6 +1,6 @@
 This work was packaged for Debian by:
 
-    Billy Odero <ext-billy.odero@nokia.com> on Tue, 11 Jan 2011 11:40:38 +0300
+    Tangaza DevTeam <tangaza-dev@nokia.com> on Tue, 11 Jan 2011 11:40:38 +0300
 
 It was downloaded from:
 
@@ -8,8 +8,7 @@ It was downloaded from:
 
 Upstream Author(s):
 
-    Billy Odero <ext-billy.odero@nokia.com>
-    Jonathan Ledlie <jonathan.ledlie@nokia.com>
+    Tangaza DevTeam <tangaza-dev@nokia.com>
 
 Copyright:
 
@@ -35,6 +34,6 @@ Public License version 3 can be found in the projects LICENSE file.
 
 The Debian packaging is:
 
-    Copyright (C) 2011 Billy Odero <ext-billy.odero@nokia.com>
+    Copyright (C) 2011 Tangaza DevTeam <tangaza-dev@nokia.com>
 
 and is licensed under the AGPL version 3, see above.
