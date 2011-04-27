@@ -1,0 +1,3 @@
+[submodule "agi-bin/Nokia/Common"]
+	path = agi-bin/Nokia/Common
+	url = https://github.com/odero/Common.git
