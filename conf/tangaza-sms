@@ -1,6 +1,6 @@
 #NameVirtualHost *
 
-<VirtualHost *:8080>
+#<VirtualHost *:80>
         ServerAdmin admin@your_server_name
 	
         ServerName your_server_name
@@ -44,4 +44,4 @@
 	CustomLog /var/log/apache2/access.log combined
         ServerSignature On
 
-</VirtualHost>
+#</VirtualHost>

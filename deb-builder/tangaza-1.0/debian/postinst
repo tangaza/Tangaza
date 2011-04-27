@@ -140,12 +140,12 @@ if [ ! -f "/etc/apache2/sites-enabled/tangaza-sms" ]; then
     chown root\: /etc/apache2/sites-enabled/tangaza-sms
 fi
 
-echo "Enabling port 8080"
-PORT_ENABLED=`grep -i '^Listen 8080$' /etc/apache2/ports.conf`
-if [ ! -n "$PORT_ENABLED" ]; then
-    mv /etc/apache2/ports.conf /etc/apache2/ports.conf.bak
-    awk "{gsub(/Listen 80/,\"Listen 80\nListen 8080\");print}" /etc/apache2/ports.conf.bak > /etc/apache2/ports.conf
-fi
+#echo "Enabling port 8080"
+#PORT_ENABLED=`grep -i '^Listen 8080$' /etc/apache2/ports.conf`
+#if [ ! -n "$PORT_ENABLED" ]; then
+#    mv /etc/apache2/ports.conf /etc/apache2/ports.conf.bak
+#    awk "{gsub(/Listen 80/,\"Listen 80\nListen 8080\");print}" /etc/apache2/ports.conf.bak > /etc/apache2/ports.conf
+#fi
 
 #Check if wsgi_module is loaded if not load it
 WSGI=`find /usr/lib/ -name "mod_wsgi.so" -exec ls {} +;`

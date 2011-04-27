@@ -44,17 +44,19 @@ Q1="create database if not exists $DB_NAME;"
 Q3="ALTER DATABASE $DB_NAME CHARACTER SET utf8 COLLATE utf8_general_ci;"
 Q3="INSERT INTO mysql.user 
     (host, user, password, select_priv, insert_priv, 
-     update_priv, delete_priv, create_priv, drop_priv, 
+     update_priv, delete_priv, create_priv, alter_priv,
+     index_priv, references_priv, drop_priv, 
      ssl_cipher, x509_issuer, x509_subject) 
 VALUES 
     -- check user table for the actual values used in 
     -- ssl_cipher, x509_issuer, and x509_subject columns
     ('$DB_HOST','$DB_USER',PASSWORD('$DB_PASS'),
-     'Y','Y','Y','Y','Y','N','','','') 
+     'Y','Y','Y','Y','Y','Y','Y','Y','N','','','') 
 ON DUPLICATE KEY UPDATE 
     password=PASSWORD('$DB_PASS'), select_priv='Y', 
     insert_priv='Y', update_priv='Y', delete_priv='Y', create_priv='Y', 
-    drop_priv='N', ssl_cipher='', x509_issuer='', x509_subject='';
+    alter_priv='Y', index_priv='Y', references_priv='Y',
+    drop_priv='N',ssl_cipher='', x509_issuer='', x509_subject='';
 FLUSH PRIVILEGES;"
 
 echo "We will now check if the database and user exists and create them if not there. Waiting for the MySQL root password"

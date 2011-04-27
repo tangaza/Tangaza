@@ -86,13 +86,18 @@ sub update_main_menu {
     if ($has_name < 1) {
         my $rs = $self->{server}{schema}->resultset('GroupAdmin')->search
             (group_id => $channels, user_id => $self->{user}->{id});
-
+	
         #if its the group admin ask them to record a new group name
         if ($rs->count() > 0) {
 	    my $group_name_file = &set_group_name($self, $channels, &msg($self, 'record-name-for-group'));
-	    if (!defined($group_name_file)) {
-		return 'ok';
-	    }
+	    
+            if ($group_name_file eq 'cancel') {
+                &play_random ($self, &msg($self,'cancelled-update'), 'ok');
+		return 'cancel';
+            }
+	    
+            if ($group_name_file eq 'timeout') { return 'ok'; }
+	    
         }
 	else {
 	    &stream_file ($self, "group-not-active");

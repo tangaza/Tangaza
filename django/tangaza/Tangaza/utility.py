@@ -21,6 +21,7 @@
 
 import string
 import logging
+import functools
 
 from models import *
 from django.db import transaction
@@ -31,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 def resolve_user (func):
     
+    @functools.wraps(func)
     def validate (*args):
         request = args[0]
         #logger.debug('Starting resolve_user %s' % [x for x in request.META.keys() if x.__contains__('KANNEL')])
