@@ -174,51 +174,6 @@ def index(request, user, language):
 
 ##############################################################################
 
-@resolve_user
-def index_old(request, user, language, raw_text, smsc = 'mosms'):
-    from django.conf import settings
-    
-    logger.debug ('entry point')
-    
-    raw_text = urllib.unquote_plus(raw_text)
-    logger.debug ("user info " + raw_text)
-    
-    sms_log = SmsLog(sender = user.phone_number, text = raw_text)
-    sms_log.save()
-    
-    (group_token, msg_text) = string.split(raw_text, " ", 1)
-    (blank, group_name_or_slot) = string.split(group_token, "@")
-    
-    logger.info ("user %s text %s" % (user, msg_text))
-    
-    # group_name is None resolves to user's default group
-    group = Groups.resolve (user, group_name_or_slot)
-    
-    if group is None:
-        logger.debug ("group name %s is null" % group_name_or_slot)
-        # user provided a group name, but it doesn't exist
-        return language.unknown_group(group_name_or_slot)
-    elif group.get_user_count() > MAX_GROUP_SMS_SIZE:
-        return language.group_too_big_for_sms(settings.SMS_VOICE[smsc])
-    else:
-        logger.debug ("group name %s resolved %s" % (group_name_or_slot, group))
-        
-        if group_name_or_slot is None or len(group_name_or_slot) < 1:
-            # a "tweet" to default group
-            # "foo"     -> send msg "foo #phone" to #group
-            msg_text = "%s @%s" % (msg_text[:140], group.group_name)
-        else:
-            # "#group"     -> send msg "#group" to #group
-            # "#group foo" -> send msg "#group foo" to #group
-            import re
-            identity = re.sub('^2547', '07', user.phone_number)
-            
-            if user.name_text != None : identity = user.name_text
-            msg_text = "%s %s@%s" % (msg_text[:140], identity, group.group_name)
-            
-            return request_send (user, language, msg_text, group, settings.SMS_VOICE[smsc])
-
-##############################################################################
 def request_join (user, language, group, slot, origin):
     
     # SMS-only if no slot given

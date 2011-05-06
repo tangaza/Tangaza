@@ -641,6 +641,7 @@ class SubMessages(models.Model):
     
     class Meta:
         db_table = u'sub_messages'
+        ordering = [u'-timestamp']
 
 class TermsAndPrivacy(models.Model):
     '''Users have to accept the terms and privacy statements before they start using the system'''
