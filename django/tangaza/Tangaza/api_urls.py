@@ -24,48 +24,43 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
-
-urlpatterns = patterns('tangaza.Tangaza.api',
+urlpatterns = patterns('',
+    (r'^login/$', 'django.contrib.auth.views.login', {'template_name':'admin/login.html'}),
+    (r'^logout/$', 'tangaza.Tangaza.api.logout'),
+)
+urlpatterns += patterns('tangaza.Tangaza.api',
 
     # main entry point for POST requests
-    (r'^api/$', ''),
+    (r'^api/$', 'get_update'),
     
     # main entry point for GET requests
-    (r'^api/members/group=(\d{1,10}/$)', 'get_members'),
-    (r'^api/admins/group=(\d{1,10}/$)', 'get_admins'),
-    (r'^api/groups/member=(\d{1,10})/$', 'get_groups'),
-    (r'^api/update/member=(\d{1,10})/$', 'get_update'),
-    (r'^api/messages/group=(\d{1,10})/$', 'get_messages'),
-    
-    # testing/pinging
-    (r'^api/ping/$', 'ping'),
-    (r'^join/from=\+?(\d{1,20})/group=([\d|\w]{1,60})/slot=(\d?)/smsc=(.{1,20})/$', 'join_group'),
-    (r'^leave/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'leave_group'),
-)
+    (r'^members/group=(\d{1,10})/$', 'get_members'),
+    (r'^admins/group=(\d{1,10})/$', 'get_admins'),
+    (r'^groups/$', 'get_groups'),
+    (r'^update/$', 'get_update'),
+    (r'^messages/$', 'get_messages'),
 
-urlpatterns += patterns('tangaza.Tangaza.commands',
-    # called directly from kannel
-    (r'^api/quiet_group/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'quiet_group'),
-    (r'^api/unquiet_group/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'unquiet_group'),
-    (r'^api/all_groups/from=\+?(\d{1,20})/$', 'quiet_or_unquiet_all_groups'),
-    (r'^api/tangaza_off/from=\+?(\d{1,20})/$', 'quiet_all'),
-    (r'^api/tangaza_on/from=\+?(\d{1,20})/$', 'unquiet_all'),
-    (r'^api/set_name/from=\+?(\d{1,20})/name=(\w{1,60})/$', 'set_username'),
-)
+    # POST requests from here on
+    (r'^join/from=\+?(\d{1,20})/group=([\d|\w]{1,60})/slot=(\d?)/smsc=(.{1,20})/$', 'request_join'),
+    (r'^leave/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'request_leave'),
 
+    (r'^quiet/$', 'request_quiet'),
+    (r'^unquiet/$', 'request_unquiet'),
+#    (r'^all_groups/from=\+?(\d{1,20})/$', 'quiet_or_unquiet_all_groups'),
+#    (r'^tangaza_off/from=\+?(\d{1,20})/$', 'quiet_all'),
+#    (r'^tangaza_on/from=\+?(\d{1,20})/$', 'unquiet_all'),
+    (r'^set_name/$', 'set_username'),
 
-urlpatterns += patterns('tangaza.Tangaza.appadmin',
-    # called directly from kannel
-    (r'^create_group/from=\+?(\d{1,20})/group=(\w{1,20})/slot=([\+|\w|\s]{0,90})/$', 'request_create_group'),
-    (r'^delete_group/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'delete_group'),
-    (r'^invite_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=([\+?\d|\s|\w|,]{1,140})/smsc=(.{1,20})/$', 'invite_user_to_group'), 
+    (r'^create/from=\+?(\d{1,20})/group=(\w{1,20})/slot=([\+|\w|\s]{0,90})/$', 'request_create_group'),
+    (r'^delete_group/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'request_delete_group'),
+    (r'^invite/from=\+?(\d{1,20})/group=(\w{1,60})/user=([\+?\d|\s|\w|,]{1,140})/smsc=(.{1,20})/$', 'request_invite_user'), 
 
-    (r'^add_admin/from=\+?(\d{1,20})/group=(\w{1,60})/admin=([\+?\d|\s]{1,90})/$', 'add_admin_to_group'),
-    (r'^delete_admin/from=\+?(\d{1,20})/group=(\w{1,60})/admin=([\+?\d|\s]{1,90})/$', 'delete_admin_from_group'),
+    (r'^add_admin/from=\+?(\d{1,20})/group=(\w{1,60})/admin=([\+?\d|\s]{1,90})/$', 'request_add_admin'),
+    (r'^delete_admin/from=\+?(\d{1,20})/group=(\w{1,60})/admin=([\+?\d|\s]{1,90})/$', 'request_delete_admin'),
 
-    (r'^delete_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=([\+?\d|\s]{1,90})/$', 'delete_user_from_group'),
-    (r'^ban_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=(\w{1,20})/$', 'ban_user_from_group'),          
-    (r'^unban_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=(\w{1,20})/$', 'unban_user_from_group'),
+    (r'^delete_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=([\+?\d|\s]{1,90})/$', 'request_delete_user'),
+    (r'^ban_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=(\w{1,20})/$', 'request_ban_user'),
+    (r'^unban_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=(\w{1,20})/$', 'request_unban_user'),
 
 
 )

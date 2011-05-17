@@ -53,10 +53,10 @@ def request_create_group (request, user, language, group_name, slot):
     groups = Vikundi.objects.filter(group_name = slugify(default_org))
     if len(groups) > 0:
         if not user.is_admin(groups[0]):
-            return language.action_not_allowed()
+            return [False, language.action_not_allowed()]
     
     if not user.has_empty_slot ():
-        return language.user_has_no_empty_slots ()
+        return [False, language.user_has_no_empty_slots ()]
                 
     type_and_slot_regex = re.compile("^\w+\s+\d$")
     slot_only_regex = re.compile("^\d$")
@@ -107,7 +107,7 @@ def request_create_group (request, user, language, group_name, slot):
         if len(msg_list) > 0:
             msg_text = " ".join(msg_list)
             logger.debug("TWIG: %s" % msg_text)
-            return msg_text
+            return [False, msg_text]
         
         #Any time you create a user the first group they join is the 
         #organization's group
@@ -116,7 +116,7 @@ def request_create_group (request, user, language, group_name, slot):
         # create group and assign it to the given slot, if one has been provided
         group = Vikundi.create (user, group_name, slot, group_type, org = default_org)
     
-    return language.group_created (group_name, slot, group_type)
+    return [True, language.group_created (group_name, slot, group_type)]
 
 #@resolve_user
 def delete_group (request, admin, language, group_name_or_slot):
@@ -125,17 +125,17 @@ def delete_group (request, admin, language, group_name_or_slot):
     group = Vikundi.resolve (admin, group_name_or_slot)    
 
     if group is None:
-        return language.unknown_group (group_name_or_slot)
+        return [False, language.unknown_group (group_name_or_slot)]
 
     if not admin.is_admin (group):
-        return language.admin_privileges_required (group)
+        return [False, language.admin_privileges_required (group)]
 
     #Vikundi.delete (admin, group)
     group.delete()
 
-    return language.group_deleted (group)
+    return [True, language.group_deleted (group)]
 
-@resolve_user
+#@resolve_user
 def add_admin_to_group (request, curr_admin, language, group_name_or_slot, new_admin_phone):
     
     admin_list = new_admin_phone.replace("+"," ").split()
@@ -146,13 +146,13 @@ def add_admin_to_group (request, curr_admin, language, group_name_or_slot, new_a
     group = Vikundi.resolve (curr_admin, group_name_or_slot)
 
     if group is None:
-        return language.unknown_group (group_name_or_slot)
+        return [False, language.unknown_group (group_name_or_slot)]
     
     if not curr_admin.is_admin (group):
         msg_list.append(language.admin_privileges_required (group))
     
     if len(msg_list) > 0:
-        return string.join(msg_list, " ")
+        return [False, string.join(msg_list, " ")]
     
     msg_list= []
     invalid_users = []
@@ -184,9 +184,9 @@ def add_admin_to_group (request, curr_admin, language, group_name_or_slot, new_a
         invalid_users = string.join(invalid_users, ",")
         msg_list.append(language.unknown_user (invalid_users))
         
-    return string.join(msg_list, " ")
+    return [False, string.join(msg_list, " ")]
 
-@resolve_user
+#@resolve_user
 def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, del_admin_phone):
     admin_list = del_admin_phone.replace("+", " ").split()
     logger.debug("group: %s users: %s" % (group_name_or_slot, admin_list))
@@ -196,7 +196,7 @@ def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, 
     group = Vikundi.resolve (curr_admin, group_name_or_slot)
     
     if group is None:
-        return language.unknown_group (group_name_or_slot)
+        return [False ,language.unknown_group (group_name_or_slot)]
     
     if not curr_admin.is_admin (group):
         msg_list.append(language.admin_privileges_required (group))
@@ -212,7 +212,7 @@ def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, 
         msg_list.append(language.cannot_delete_self_from_my_group (curr_admin, group))
     
     if len(msg_list) > 0:
-        return string.join(msg_list, " ")
+        return [False ,string.join(msg_list, " ")]
     
     msg_list = []
     valid_users = []
@@ -236,7 +236,7 @@ def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, 
         invalid_users = string.join(invalid_users, ",")
         msg_list.append(language.unknown_user (invalid_users))
     
-    return string.join(msg_list, " ") 
+    return [True, string.join(msg_list, " ") ]
 
 #@resolve_user
 def invite_user_to_group (request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms'):
@@ -261,14 +261,14 @@ def invite_user_to_group (request, user, language, group_name_or_slot, invite_us
     group = Vikundi.resolve (user, group_name_or_slot)
     
     if group is None:
-        return language.unknown_group (group_name_or_slot)
+        return [False, language.unknown_group (group_name_or_slot)]
     
     if not user.is_admin (group):
         if not group.is_public ():
             msg_list.append(language.cannot_invite_user ())
     
     if len(msg_list) > 0:
-            return string.join(msg_list, " ")
+            return [False, string.join(msg_list, " ")]
     
     msg_list = []
     valid_users = []
@@ -306,7 +306,7 @@ def invite_user_to_group (request, user, language, group_name_or_slot, invite_us
         invalid_users = string.join(invalid_users, ",")
         msg_list.append(language.unknown_user (invalid_users))
     
-    return string.join(msg_list, " ")
+    return [True, string.join(msg_list, " ")]
     
 # convenience method for e.g. web site
 # not to be called via sms
@@ -316,14 +316,14 @@ def add_user_to_group (request, user, language, user_added_phone, group_name):
     group = Vikundi.resolve (user, group_name)
     
     if group is None:
-        return language.unknown_group (group_name)
+        return [False, language.unknown_group (group_name)]
     
     if not user_added.has_empty_slot ():
-        return language.user_has_no_empty_slots ()
+        return [False, language.user_has_no_empty_slots ()]
     
     group.add_user (user, user_added)
     
-    return language.added_user_to_group (user, group)
+    return [True, language.added_user_to_group (user, group)]
     
 #@resolve_user
 def delete_user_from_group (request, admin, language, group_name_or_slot, del_user_phone):
@@ -335,14 +335,14 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
     group = Vikundi.resolve (admin, group_name_or_slot)
     
     if group is None:
-        return language.unknown_group (group_name_or_slot)
+        return [False, language.unknown_group (group_name_or_slot)]
     
     if len(del_user_list) < 1:
-        return language.no_user_specified()
+        return [False, language.no_user_specified()]
     
     del_user = Watumiaji.objects.filter(name_text = del_user_list[0])
     if not del_user:
-        return language.unknown_user(del_user_list[0])
+        return [False, language.unknown_user(del_user_list[0])]
     
     if del_user[0].pk == admin.pk:
         msg_list.append(language.cannot_leave_own_group())
@@ -351,7 +351,7 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
         msg_list.append(language.admin_privileges_required (group))
     
     if len(msg_list) > 0:
-        return string.join(msg_list, " ")
+        return [False, string.join(msg_list, " ")]
     
     msg_list = []
     valid_users = []
@@ -386,23 +386,23 @@ def delete_user_from_group (request, admin, language, group_name_or_slot, del_us
         invalid_users = string.join(invalid_users, ",")
         msg_list.append(language.unknown_user (invalid_users))
     
-    return string.join(msg_list, " ")
+    return [True, string.join(msg_list, " ")]
 
-@resolve_user
+#@resolve_user
 def ban_user_from_group (request, user, language, ban_user_phone, group_name_or_slot):
     '''
     ban_user = Watumiaji.resolve(ban_user_phone)
     
     if ban_user == None:
-        return language.unknown_user (ban_user_phone)
+        return [False, language.unknown_user (ban_user_phone)]
     
     group = Vikundi.resolve (admin, group_name_or_slot)
     
     if group == None:
-        return language.unknown_group (group_name_or_slot)
+        return [False, language.unknown_group (group_name_or_slot)]
     '''
-    return language.user_banned(ban_user_phone, group_name_or_slot)
+    return [True, language.user_banned(ban_user_phone, group_name_or_slot)]
 
-@resolve_user
+#@resolve_user
 def unban_user_from_group (request, user, language, ban_user_phone, group_name_or_slot):
-    	return language.user_unbanned(ban_user)
+    	return [True, language.user_unbanned(ban_user)]
