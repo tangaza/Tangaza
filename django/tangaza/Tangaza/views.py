@@ -81,16 +81,16 @@ def join_group (request, user, language, group_name, slot = '', username = '', s
     
     from django.conf import settings
     
-    return [True, request_join (user, language, group, slot, settings.SMS_VOICE[smsc])]
+    return request_join (user, language, group, slot, settings.SMS_VOICE[smsc])
 
 #@resolve_user
 def leave_group (request, user, language, group_or_slot):
     group = Vikundi.resolve (user, group_or_slot)
     if group is None:
         logger.info ("user %s unknown_group %s" % (user, group_or_slot))
-        return language.unknown_group(group_or_slot)
+        return [False, language.unknown_group(group_or_slot)]
     
-    return [True, request_leave (user, language, group)]
+    return request_leave (user, language, group)
 
 ##############################################################################
 from django.views.decorators.csrf import csrf_exempt
@@ -170,15 +170,16 @@ def request_join (user, language, group, slot, origin):
     #	return language.unknown_group(group_name)
     
     # check if there's another in the organization with that name
+    org = group.org
     groups = Vikundi.objects.filter(org = org)
     
-    ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = self.name_text)
-    
-    if len(ug_b) > 0:
-        return [False, u'A user with that name already exists in the organization.']
+    ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = user.name_text)
     
     if user.is_member(group):
         return [False, language.already_member(group)]
+    
+    if len(ug_b) > 0:
+        return [False, u'A user with that name already exists in the organization.']
     
     if not user.has_empty_slot(): #and slot >= 0:
         return [False, language.user_has_no_empty_slots ()]
@@ -293,7 +294,7 @@ def request_leave (user, language, group):
                 # Groups.delete (user, group)
                 group.delete()
                 logger.info ("user %s leaving and deleting group %s" % (user, group))
-                return [False, ' '.join([language.user_left_group(group) , language.group_deleted (group)])]
+                return [True, ' '.join([language.user_left_group(group) , language.group_deleted (group)])]
         else:
             
             logger.debug ("admin_count > 1")

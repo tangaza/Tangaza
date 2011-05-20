@@ -41,8 +41,8 @@ urlpatterns += patterns('tangaza.Tangaza.api',
     (r'^messages/$', 'get_messages'),
 
     # POST requests from here on
-    (r'^join/from=\+?(\d{1,20})/group=([\d|\w]{1,60})/slot=(\d?)/smsc=(.{1,20})/$', 'request_join'),
-    (r'^leave/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'request_leave'),
+    (r'^join/$', 'request_join'),
+    (r'^leave/$', 'request_leave'),
 
     (r'^quiet/$', 'request_quiet'),
     (r'^unquiet/$', 'request_unquiet'),
@@ -51,16 +51,16 @@ urlpatterns += patterns('tangaza.Tangaza.api',
 #    (r'^tangaza_on/from=\+?(\d{1,20})/$', 'unquiet_all'),
     (r'^set_name/$', 'set_username'),
 
-    (r'^create/from=\+?(\d{1,20})/group=(\w{1,20})/slot=([\+|\w|\s]{0,90})/$', 'request_create_group'),
-    (r'^delete_group/from=\+?(\d{1,20})/group=(\w{1,60})/$', 'request_delete_group'),
-    (r'^invite/from=\+?(\d{1,20})/group=(\w{1,60})/user=([\+?\d|\s|\w|,]{1,140})/smsc=(.{1,20})/$', 'request_invite_user'), 
+    (r'^create/$', 'request_create_group'),
+    (r'^delete_group/$', 'request_delete_group'),
+    (r'^invite/$', 'request_invite_user'), 
 
-    (r'^add_admin/from=\+?(\d{1,20})/group=(\w{1,60})/admin=([\+?\d|\s]{1,90})/$', 'request_add_admin'),
-    (r'^delete_admin/from=\+?(\d{1,20})/group=(\w{1,60})/admin=([\+?\d|\s]{1,90})/$', 'request_delete_admin'),
+    (r'^add_admin/$', 'request_add_admin'),
+    (r'^delete_admin/$', 'request_delete_admin'),
 
-    (r'^delete_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=([\+?\d|\s]{1,90})/$', 'request_delete_user'),
-    (r'^ban_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=(\w{1,20})/$', 'request_ban_user'),
-    (r'^unban_user/from=\+?(\d{1,20})/group=(\w{1,60})/user=(\w{1,20})/$', 'request_unban_user'),
+    (r'^delete_user/$', 'request_delete_user'),
+    (r'^ban_user/$', 'request_ban_user'),
+    (r'^unban_user/$', 'request_unban_user'),
 
 
 )

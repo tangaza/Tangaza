@@ -21,7 +21,7 @@
 
 
 from tangaza.Tangaza.models import *
-from tangaza.Tangaza import commands, views, utility
+from tangaza.Tangaza import commands, views, utility, appadmin
 #from django.core import serializers
 import json
 import functools
@@ -195,10 +195,9 @@ def request_join(request, member, language):
         return [False, 'Some parameters are missing']
     
     try:
-        g = Vikundi.objects.get(group)
+        g = Vikundi.objects.get(id=group)
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
-    
     return views.join_group(request, member, language, g.group_name)
 
 @ensure_post
@@ -218,7 +217,7 @@ def request_leave(request, member, language):
         return [False, 'Some parameters are missing']
     
     try:
-        g = Vikundi.objects.get(group)
+        g = Vikundi.objects.get(id=group)
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
     
@@ -241,10 +240,11 @@ def request_quiet(request, member, language):
         return [False, 'Some parameters are missing']
     
     try:
-        g = Vikundi.objects.get(group)
+        g = Vikundi.objects.get(id=group)
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
-    return commands.quiet_group (request, member, language, g.group_name)
+    val = commands.quiet_group (request, member, language, g.group_name)
+    return val
 
 @ensure_post
 @needs_login
@@ -309,7 +309,7 @@ def request_create_group(request, member, language):
 @ensure_post
 @needs_login
 @json_output
-def request_delete_group(request, member, language, group):
+def request_delete_group(request, member, language):
     '''
     Returns: 
      status - 0 if group deleted, -1 if it failed; message - error or success message
@@ -329,7 +329,7 @@ def request_delete_group(request, member, language, group):
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
     
-    return appadmin.delete_group (request, user, language, group.group_name)
+    return appadmin.delete_group (request, member, language, g.group_name)
 
 @ensure_post
 @needs_login
@@ -345,7 +345,7 @@ def request_invite_user(request, member, language):
      invited_user_phone - the phone number of the person being invited
     '''
     group = request.POST.get('group', '')
-    invite_user_phone = request.POST.get('invite_user_phone', '')
+    invite_user_phone = request.POST.get('invited_user_phone', '')
     
     if not group or not invite_user_phone:
         return [False, 'Some parameters are missing']
@@ -385,8 +385,10 @@ def request_add_admin(request, member, language):
     
     try:
         g = Vikundi.objects.get(id=group)
-        if not member.is_member(g):
+        if not member.is_admin(g):
             return [False, 'Not Allowed']
+        if not admin.is_member(g):
+            return [False, 'The user you tried to add as admin is not a member of the group']
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
     
@@ -419,8 +421,10 @@ def request_delete_admin(request, member, language):
     
     try:
         g = Vikundi.objects.get(id=group)
-        if not member.is_member(g):
+        if not member.is_admin(g):
             return [False, 'Not Allowed']
+        if not admin.is_member(g):
+            return [False, 'The user you tried to delete is not a member of the group']
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
     
@@ -449,16 +453,18 @@ def request_delete_user(request, member, language):
         user = Watumiaji.objects.get(id=del_user)
         user.phone_number = UserPhones.objects.get(user = user).phone_number
     except Watumiaji.DoesNotExist:
-        return [False, 'Admin does not exist']
+        return [False, 'User does not exist']
     
     try:
         g = Vikundi.objects.get(id=group)
         if not member.is_member(g):
             return [False, 'Not Allowed']
+        if not user.is_member(g):
+            return [False, 'The user you tried to delete is not a member of the group']
     except Vikundi.DoesNotExist:
         return [False, 'Group does not exist']
     
-    return appadmin.delete_user_from_group (request, member, language, g.group_name, user)
+    return appadmin.delete_user_from_group (request, member, language, g.group_name, user.phone_number)
 
 
 ############################################################

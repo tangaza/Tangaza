@@ -202,10 +202,13 @@ def delete_admin_from_group (request, curr_admin, language, group_name_or_slot, 
         msg_list.append(language.admin_privileges_required (group))
     
     # is he removing himself?
-    if curr_admin.user_id == del_admin.user_id:
-        admin_count = group.get_admin_count ()
-        if admin_count == 1:
-            msg_list.append(language.cannot_delete_only_admin (curr_admin, group))
+    for admin_phone in admin_list:
+        del_admin = Watumiaji.resolve (admin_phone)
+        
+        if curr_admin.user_id == del_admin.user_id:
+            admin_count = group.get_admin_count ()
+            if admin_count == 1:
+                msg_list.append(language.cannot_delete_only_admin (curr_admin, group))
 
     # have to stay admin of your own group
     if curr_admin.is_mine (group):
