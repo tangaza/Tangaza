@@ -183,6 +183,40 @@ class ThreadLocals(object):
 class OrgForm(forms.ModelForm):
     class Meta:
         model = Organization
+        
+    def clean(self):
+        cleaned_data = super(OrgForm, self).clean()
+        admin = cleaned_data['org_admin']
+        logger.debug("Grae: %s" % admin)
+        try:
+            org = Organization.objects.get(org_admin=admin)
+            raise forms.ValidationError(u'%s is already the administrator for %s. A person can only be the adminstrator of one organization.' % (admin, org))
+        except Organization.DoesNotExist:
+            pass
+        
+        return cleaned_data
+
+class OrgInlineFormset(forms.models.BaseInlineFormSet):
+    def clean(self):
+        form_count = 0
+        
+        for form in self.forms:
+            try:
+                if form.cleaned_data:
+                    #must have at least one phone number
+                    if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                        form_count += 1
+                        
+            except AttributeError:
+                #raised coz of the extra field(s) so just ignore
+                pass
+            
+        msg = u''
+        if form_count < 1: msg = u'You must specify an organization for the user'
+        
+        if len(msg) > 0:
+            logger.error(msg)
+            raise forms.ValidationError(msg)
 
 #User customization
 class WatumiajiForm(forms.ModelForm):
@@ -248,7 +282,6 @@ class WatumiajiForm(forms.ModelForm):
     def save(self, force_insert=False, force_update=False, commit=True):
         user_form = super(WatumiajiForm, self).save(commit=False)
         if not _thread_locals.request.user.is_superuser:
-            logger.debug('smith')
             user_form.org = _thread_locals.request.user.organization_set.get()
         
         user_form.save()

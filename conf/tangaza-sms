@@ -10,29 +10,31 @@
                 #Options FollowSymLinks
                 AllowOverride None
         </Directory>
-
-        Alias /debug /usr/share/tangaza/media
-        Alias /status /var/lib/tangaza/status
-	Alias /names /var/lib/tangaza/names
 	
-	<Directory /usr/share/tangaza/media>
+	Alias /media	/usr/share/tangaza/media
+        Alias /debug	/usr/share/tangaza/media
+        Alias /status	/var/lib/tangaza/status
+	Alias /names	/var/lib/tangaza/names
+	Alias /doc      /usr/share/tangaza/doc/_build/html
+	
+	<Directory /usr/share/tangaza>
                 #Options FollowSymLinks
-                AllowOverride None
-        </Directory>
-
-        <Directory /var/lib/tangaza/status>
+                AllowOverride None	
 		Options -ExecCGI -FollowSymLinks -Includes -IncludesNOEXEC -Indexes
         </Directory>
-
-        <Directory /var/lib/tangaza/names>
+	
+        <Directory /var/lib/tangaza>
+		Options -ExecCGI -FollowSymLinks -Includes -IncludesNOEXEC -Indexes
+        </Directory>
+	
+        <Directory /var/lib/tangaza>
                 Options -ExecCGI -FollowSymLinks -Includes -IncludesNOEXEC -Indexes
         </Directory>
 	
         WSGIDaemonProcess asterisk processes=2 maximum-requests=500 threads=1
         WSGIProcessGroup asterisk
 	WSGIScriptAlias / /usr/lib/tangaza/django/tangaza/apache/django.wsgi
-        Alias /media /usr/share/tangaza/media
-	
+        
 	ErrorLog /var/log/tangaza/tangaza-error.log
 	
         # Possible values include: debug, info, notice, warn, error, crit,

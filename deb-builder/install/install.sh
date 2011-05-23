@@ -60,8 +60,8 @@ if [ ! -n "$VAR" ]; then
     SOURCES_CHANGED=1
     echo "Updating sources.list"
     cp /etc/apt/sources.list /etc/apt/sources.list.bak
-    #echo "deb file://$DEB_PATH /" >> /etc/apt/sources.list
-    add-apt-repository "deb file://$DEB_PATH /"
+    echo "deb file://$DEB_PATH /" >> /etc/apt/sources.list
+    #add-apt-repository "deb file://$DEB_PATH /"
 fi
 cd $CWD
 

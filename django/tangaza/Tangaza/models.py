@@ -60,7 +60,10 @@ YES_NULL = (
     ('yes', 'Yes'),
 )
 class Actions(models.Model):
-    '''Actions by users of the system'''
+    '''
+    Actions by users of the system.
+    Tangaza keeps a log of all the actions performed by the users. Actions model provides the list of allowable actions
+    '''
     action_desc = models.CharField(max_length=270)
     class Meta:
         db_table = u'actions'
@@ -87,7 +90,7 @@ class SmsLog(models.Model):
 class Watumiaji(models.Model):
     '''
     This is the profile for membership in Tangaza groups. 
-    For Any user to be able to communicate using tangaza they need such a profile
+    For any user to be able to communicate using Tangaza they need such a profile.
     '''
     user_pin = models.CharField(max_length=18, blank=True, null=True, default=None)
     status = models.CharField(max_length=33, choices = WATUMIAJI_STATUS, default='good', 
@@ -115,8 +118,8 @@ class Watumiaji(models.Model):
     
     class Meta:
         db_table = u'watumiaji'
-        verbose_name_plural = u'Members'
-        verbose_name = u'Member'
+        verbose_name_plural = u'Tangaza Member Profiles'
+        verbose_name = u'Tangaza Member Profile'
         ordering = [u'name_text']
     
     def __unicode__(self):
@@ -149,24 +152,31 @@ class Watumiaji(models.Model):
         return self.is_admin(group)
     
     def slot_is_empty (self, slot):
+        '''Returns False if the slot that the user is trying to use is already in use. True otherwise.'''
         user_groups = UserGroups.objects.filter(user=self, slot=slot)
         return (len(user_groups) < 1)
     
     def has_empty_slot (self):
+        '''Returns False if the user alread has 9 groups (and thus no empty slots to use). Returns True otherwise.'''
         user_groups = UserGroups.objects.filter(user=self)
         return len (user_groups) < 9
     
     def is_admin(self, group):
+        '''Returns True if the user is an administrator of the provided group. Returns False otherwise.'''
         grps = GroupAdmin.objects.filter(user=self, group=group)
         return len(grps) > 0
     
     def was_invited(self, group):
+        '''
+        A user can only join a group if they were invited. 
+        This method returns True if the user was invited to the group they are trying to join.
+        '''
         inv_list = Invitations.objects.filter(group = group, completed = 'no', invitation_to = self)
         return len(inv_list) > 0
     
     @classmethod
     def resolve(cls, phone):
-        '''Resolves the phone number provided and returns the member associated with it'''
+        '''Resolves the phone number provided and returns the member associated with it.'''
         try:
             if len(phone) > 0:
                 if phone.startswith('07'):
@@ -202,6 +212,10 @@ class Watumiaji(models.Model):
         GroupAdmin.objects.filter(user = self, group = group).delete()
         
     def invite_user(self, invited_user, group):
+        '''
+        Adds an entry to the Invitation model to show that the user was invited and can thus join the group. 
+        Check ``was_invited``.
+        '''
         invitation, created = Invitations.objects.get_or_create(group = group,
                                                                 invitation_to = invited_user, completed = 'no',
                                                                 defaults = {'invitation_from': self})
@@ -211,13 +225,16 @@ class Watumiaji(models.Model):
         invitation.save()
         
     def is_member(self, group):
+        '''
+        Returns True if the user is a member of the group, and False otherwise
+        '''
         grps = UserGroups.objects.filter(group = group, user = self)
         return len(grps) > 0
     
     def can_send(self, group):
         '''
-        Returns True if the user can send, otherwise returns False
-        You can only send messages to a group that you are a member of or if its a public group
+        Returns True if the user can send messages to this group, otherwise returns False
+        You can only send messages to a group that you are a member of.
         '''
         # assume membership already checked
         if (group.is_public() or self.is_mine(group)) and group.is_active == 'yes':
@@ -225,6 +242,10 @@ class Watumiaji(models.Model):
         return False
     
     def join_group(self, group, slot, origin, notify_admin = True):
+        '''
+        Adds an entry to the ``UserGroup`` model to show that the user has joined the group. 
+        It also marks ``completed`` flag in the ``Invitation`` model as 'yes'.
+        '''
         grps = UserGroups(user = self, group = group, slot= slot, is_quiet = 'no')
         grps.save()
         
@@ -264,6 +285,10 @@ class Watumiaji(models.Model):
         return user
 
 class Organization(models.Model):
+    '''
+    An organization is the highest level container for all entities within Tangaza. 
+    All Tangaza users (except the superuser) must belong to an organization.
+    '''
     org_name = models.CharField(max_length=210, db_index=True, verbose_name=u'Name', help_text="The name of the Organisation")
     org_admin = models.ForeignKey(User, verbose_name=u'Administrator', help_text="Who is the administrator of this organization?")
     #tangaza_account = models.ForeignKey(Watumiaji, help_text="What is their Tangaza account?")
@@ -278,7 +303,7 @@ class Organization(models.Model):
        return self.org_name
 
     def activate(self):
-        '''Reactivates previously deactivated organizations so that they can use Tangaza'''
+        '''Reactivates previously deactivated organizations so that their users can resume using Tangaza'''
         self.is_active = 'yes'
         self.save()
         
@@ -292,7 +317,9 @@ class Organization(models.Model):
         map(lambda g: g.activate(), groups)
         
     def deactivate(self):
-        '''Users in deactivated organizations should not be able to use Tangaza'''
+        '''
+        Deactivates the organization such that users in these organizations should not be able to use Tangaza.
+        '''
         self.is_active = None
         self.save()
         
@@ -318,10 +345,12 @@ class VikundiManager(models.Manager):
 class Vikundi(models.Model):
     '''
     A group within Tangaza. People using Tangaza have to be members to send/receive messages
-    Types:
-    Mine - Personal. Only the owner can send messages. You have to be invited to join
-    Private - You can only send messages if you are a member. You have to be invited to join
-    Public - Anyone can send messages to these. You can join without being invited
+    
+    Types::
+     
+     Mine - Personal. Only the owner can send messages. You have to be invited to join
+     Private - You can only send messages if you are a member. You have to be invited to join
+     Public - Anyone can send messages to these. You can join without being invited
     '''
     group_name = models.CharField(max_length=180,db_index=True)
     group_name_file = models.CharField(max_length=96, blank=True, help_text=u'File path to the speech recorded group name')
@@ -338,14 +367,17 @@ class Vikundi(models.Model):
         unique_together = ('group_name','org')
     
     def user_count(self):
+        '''Returns the total number of users in a group/vikundi'''
         return u'%s' % UserGroups.objects.filter(group=self).count()
     user_count.admin_order_field = 'usergroups__count'
     
     def admin_count(self):
+        '''Returns the total number of administrators in a group/vikundi'''
         return u'%s' % GroupAdmin.objects.filter(group=self).count()
     admin_count.admin_order_field = 'groupadmin__count'
     
     def msg_count(self):
+        '''Returns a link with the total number of messages sent to a group/vikundi'''
         count = PubMessages.objects.filter(channel=self).count()
         if count > 0:
             return u'<a href="/admin/Tangaza/pubmessages/?channel__id=%s">%s</a>' % (self.id, count)
@@ -369,17 +401,25 @@ class Vikundi(models.Model):
         self.save()
         
     def get_admin_count (self):
+        '''Returns the total number of administrators in a group/vikundi. Deprecated'''
         admins = GroupAdmin.objects.filter (group = self)
         return admins.count()
     
     def get_user_count(self):
+        '''Returns the total number of users in a group/vikundi. Deprecated'''
         user_set = UserGroups.objects.filter (group = self)
         return user_set.count()
     
     def is_public(self):
+        '''
+        Returns True if this is a public group and False otherwise
+        '''
         return self.group_type == 'public'
     
     def is_private(self):
+        '''
+        Returns True if this is a private group and False otherwise
+        '''
         return self.group_type == 'private'
     
     def set_quiet(self, user):
@@ -426,6 +466,9 @@ class Vikundi(models.Model):
             grp.unquiet(user)
     
     def add_admin(self, admin_doing_add, admin_being_added):
+        '''
+        Allows the administrator to add other administrators to this group. Updates ``GroupAdmin`` to reflect this
+        '''
         admin = GroupAdmin (user = admin_being_added, group = self)
         admin.save()
         #TODO: move this to signals somehow. How to send user_src to sigmal?
@@ -435,6 +478,9 @@ class Vikundi(models.Model):
         history.save()
     
     def delete_admin (self, admin_doing_delete, admin_being_deleted):
+        '''
+        Deletes an administrator from this group. Updates the ``GroupAdmin`` model to reflect this
+        '''
         GroupAdmin.objects.filter (user = self, group = group).delete()
         #TODO: move this to signals somehow. How to send user_src to sigmal?
         action = Actions.objects.get(action_desc = 'deleted admin')
@@ -443,6 +489,9 @@ class Vikundi(models.Model):
         hist.save()
         
     def add_user (self, admin_doing_add, user_being_added):
+        '''
+        Adds a new user to this group. Updates the ``UserGroups`` model to reflect this
+        '''
         group = UserGroups(user = user_being_added, group = self, is_quiet = 'n')
         group.save()
         #TODO: move this to signals somehow. How to send user_src to sigmal?
@@ -452,6 +501,9 @@ class Vikundi(models.Model):
         admin_hist.save()
         
     def delete_user (self, admin_doing_delete, user_being_deleted):
+        '''
+        Deletes a user from this group. Updates the ``UserGroups`` model to reflect this
+        '''
         UserGroups.objects.filter(user=user_being_deleted, group = self).delete()
         #TODO: move this to signals somehow. How to send user_src to sigmal?
         action = Actions.objects.get(action_desc = 'deleted user')
@@ -483,6 +535,9 @@ class Vikundi(models.Model):
 
     @classmethod
     def is_name_available (cls, name):
+        '''
+        Returns True if there's no other group with a similar name, and False otherwise
+        '''
         grps = cls.objects.filter(group_name = name)
         return len(grps) < 1
     
@@ -546,6 +601,9 @@ class Vikundi(models.Model):
         return dict(GROUP_TYPES).has_key(type_name)
 
 class Countries(models.Model):
+    '''
+    Keeps a list of countries.
+    '''
     country_code = models.IntegerField()
     country_name = models.CharField(max_length=27)
     
@@ -604,7 +662,7 @@ class Invitations(models.Model):
  
 class PubMessages(models.Model):
     '''
-    Each new message sent by a user is a pub message. (See sub message)
+    Each new message sent by a user is a pub message. (See ``SubMessages``)
     '''
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=u'Date Sent')
     src_user = models.ForeignKey(Watumiaji, verbose_name = u'Sender')
@@ -629,7 +687,7 @@ class PubMessages(models.Model):
     
 class SubMessages(models.Model):
     '''
-    A message associated with a member. A message is sent to vikundi but each member
+    A message associated with a member. A message is sent to a group/vikundi but each member
     of vikundi has to handle it differently
     '''
     message = models.ForeignKey(PubMessages)
@@ -653,7 +711,7 @@ class TermsAndPrivacy(models.Model):
         db_table = u'terms_and_privacy'
 
 class UserGroupHistory(models.Model):
-    '''Logs all actions performed by a member of vikundi'''
+    '''Logs all actions performed by a member of a group/vikundi'''
     group = models.ForeignKey(Vikundi)
     action = models.ForeignKey(Actions)
     user = models.ForeignKey(Watumiaji)
@@ -679,6 +737,9 @@ class UserGroups(models.Model):
         return "Group: %s, User: %s, Slot: %d" % (self.group.group_name, self.user.name_text, self.slot)
 
 class UserPhones(models.Model):
+    '''
+    An intermediary table that links a Tangaza member to a phone number
+    '''
     country = models.ForeignKey(Countries)
     phone_number = models.CharField(unique=True, max_length=60)
     user = models.ForeignKey(Watumiaji, db_index=True)

@@ -12,7 +12,7 @@ You therefore have to install the necessary packages for the builder
 to work.
 Use the command below:
 
-sudo apt-get install dh-make devscripts build-essential wget fakeroot liburi-perl debhelper pbuilder
+sudo apt-get install dh-make devscripts build-essential wget fakeroot liburi-perl debhelper pbuilder python-software-properties
 
 The generated deb file will be saved in "install/tangaza-*.deb".
 You should then run install/install.sh to install tangaza-*.deb.
