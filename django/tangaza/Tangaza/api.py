@@ -31,6 +31,16 @@ from django.contrib import auth
 logger = logging.getLogger(__name__)
 
 def logout(request):
+    '''
+    Returns:
+     0 if successfully logged out
+    
+    .. note:: Method: GET
+    
+    Example::
+     
+     http://host/api/logout/
+    '''
     auth.logout(request)
     return HttpResponse(json.dumps([{'status':0, 'message':'Logged out'}]))
 
@@ -40,6 +50,7 @@ def json_repr(queryset, fields=None):
     e.g. if you use Model.objects.extra(select={'field'}...)
     This is a custom serializer that enables this
     '''
+    import datetime
     items = [x.__dict__ for x in queryset]
     if not items:
         return json.dumps([{'status':1, 'message':''}])
@@ -48,7 +59,10 @@ def json_repr(queryset, fields=None):
         for k in item.keys():
             if k.startswith('_') or k not in fields:
                 del item[k]
-    print 'b lot'
+            else:
+                if isinstance(item[k], datetime.datetime):
+                    item[k] = item[k].ctime()
+    
     return json.dumps(items)
 
 def needs_login(func):
@@ -78,10 +92,15 @@ def get_members(request, member, language, group):
     '''
     Returns: 
      All members in the a particular group
-     
     Args: 
-     member- the member making the request, 
-     group - the group whose members are being requested for
+     group: the group whose members are being requested for
+     
+    .. note:: Method: GET
+     
+    Example::
+     
+     Request: http://host/api/members/group=14/
+     Response: [{"id": 7, "name_text": "agent_smith", "place_id": 1}]
     '''
     fields = ['id', 'name_text', 'place_id']
     # first get all groups user x is a member of
@@ -96,9 +115,14 @@ def get_groups(request, member, language):
     Returns: 
      All groups that the user is a member of
      
-    Args: 
-     member - the member making the request
+    .. note:: Method: GET
+     
+    Example::
+     
+     Request: http://host/api/groups/
+     Response: [{"is_active": "yes", "group_name_file": "", "group_name": "common", "id": 6, "group_type": "private"}] 
     '''
+    
     fields = ['id', 'is_active', 'group_name_file', 'group_type', 'group_name']
     # only get groups that user x is a member of
     groups = [x.group for x in UserGroups.objects.filter(user = member)]
@@ -110,9 +134,17 @@ def get_messages(request, member, language):
     Returns: 
      The list of messages that member has received
      
-    Args:
-     member - the member making the request
+    .. note:: Method: GET
+     
+    Example::
+    
+     Request: http://host/api/messages/
+     Response: [{"flagged": "", "heard": "", "date_sent": "Tue May 24 12:13:05 2011", 
+     "message_path": "http://host/status/2011/04/12/d5262qdkm3jkyc72.gsm", "group_id": 7, "id": 6}, 
+     {"flagged": "", "heard": "yes", "date_sent": "Tue May 24 10:08:32 2011", 
+     "message_path": "http://host/status/2011/04/11/c3652qdjm8jrnjic.gsm", "group_id": 6, "id": 2}]
     '''
+    
     fields = ['id', 'message_path', 'date_sent', 'heard', 'flagged', 'group_id']
     messages = SubMessages.objects.filter(dst_user = member)
     messages = messages.extra(
@@ -131,24 +163,36 @@ def get_admins(request, member, language, group):
     '''
     Returns: 
      The list of admins in the group
-    
     Args:
-     group - the group whose administrators are being requested for
+     group: the group whose administrators are being requested for
+     
+    .. note:: Method: GET
+    
+    Example::
+    
+     Request: http://host/api/admins/group=12/
+     Response: [{"id": 7, "name_text": "agent_smith", "name_file": ""}]
     '''
+    
     fields = ['name_text', 'id', 'name_file']
     admins = [x.user for x in GroupAdmin.objects.filter(group = group)]
     #return serializers.serialize('json', admins, fields = fields])
     return json_repr(admins, fields)
 
-@needs_login    
+@needs_login
 def get_update(request, member, language):
     '''
     Returns:
      Your current status i.e. groups you are a member of, info on unheard messages, pending invites
+     
+    .. note:: Method: GET
     
-    Args: 
-     member - the member requesting this info
+    Example::
+    
+     Request: http://host/api/update/
+     Response: [{"message": "Groups: 1@common 2@test_group.\\n Invitations(0) .\\n Messages(0)"}]
     '''
+    
     update = views.request_update(member, language)[1]
     return json.dumps([{'message': update}])
 
@@ -184,12 +228,20 @@ def ensure_post(func):
 def request_join(request, member, language):
     '''
     Returns: 
-     status - 0 if successfully joined, -1 if it failed; message - error or success message
+     status: 0 if successfully joined, -1 if it failed; message - error or success message
     
     Args:
-     member - the member trying to join a group
-     group - the group that the member wants to join
+     group: the group that the member wants to join
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/join/ 
+              Params {"group": 13}
+     Response: [{"status":0, "You joined the test_group13 group, assigned key number 2."}]
     '''
+    
     group = request.POST.get('group', '')
     if not group:
         return [False, 'Some parameters are missing']
@@ -206,11 +258,18 @@ def request_join(request, member, language):
 def request_leave(request, member, language):
     '''
     Returns:
-     status - 0 if successfully left group, -1 if it failed; message - error or success message
+     status: 0 if successfully left group, -1 if it failed; message - error or success message
     
     Args:
-     member - the member who is leaving the group
-     group - the group that the member is leaving
+     group: the group that the member is leaving
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/leave/
+              Params {"group": 13}
+     Response: [{"status":0, "You left the test_group13 group."}]
     '''
     group = request.POST.get('group', '')
     if not group:
@@ -229,11 +288,18 @@ def request_leave(request, member, language):
 def request_quiet(request, member, language):
     '''
     Returns: 
-     status - 0 if successfully set group to quiet, -1 if failed; message - error or success message
+     status: 0 if successfully set group to quiet, -1 if failed; message - error or success message
     
     Args:
-     member - the who doesnt want to receive updates from the group
-     group - the group that the member wants to put on silent mode
+     group: the group that the member wants to put on silent mode
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/quiet/
+              Params {"group": 13}
+     Response: [{"status":0, "You will no longer receive updates from test_group13 group."}]
     '''
     group = request.POST.get('group', '')
     if not group:
@@ -252,13 +318,20 @@ def request_quiet(request, member, language):
 def request_unquiet(request, member, language):
     '''
     Returns:
-     status - 0 if successfully set group to send updates, -1 if failed; message - error or success message
+     status: 0 if successfully set group to send updates, -1 if failed; message - error or success message
     
     Args:
-     member - the member who wants to receive the updates
-     group - the group that the member wants to receive updates from
+     group: the group that the member wants to receive updates from
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/unquiet/
+              Params {"group": 13}
+     Response: [{"status":0, "You will receive Tangaza updates from the test_group13 group from now on."}]
     '''
-    group = request.POST.get('group', '')
+    group = request.POST.get("group", '')
     if not group:
         return [False, 'Some parameters are missing']
     
@@ -277,10 +350,17 @@ def request_unquiet(request, member, language):
 def set_username(request, member, language):
     '''
     Returns:
-     status - 0 if a new username was set, -1 if it failed; message - error or success message
+     status: 0 if a new username was set, -1 if it failed; message - error or success message
     Args:
-     member - the member who wants to change their username
-     username - a new username for the member
+     username: a new username for the member
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/set_name/
+              Params {"username": "grizzly"}
+     Response: [{"status":0, "OK. Your name has been set. Your friends will now know you as grizzly."}]
     '''
     username = request.POST.get('username', '')
     
@@ -295,11 +375,19 @@ def set_username(request, member, language):
 def request_create_group(request, member, language):
     '''
     Returns: 
-     status - 0 if group created, -1 if it failed; message - error or success message
+     status: 0 if group created, -1 if it failed; message - error or success message
     Args:
-     member - the member who wants to create a group
-     group_name - the name of the group to be created
+     group_name: the name of the group to be created
+
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/create/
+              Params {"group_name": "developers"}
+     Response: [{"status":0, "OK. Created the private group developers, assigned key 4. Reply: invite developers friend1 friend2 to invite people."}]
     '''
+    
     group_name = request.POST.get('group_name', '')
     if not group_name:
         return [False, 'Some parameters are missing']
@@ -312,10 +400,17 @@ def request_create_group(request, member, language):
 def request_delete_group(request, member, language):
     '''
     Returns: 
-     status - 0 if group deleted, -1 if it failed; message - error or success message
+     status: 0 if group deleted, -1 if it failed; message - error or success message
     Args:
-     member - the member deleting a group
-     group - the id of group being deleted
+     group: the id of group being deleted
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/delete_group/
+              Params {"group": 13}
+     Response: [{"status":0, "test_group13 group deleted."}]
     '''
     
     group = request.POST.get('group', '')
@@ -337,12 +432,20 @@ def request_delete_group(request, member, language):
 def request_invite_user(request, member, language):
     '''
     Returns: 
-     status - 0 if invite was sent, -1 if it failed; message - error or success message
+     status: 0 if invite was sent, -1 if it failed; message - error or success message
      
     Args:
-     member - the member sending the invite
-     group - the group the person is being invited to
-     invited_user_phone - the phone number of the person being invited
+     group: the group the person is being invited to
+     
+     invited_user_phone: the phone number of the person being invited
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/invite/
+              Params {"group": 13, "invited_user_phone": "07668889990"}
+     Response: [{"status":0, ""An invitation was sent to 07668889990 to join the group 'test_group13'"}]
     '''
     group = request.POST.get('group', '')
     invite_user_phone = request.POST.get('invited_user_phone', '')
@@ -365,12 +468,21 @@ def request_invite_user(request, member, language):
 def request_add_admin(request, member, language):
     '''
     Returns:
-     status - 0 if admin was successfully added, -1 if it failed; message - error or success message
+     status: 0 if admin was successfully added, -1 if it failed; message - error or success message
     Args:
-     member - the member (must be an administrator) who wants to add new administrator to the group
-     group - the group to which the new administrator is being added
-     new_admin - the new administrator being added to the group
+     group: the group to which the new administrator is being added
+     
+     new_admin: the new administrator being added to the group
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/add_admin/
+              Params {"group": 13, "new_admin":3}
+     Response: [{"status":0, "some_user added as an administrator of test_group13."}]
     '''
+    
     group = request.POST.get('group', '')
     new_admin = request.POST.get('new_admin', '')
     
@@ -400,13 +512,22 @@ def request_add_admin(request, member, language):
 def request_delete_admin(request, member, language):
     '''
     Returns:
-     status - 0 if the admin was successfully deleted, -1 if it failed; message - error or success message
+     status: 0 if the admin was successfully deleted, -1 if it failed; message - error or success message
     
     Args:
-     member - the member (must be an administrator) who wants to delete an administrator from the group
-     group - the group from which the administrator is being deleted
-     del_admin - the administrator that is being deleted from the group
+     group: the group from which the administrator is being deleted
+     
+     del_admin: the administrator that is being deleted from the group
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/delete_admin/
+              Params {"group": 13, "del_admin":3}
+     Response: [{"status":0, "some_user deleted as administrator of the test_group13 group."}]
     '''
+    
     group = request.POST.get('group', '')
     del_admin = request.POST.get('del_admin', '')
     
@@ -435,14 +556,23 @@ def request_delete_admin(request, member, language):
 @json_output
 def request_delete_user(request, member, language):
     '''
-    Returns: 
-     status - 0 if the member was successfully deleted, -1 if it failed; message - error or success message
+    Returns:
+     status: 0 if the member was successfully deleted, -1 if it failed; message - error or success message
     
     Args:
-     member - the member (must be an administrator) who wants to delete a member from the group
-     group - the group from which the member is being deleted
-     del_user - the member being deleted from the group
+     group: the group from which the member is being deleted
+     
+     del_user: the member being deleted from the group
+     
+    .. note:: Method: POST
+    
+    Example::
+    
+     Request: http://host/api/delete_user/
+              Params {"group": 13, "del_user":3}
+     Response: [{"status":0, "You deleted some_user from the test_group13 group."}]
     '''
+    
     group = request.POST.get('group', '')
     del_user = request.POST.get('del_user', '')
     

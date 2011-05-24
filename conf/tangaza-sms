@@ -15,7 +15,7 @@
         Alias /debug	/usr/share/tangaza/media
         Alias /status	/var/lib/tangaza/status
 	Alias /names	/var/lib/tangaza/names
-	Alias /doc      /usr/share/tangaza/doc/_build/html
+	Alias /docs      /usr/share/tangaza/doc/_build/html
 	
 	<Directory /usr/share/tangaza>
                 #Options FollowSymLinks

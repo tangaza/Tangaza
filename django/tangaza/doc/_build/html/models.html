@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Model Layer &mdash; Nokia Tangaza v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nokia Tangaza v1.0 documentation" href="index.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="The voice interface" href="voice.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="voice.html" title="The voice interface"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Nokia Tangaza v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tangaza.Tangaza.models">
+<span id="models"></span><h1>Model Layer<a class="headerlink" href="#module-tangaza.Tangaza.models" title="Permalink to this headline">¶</a></h1>
+<p>Manages interaction with the database</p>
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Actions">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Actions</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Actions" title="Permalink to this definition">¶</a></dt>
+<dd>Actions by users of the system</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.AdminGroupHistory">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">AdminGroupHistory</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.AdminGroupHistory" title="Permalink to this definition">¶</a></dt>
+<dd>Logs all actions performed by the administrators of vikundi</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Calls">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Calls</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Calls" title="Permalink to this definition">¶</a></dt>
+<dd>Logs all calls made to the system</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Countries">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Countries</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Countries" title="Permalink to this definition">¶</a></dt>
+<dd>Countries(id, country_code, country_name)</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Dlr">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Dlr</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Dlr" title="Permalink to this definition">¶</a></dt>
+<dd>This should be automatically populated by kannel for each new sms</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.GroupAdmin">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">GroupAdmin</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.GroupAdmin" title="Permalink to this definition">¶</a></dt>
+<dd>Intermediary table for the administrators of vikundi</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Invitations">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Invitations</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Invitations" title="Permalink to this definition">¶</a></dt>
+<dd>Invitations sent to join a particular group. To be a member of a private group/vikundi
+you have to either be invited or added directly by the system admin of the organization</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Languages">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Languages</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Languages" title="Permalink to this definition">¶</a></dt>
+<dd>Languages(id, name)</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Organization">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Organization</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Organization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organization(id, org_name, org_admin_id, toll_free_number, is_active)</p>
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Organization.activate">
+<tt class="descname">activate</tt><big>(</big><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Organization.activate" title="Permalink to this definition">¶</a></dt>
+<dd>Reactivates previously deactivated organizations so that they can use Tangaza</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Organization.deactivate">
+<tt class="descname">deactivate</tt><big>(</big><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Organization.deactivate" title="Permalink to this definition">¶</a></dt>
+<dd>Users in deactivated organizations should not be able to use Tangaza</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.PubMessages">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">PubMessages</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.PubMessages" title="Permalink to this definition">¶</a></dt>
+<dd>Each new message sent by a user is a pub message. (See sub message)</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.SmsLog">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">SmsLog</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.SmsLog" title="Permalink to this definition">¶</a></dt>
+<dd>Keeps a log of all smses received by the system</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.SubMessages">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">SubMessages</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.SubMessages" title="Permalink to this definition">¶</a></dt>
+<dd>A message associated with a member. A message is sent to vikundi but each member
+of vikundi has to handle it differently</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.TermsAndPrivacy">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">TermsAndPrivacy</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.TermsAndPrivacy" title="Permalink to this definition">¶</a></dt>
+<dd>Users have to accept the terms and privacy statements before they start using the system</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.UserGroupHistory">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">UserGroupHistory</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.UserGroupHistory" title="Permalink to this definition">¶</a></dt>
+<dd>Logs all actions performed by a member of vikundi</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.UserGroups">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">UserGroups</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.UserGroups" title="Permalink to this definition">¶</a></dt>
+<dd>Intermdiate table that links members to vikundi</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.UserPhones">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">UserPhones</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.UserPhones" title="Permalink to this definition">¶</a></dt>
+<dd>UserPhones(id, country_id, phone_number, user_id, is_primary)</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Vikundi">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Vikundi</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi" title="Permalink to this definition">¶</a></dt>
+<dd><p>A group within Tangaza. People using Tangaza have to be members to send/receive messages
+Types:
+Mine - Personal. Only the owner can send messages. You have to be invited to join
+Private - You can only send messages if you are a member. You have to be invited to join
+Public - Anyone can send messages to these. You can join without being invited</p>
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Vikundi.activate">
+<tt class="descname">activate</tt><big>(</big><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.activate" title="Permalink to this definition">¶</a></dt>
+<dd>You can only send/receive messages if active</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Vikundi.create">
+<em class="property">classmethod </em><tt class="descname">create</tt><big>(</big><em>user</em>, <em>group_name</em>, <em>slot</em>, <em>group_type='private'</em>, <em>org=None</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.create" title="Permalink to this definition">¶</a></dt>
+<dd>Creates a group with group admin and user groups associations and returns the created group</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Vikundi.deactivate">
+<tt class="descname">deactivate</tt><big>(</big><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.deactivate" title="Permalink to this definition">¶</a></dt>
+<dd>You can only send/receive messages if active</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Vikundi.is_valid_type">
+<em class="property">classmethod </em><tt class="descname">is_valid_type</tt><big>(</big><em>type_name</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.is_valid_type" title="Permalink to this definition">¶</a></dt>
+<dd>Checks that the group type the user selected is valid</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Vikundi.quiet_all">
+<em class="property">classmethod </em><tt class="descname">quiet_all</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.quiet_all" title="Permalink to this definition">¶</a></dt>
+<dd>Disable updates from all vikundi for this particular user</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Vikundi.resolve">
+<em class="property">classmethod </em><tt class="descname">resolve</tt><big>(</big><em>user</em>, <em>name_or_slot</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.resolve" title="Permalink to this definition">¶</a></dt>
+<dd>Resolves the slot number or group name and returns the associated group</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Vikundi.send_msg">
+<tt class="descname">send_msg</tt><big>(</big><em>user</em>, <em>text</em>, <em>origin</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.send_msg" title="Permalink to this definition">¶</a></dt>
+<dd>Sends the text message to all members of the group
+Origin is set so that the system knows what sms gateway to use. Default is ke</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Vikundi.set_quiet">
+<tt class="descname">set_quiet</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.set_quiet" title="Permalink to this definition">¶</a></dt>
+<dd>Disable updates from this vikundi for this particular user</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Vikundi.unquiet">
+<tt class="descname">unquiet</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.unquiet" title="Permalink to this definition">¶</a></dt>
+<dd>Enable user to start receiving updates from this group again</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Vikundi.unquiet_all">
+<em class="property">classmethod </em><tt class="descname">unquiet_all</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Vikundi.unquiet_all" title="Permalink to this definition">¶</a></dt>
+<dd>Enables updates from all vikundi</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tangaza.Tangaza.models.Watumiaji">
+<em class="property">class </em><tt class="descclassname">tangaza.Tangaza.models.</tt><tt class="descname">Watumiaji</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the profile for membership in Tangaza groups. 
+For Any user to be able to communicate using tangaza they need such a profile</p>
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Watumiaji.can_send">
+<tt class="descname">can_send</tt><big>(</big><em>group</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.can_send" title="Permalink to this definition">¶</a></dt>
+<dd>Returns True if the user can send, otherwise returns False
+You can only send messages to a group that you are a member of or if its a public group</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Watumiaji.create_user">
+<em class="property">classmethod </em><tt class="descname">create_user</tt><big>(</big><em>phone</em>, <em>own_group</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.create_user" title="Permalink to this definition">¶</a></dt>
+<dd>Creates a user with group type mine and assigns phone as primary phone number</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Watumiaji.get_used_slots">
+<tt class="descname">get_used_slots</tt><big>(</big><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.get_used_slots" title="Permalink to this definition">¶</a></dt>
+<dd>Slots represent the number on the keypad assigned to a group
+All users (except the super user) have maximum 9 slots</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Watumiaji.is_mine">
+<tt class="descname">is_mine</tt><big>(</big><em>group</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.is_mine" title="Permalink to this definition">¶</a></dt>
+<dd>Checks if the member owns the vikundi/group</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Watumiaji.leave_group">
+<tt class="descname">leave_group</tt><big>(</big><em>group</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.leave_group" title="Permalink to this definition">¶</a></dt>
+<dd>When a user leaves, this deletes any links to vikundi in the UserGroups and GroupAdmin tables in the database</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Watumiaji.resolve">
+<em class="property">classmethod </em><tt class="descname">resolve</tt><big>(</big><em>phone</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.resolve" title="Permalink to this definition">¶</a></dt>
+<dd>Resolves the phone number provided and returns the member associated with it</dd></dl>
+
+<dl class="classmethod">
+<dt id="tangaza.Tangaza.models.Watumiaji.resolve_or_create">
+<em class="property">classmethod </em><tt class="descname">resolve_or_create</tt><big>(</big><em>request</em>, <em>invoking_user</em>, <em>language</em>, <em>phone</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.resolve_or_create" title="Permalink to this definition">¶</a></dt>
+<dd>Works similar to resolve() but creates the member if they do not exist, 
+then returns the associated member object</dd></dl>
+
+<dl class="method">
+<dt id="tangaza.Tangaza.models.Watumiaji.set_name">
+<tt class="descname">set_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.models.Watumiaji.set_name" title="Permalink to this definition">¶</a></dt>
+<dd>Set the member&#8217;s nickname</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="voice.html"
+                                  title="previous chapter">The voice interface</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="api.html"
+                                  title="next chapter">API</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/models.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="voice.html" title="The voice interface"
+             >previous</a> |</li>
+        <li><a href="index.html">Nokia Tangaza v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Nokia.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.4.
+    </div>
+  </body>
+</html>

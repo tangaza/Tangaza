@@ -1,0 +1,10 @@
+.. _api:
+
+*************************************
+API
+*************************************
+
+For use by developers to build applications on top of Nokia Tangaza
+
+.. automodule:: tangaza.Tangaza.api
+   :members:

@@ -1,0 +1,11 @@
+.. _web-admin:
+
+*************************************
+Using the Web Administrator Interface
+*************************************
+
+The web administrator interface makes it easy for the organizations administrator to 
+manage the organization's instance of Nokia Tangaza's.
+
+.. _home-page:
+

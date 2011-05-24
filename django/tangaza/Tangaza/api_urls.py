@@ -43,24 +43,21 @@ urlpatterns += patterns('tangaza.Tangaza.api',
     # POST requests from here on
     (r'^join/$', 'request_join'),
     (r'^leave/$', 'request_leave'),
-
     (r'^quiet/$', 'request_quiet'),
     (r'^unquiet/$', 'request_unquiet'),
-#    (r'^all_groups/from=\+?(\d{1,20})/$', 'quiet_or_unquiet_all_groups'),
-#    (r'^tangaza_off/from=\+?(\d{1,20})/$', 'quiet_all'),
-#    (r'^tangaza_on/from=\+?(\d{1,20})/$', 'unquiet_all'),
     (r'^set_name/$', 'set_username'),
-
     (r'^create/$', 'request_create_group'),
     (r'^delete_group/$', 'request_delete_group'),
     (r'^invite/$', 'request_invite_user'), 
-
     (r'^add_admin/$', 'request_add_admin'),
     (r'^delete_admin/$', 'request_delete_admin'),
-
     (r'^delete_user/$', 'request_delete_user'),
-    (r'^ban_user/$', 'request_ban_user'),
-    (r'^unban_user/$', 'request_unban_user'),
+
+#    (r'^all_groups/from=\+?(\d{1,20})/$', 'quiet_or_unquiet_all_groups'),
+#    (r'^tangaza_off/from=\+?(\d{1,20})/$', 'quiet_all'),
+#    (r'^tangaza_on/from=\+?(\d{1,20})/$', 'unquiet_all'),
+#    (r'^ban_user/$', 'request_ban_user'),
+#    (r'^unban_user/$', 'request_unban_user'),
 
 
 )
