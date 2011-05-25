@@ -34,28 +34,28 @@ TGZ_LOCATION=/usr/lib/tangaza/
 
 echo "Restoring backed-up conf files"
 #1. Asterisk
-mv /etc/asterisk/extensions.conf.bak /etc/asterisk/extensions.conf
+mv /etc/asterisk/extensions.conf.tgzbak /etc/asterisk/extensions.conf
 
 #2. kannel
-mv /etc/kannel/kannel.conf.bak /etc/kannel/kannel.conf
-mv /etc/kannel/modem.conf.bak /etc/kannel/modem.conf
+mv /etc/kannel/kannel.conf.tgzbak /etc/kannel/kannel.conf
+mv /etc/kannel/modem.conf.tgzbak /etc/kannel/modem.conf
 
 #3. apache
 rm /etc/apache2/sites-enabled/tangaza-sms
-mv /etc/tangaza/tangaza-sms.bak /etc/tangaza/tangaza-sms
+mv /etc/tangaza/tangaza-sms.tgzbak /etc/tangaza/tangaza-sms
 
-if [ -f '/etc/apache2/ports.conf.bak' ]; then
-    mv /etc/apache2/ports.conf.bak /etc/apache2/ports.conf
-fi
+#if [ -f '/etc/apache2/ports.conf.bak' ]; then
+#    mv /etc/apache2/ports.conf.bak /etc/apache2/ports.conf
+#fi
 
 #4. Django link files
 TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 find $TGZ_DJANGO_MEDIA -type l -exec rm {} +;
 
 #5. Nagios symlinks
-rm -rf /usr/lib/nagios/plugins/tangaza-monitor
-rm /etc/nagios-plugins/config/kannel.cfg
+rm /usr/lib/nagios/plugins/tangaza-monitor
 
+sed -i 's/cfg_dir=/etc/tangaza/nagios//g' /etc/nagios3/nagios.cfg
 
 #DEBHELPER#
 
