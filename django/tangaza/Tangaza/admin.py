@@ -293,6 +293,8 @@ class UserProfileInline(admin.StackedInline):
 
 class OrgInline(admin.StackedInline):
     model = Organization
+    form = OrgForm
+    formset = OrgInlineFormset
     max_num = 1
 
 class CustomUserAdmin(UserAdmin):
@@ -322,7 +324,7 @@ class GroupLeaderAdmin(admin.ModelAdmin):
 
         return qs
 
-#admin.site.register(GroupAdmin, GroupLeaderAdmin)
+admin.site.register(GroupAdmin, GroupLeaderAdmin)
 
 class PubMessagesAdmin(admin.ModelAdmin):
     model = PubMessages

@@ -41,7 +41,7 @@ echo "Exporting Tangaza files"
 shopt -s extglob
 cp -r $TANGAZA_SCRIPTS/!(deb-builder|.git) $INST_LOCATION/
 find $INST_LOCATION -type l -exec rm {} +;
-cp -r $COMMON_SCRIPTS $INST_LOCATION/agi-bin/Nokia/
+#cp -r $COMMON_SCRIPTS $INST_LOCATION/agi-bin/Nokia/
 rm -rf $INST_LOCATION/agi-bin/Nokia/Common/.git
 find $INST_LOCATION -name *.gitignore -exec rm {} +;
 find $INST_LOCATION -name *.pyc -exec rm {} +;

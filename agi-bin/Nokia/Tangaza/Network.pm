@@ -31,9 +31,36 @@ use DBI;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 use Nokia::Common::Phone;
-#use Nokia::Tangaza::Invitations;
+
+=head1 NAME
+
+Nokia::Tangaza::Network - Manages user-group connetions
+
+=cut
+
+=head1 DESCRIPTION
+
+This module manages all group operations
+
+=head1 METHODS
+
+=cut
 
 ######################################################################
+
+=head2 select_network_menu
+
+Plays the options available for performing operations on the groups/vikundi
+
+=over 4
+
+=item Args:
+
+$prompt: the sound file that plays the menu options
+
+=back
+
+=cut
 sub select_network_menu {
     my ($self,$prompt,$can_select_all) = @_;
 
@@ -87,6 +114,20 @@ sub select_network_menu {
 
 ######################################################################
 
+=head2 get_friend_count_on_network
+    
+Returns the number of members on the specified group/vikundi
+
+=over 4
+
+=item Args:
+
+$network: The group whose member count you want
+
+=back
+
+=cut
+
 sub get_friend_count_on_network {
     my ($self,$network) = @_;
     
@@ -98,8 +139,12 @@ sub get_friend_count_on_network {
 }
 
 ######################################################################
-# returns total number of connections
 
+=head2 get_total_friend_count
+    
+Returns the member count on all groups/vikundi that the user is a member of
+
+=cut
 sub get_total_friend_count {
     my ($self) = @_;
     
@@ -118,7 +163,20 @@ sub get_total_friend_count {
 
 
 ######################################################################
-# returns reference to friends tuples
+
+=head2 get_friends_on_network
+    
+Returns an array of friends on the specified group/vikundi
+
+=over 4
+
+=item Args:
+
+$channels: The group whose members are to b returned
+
+=back
+
+=cut
 
 sub get_friends_on_network {
     my ($self,$channels) = @_;
@@ -132,6 +190,29 @@ sub get_friends_on_network {
 }
 
 ######################################################################
+
+=head2 get_msg_count_on_network
+
+Returns the total number of messages on a particular group
+
+
+
+=over 4
+
+=item Args:
+
+$new_only: return only a count of new (unheard) messages
+
+$network: the group/vikundi whose message count is being returned
+
+$flagged: return only a count of flagged messages
+
+=back
+
+NOTE: If you specify both `$flagged` and `$new_only` you will get 0
+since new messages cannot have a flagged status.
+
+=cut
 
 sub get_msg_count_on_network {
     my ($self,$user_id,$new_only,$network, $flagged) = @_;
@@ -188,5 +269,14 @@ sub set_dirty_bit_if_new_msgs {
 }
 
 ######################################################################
+
+=head1 AUTHORS
+
+Billy Odero, Jonathan Ledlie
+
+Copyright (C) 2010 Nokia Corporation.
+
+=cut
+
 
 1;

@@ -46,9 +46,6 @@ def resolve_user (func):
         p = UserPhones.objects.filter(phone_number = source_phone)
         logger.debug(p)
         
-        # XXX pull out the users language from the DB
-        language = LanguageFactory.create_language('eng')
-        
         if len(p) < 1:
             #user = Watumiaji.create_user(args[1], args[1])
             return HttpResponse(language.not_allowed_to_use_tangaza())
@@ -58,8 +55,8 @@ def resolve_user (func):
         #logger.debug ('validate A2')
         
         user.phone_number = source_phone
-    	
-        # XXX pull out the users language from the DB
+        language = LanguageFactory.create_language(user.language.name)    	
+        
         new_args = [args[0], user, language]
         arg_data = args[2:] #the other data e.g. slot, group name etc
         new_args.extend(arg_data)
@@ -466,14 +463,16 @@ class BlankLanguage(Language):
 class LanguageFactory(object):
     @classmethod
     def create_language(cls, language):
-        if language == 'eng':
-            return EnglishLanguage();
-        elif language == 'swa':
+        if language == 'eng' or language == 'english':
+            return EnglishLanguage()
+        elif language == 'swa' or language == 'swahili':
             return SwahiliLanguage()
         elif language == 'shg':
             return ShengLanguage()
         elif language == 'xxx':
             return BlankLanguage()
+        else:
+            return EnglishLanguage()
 
 
 text_characters = "".join(map(chr, range(32, 127))) + "\n\r\t\b"

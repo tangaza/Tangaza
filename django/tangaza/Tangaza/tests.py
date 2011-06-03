@@ -135,14 +135,14 @@ class UserCommandsParserTest(TestCase):
 
 from tangaza.Tangaza.models import *
 from tangaza.Tangaza import utility
+from django.test.client import Client
+from django.core.management import call_command
 
 class SMSTest(TestCase):
     
     fixtures = ['test_admin_info.json', 'test_app_info.json']
     
     def setUp(self):
-        from django.test.client import Client
-        
         self.invalid_member = '222111333'
         self.valid_member = '254777888999'
         self.lang = utility.LanguageFactory.create_language('eng')

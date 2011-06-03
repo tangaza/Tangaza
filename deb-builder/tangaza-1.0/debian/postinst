@@ -97,26 +97,28 @@ cd $CWD
 
 TGZ_CONF=/etc/tangaza
 #1. asterisk
-echo "Replacing /etc/asterisk/extensions.conf."
-mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.bak
-cp $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/extensions.conf
+if [ ! -f "/etc/asterisk/extensions.conf.tgzbak" ]; then
+    echo "Replacing /etc/asterisk/extensions.conf."
+    mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.tgzbak
+    ln -s $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/
+fi
 
 #2. kannel
-echo "Replacing /etc/kannel/kannel.conf."
-if [ -f "/etc/kannel/kannel.conf" ]; then
-    mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.bak
+if [ ! -f "/etc/kannel/kannel.conf.tgzbak" ]; then
+    echo "Replacing /etc/kannel/kannel.conf."
+    mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.tgzbak
+    ln -s $TGZ_CONF/kannel/kannel.conf /etc/kannel/
 fi
-
-cp $TGZ_CONF/kannel/kannel.conf /etc/kannel/kannel.conf
 
 echo "Replacing /etc/kannel/modem.conf"
-if [ -f "/etc/kannel/modem.conf" ]; then
-    mv /etc/kannel/modem.conf /etc/kannel/modem.conf.bak
+if [ ! -f "/etc/kannel/modem.conf.tgzbak" ]; then
+    mv /etc/kannel/modem.conf /etc/kannel/modem.conf.tgzbak
+    ln -s $TGZ_CONF/kannel/modem.conf /etc/kannel/
 fi
 
-cp $TGZ_CONF/kannel/modem.conf /etc/kannel/modem.conf
-
-cp $TGZ_CONF/kannel/tangaza.conf /etc/kannel/tangaza.conf
+if [ ! -f "/etc/kannel/tangaza.conf" ]; then
+    ln -s $TGZ_CONF/kannel/tangaza.conf /etc/kannel/tangaza.conf
+fi
 
 #restart asterisk
 echo "Restarting asterisk"
@@ -131,9 +133,9 @@ echo "Restarting kannel"
 FQDN=`hostname -f`
 
 echo "Adding tangaza-sms to sites-enabled"
-mv $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.bak
+cp $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.tgzbak
 
-awk "{gsub(/your_server_name/,\"$FQDN\");print}" $TGZ_CONF/tangaza-sms.bak > $TGZ_CONF/tangaza-sms
+sed -i "s/your_server_name/$FQDN/g" $TGZ_CONF/tangaza-sms
 
 if [ ! -f "/etc/apache2/sites-enabled/tangaza-sms" ]; then
     ln -s $TGZ_CONF/tangaza-sms /etc/apache2/sites-enabled/
@@ -143,8 +145,8 @@ fi
 #echo "Enabling port 8080"
 #PORT_ENABLED=`grep -i '^Listen 8080$' /etc/apache2/ports.conf`
 #if [ ! -n "$PORT_ENABLED" ]; then
-#    mv /etc/apache2/ports.conf /etc/apache2/ports.conf.bak
-#    awk "{gsub(/Listen 80/,\"Listen 80\nListen 8080\");print}" /etc/apache2/ports.conf.bak > /etc/apache2/ports.conf
+#    cp /etc/apache2/ports.conf /etc/apache2/ports.conf.bak
+#    sed -i "s/^Listen 80$/Listen 80\nListen 8080/g" /etc/apache2/ports.conf
 #fi
 
 #Check if wsgi_module is loaded if not load it
@@ -190,24 +192,12 @@ chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
 
 #Configuring  nagios
 echo "Configuring nagios..."
+echo 'cfg_dir=/etc/tangaza/nagios' >> /etc/nagios3/nagios.cfg
 
-if [ ! -f "/usr/lib/nagios/plugins/tangaza-monitor/contacts_nagios2.cfg-tgzbak" ]; then
-    # Backup
-    cp /etc/nagios3/conf.d/contacts_nagios2.cfg /etc/nagios3/conf.d/contacts_nagios2.cfg-tgzbak
-    cp /etc/nagios3/conf.d/services_nagios2.cfg /etc/nagios3/conf.d/services_nagios2.cfg-tgzbak
-    cp /etc/nagios3/commands.cfg /etc/nagios3/commands.cfg-tgzbak
-    cp /etc/nagios3/conf.d/hostgroups_nagios2.cfg  /etc/nagios3/conf.d/hostgroups_nagios2.cfg-tgzbak
+if [ ! -d "/usr/lib/nagios/plugins/tangaza-monitor" ]; then
     
     # Add configs to nagios
-    ln -s $TGZ_CONF/nagios/kannel.cfg /etc/nagios-plugins/config/
-    ln -s $TGZ_CONF/nagios/send_sms.py /usr/lib/nagios/plugins/tangaza-monitor/
-    ln -s $TGZ_CONF/nagios/check_kannel /usr/lib/nagios/plugins/tangaza-monitor/
-    
-    # Append to nagios configs
-    cat $TGZ_CONF/nagios/contacts.cfg >> /etc/nagios3/conf.d/contacts_nagios2.cfg
-    cat $TGZ_CONF/nagios/nagios_service.cfg >> /etc/nagios3/conf.d/services_nagios2.cfg
-    cat $TGZ_CONF/nagios/notify-command.cfg >> /etc/nagios3/commands.cfg
-    cat $TGZ_CONF/nagios/hostgroups.cfg >> /etc/nagios3/conf.d/hostgroups_nagios2.cfg
+    ln -s $TGZ_CONF/nagios/tangaza-monitor/ /usr/lib/nagios/plugins/
     
     /etc/init.d/nagios3 restart
 fi

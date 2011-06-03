@@ -41,3 +41,7 @@ urlpatterns += patterns('tangaza.Tangaza.dashboard',
     (r'^web/dashboard/$', 'get_users'),
     (r'^web/dashboard/(\w{0,20})/$', 'get_users'),
 )
+
+urlpatterns += patterns('tangaza.Tangaza.api',
+    (r'^api/$', include('tangaza.Tangaza.api_urls')),
+)

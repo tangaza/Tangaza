@@ -7,4 +7,3 @@
 /var/lib/tangaza/groups
 /var/log/tangaza
 /var/spool/tangaza/outgoing/
-/usr/lib/nagios/plugins/tangaza-monitor/

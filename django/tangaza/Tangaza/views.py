@@ -77,7 +77,7 @@ def join_group (request, user, language, group_name, slot = '', username = '', s
     
     if group is None:
         logger.info ("smsc: %s user: %s unknown_group %s" % (smsc, user, group_name))
-        return language.unknown_group(group_name)
+        return [False, language.unknown_group(group_name)]
     
     from django.conf import settings
     
@@ -88,24 +88,9 @@ def leave_group (request, user, language, group_or_slot):
     group = Vikundi.resolve (user, group_or_slot)
     if group is None:
         logger.info ("user %s unknown_group %s" % (user, group_or_slot))
-        return language.unknown_group(group_or_slot)
+        return [False, language.unknown_group(group_or_slot)]
     
     return request_leave (user, language, group)
-
-##############################################################################
-def set_username(request, user, language, username):
-    # check if there's another in the organization with that name
-    ug = UserGroups.objects.filter(user = user)
-    if len(ug) > 0:
-        groups = Vikundi.objects.filter(org = org)
-        
-        ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = username)
-        
-        if len(ug_b) > 0:
-            # TODO: algorithm for suggesting alternative username
-            return language.username_taken(username)
-        
-    return 
 
 ##############################################################################
 from django.views.decorators.csrf import csrf_exempt
@@ -143,82 +128,37 @@ def index(request, user, language):
     if command == language.CREATE:
         logger.debug('request create group %s' % group_name)
         # request, user, language, group_name, slot
-        return request_create_group(request, user, language, group_name, '')
+        return request_create_group(request, user, language, group_name, '')[1]
     elif command == language.JOIN:
         logger.debug('request join group %s' % group_name)
         # request, user, language, group_name, slot
-        return join_group(request, user, language, group_name)
+        return join_group(request, user, language, group_name)[1]
     elif command == language.INVITE:
         # (request, user, language, group_name_or_slot, invite_user_phone, smsc = 'mosms')
         logger.debug('request invite user %s to group %s' % (user, group_name))
         invited_users = ' '.join([member, extras])
-        return invite_user_to_group(request, user, language, group_name, invited_users)
+        return invite_user_to_group(request, user, language, group_name, invited_users)[1]
     elif command == language.LEAVE:
         logger.debug('request leave group %s' % group_name)
         # leave_group (request, user, language, group_or_slot)
-        return leave_group (request, user, language, group_name)
+        return leave_group (request, user, language, group_name)[1]
     elif command == language.DELETE:
         logger.debug('request delete group %s' % group_name)
         # delete_group (request, admin, language, group_name_or_slot)
-        return delete_group (request, user, language, group_name)
+        return delete_group (request, user, language, group_name)[1]
     elif command == language.REMOVE:
         logger.debug('request remove user %s' % user)
         # delete_user_from_group (request, admin, language, group_name_or_slot, del_user_phone)
-        return delete_user_from_group (request, user, language, group_name, member)
+        return delete_user_from_group (request, user, language, group_name, member)[1]
     elif command == language.SETNAME:
         logger.debug('request set name user %s, username %s' % (user, username))
-        return set_username(request, user, language, username)
+        return set_username(request, user, language, username)[1]
     else:
-        return request_update (user,language)
+        return request_update (user,language)[1]
 
 
 ##############################################################################
 
-@resolve_user
-def index_old(request, user, language, raw_text, smsc = 'mosms'):
-    from django.conf import settings
-    
-    logger.debug ('entry point')
-    
-    raw_text = urllib.unquote_plus(raw_text)
-    logger.debug ("user info " + raw_text)
-    
-    sms_log = SmsLog(sender = user.phone_number, text = raw_text)
-    sms_log.save()
-    
-    (group_token, msg_text) = string.split(raw_text, " ", 1)
-    (blank, group_name_or_slot) = string.split(group_token, "@")
-    
-    logger.info ("user %s text %s" % (user, msg_text))
-    
-    # group_name is None resolves to user's default group
-    group = Groups.resolve (user, group_name_or_slot)
-    
-    if group is None:
-        logger.debug ("group name %s is null" % group_name_or_slot)
-        # user provided a group name, but it doesn't exist
-        return language.unknown_group(group_name_or_slot)
-    elif group.get_user_count() > MAX_GROUP_SMS_SIZE:
-        return language.group_too_big_for_sms(settings.SMS_VOICE[smsc])
-    else:
-        logger.debug ("group name %s resolved %s" % (group_name_or_slot, group))
-        
-        if group_name_or_slot is None or len(group_name_or_slot) < 1:
-            # a "tweet" to default group
-            # "foo"     -> send msg "foo #phone" to #group
-            msg_text = "%s @%s" % (msg_text[:140], group.group_name)
-        else:
-            # "#group"     -> send msg "#group" to #group
-            # "#group foo" -> send msg "#group foo" to #group
-            import re
-            identity = re.sub('^2547', '07', user.phone_number)
-            
-            if user.name_text != None : identity = user.name_text
-            msg_text = "%s %s@%s" % (msg_text[:140], identity, group.group_name)
-            
-            return request_send (user, language, msg_text, group, settings.SMS_VOICE[smsc])
-
-##############################################################################
 def request_join (user, language, group, slot, origin):
     
     # SMS-only if no slot given
@@ -230,34 +170,35 @@ def request_join (user, language, group, slot, origin):
     #	return language.unknown_group(group_name)
     
     # check if there's another in the organization with that name
+    org = group.org
     groups = Vikundi.objects.filter(org = org)
     
-    ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = self.name_text)
-    
-    if len(ug_b) > 0:
-        return u'A user with that name already exists in the organization.'
+    ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = user.name_text)
     
     if user.is_member(group):
-        return language.already_member(group)
+        return [False, language.already_member(group)]
+    
+    if len(ug_b) > 0:
+        return [False, u'A user with that name already exists in the organization.']
     
     if not user.has_empty_slot(): #and slot >= 0:
-        return language.user_has_no_empty_slots ()
+        return [False, language.user_has_no_empty_slots ()]
     
     if len(slot) < 1: #meaning user never provided a slot number
         slot = auto_alloc_slot(user)
 	
 	if slot == 0 or (slot > 0 and not user.slot_is_empty(slot)):
-            return language.slot_not_free(slot)
+            return [False, language.slot_not_free(slot)]
 	
 	if not group.is_public() and not user.was_invited(group):
-            return language.cannot_join_without_invite (group)
+            return [False, language.cannot_join_without_invite (group)]
 	
 	if group.get_user_count() >= max_group_size:
-            return u'Sorry, groups sizes are limited, so you cannot be added to %s' % group.group_name
+            return [False, u'Sorry, groups sizes are limited, so you cannot be added to %s' % group.group_name]
         
 	user.join_group(group, slot, origin)
 	
-	return language.joined_group(group, slot)
+	return [True, language.joined_group(group, slot)]
 
 ##############################################################################
 
@@ -265,11 +206,11 @@ def request_send(user, language, msg_text, group, origin):
     
     if not user.is_member(group):
         logger.info ("nonmember user %s tried to send to group %s" % (user, group))
-        return language.nonmember_cannot_send(group)
+        return [False, language.nonmember_cannot_send(group)]
     
     if not user.can_send(group):
         logger.info ("member user %s tried to send to group %s" % (user, group))
-        return language.member_cannot_send(group)
+        return [False, language.member_cannot_send(group)]
     
     logger.info ("member user %s sent OK to group %s text %s" % (user, group, msg_text))
     
@@ -278,12 +219,12 @@ def request_send(user, language, msg_text, group, origin):
     
     # XXX turn into language
     if receipt_count == 0:
-        return ('Sorry, no one to send to.  Invite friends with invite %s' % group.group_name)
+        return [False, ('Sorry, no one to send to.  Invite friends with invite %s' % group.group_name)]
     else:
         # if receipt_count == 1:
         # return ('T: %s <1>' % msg_text)
         # else:
-        return ('T<%d>: %s' % (receipt_count, msg_text))
+        return [True, ('T<%d>: %s' % (receipt_count, msg_text))]
 
 ##############################################################################
 
@@ -316,18 +257,18 @@ def request_update (user, language):
     
     logger.debug ("user %s" % user)	
     
-    return language.user_update(' '.join(update))
+    return [True, language.user_update(' '.join(update))]
 
 ##############################################################################
 def request_leave (user, language, group):
 	
     if group is None:
         logger.info ("user %s unknown_group %s" % (user, group))
-        return language.unknown_group(name_or_slot)
+        return [False, language.unknown_group(name_or_slot)]
 
     if not user.is_member(group):
         logger.info ("user %s not in group %s" % (user, group))
-        return language.user_not_in_group(user, group)
+        return [False, language.user_not_in_group(user, group)]
     
     if user.is_admin(group):
         logger.debug ("admin=yes")
@@ -336,7 +277,7 @@ def request_leave (user, language, group):
             # cannot delete our default group
             logger.debug ("mine=yes")
             logger.info ("user %s cannot leave own group" % user)
-            return language.cannot_leave_own_group()
+            return [False, language.cannot_leave_own_group()]
         
         logger.debug ("mine=no")
         
@@ -345,7 +286,7 @@ def request_leave (user, language, group):
             
             if group.get_user_count () > 1:
                 logger.info ("user %s cannot leave only admin group %s" % (user, group))
-                return language.cannot_leave_when_only_admin(group)
+                return [False, language.cannot_leave_when_only_admin(group)]
             else:
                 # just one user: us
                 # keep this in for now and test deletions
@@ -353,7 +294,7 @@ def request_leave (user, language, group):
                 # Groups.delete (user, group)
                 group.delete()
                 logger.info ("user %s leaving and deleting group %s" % (user, group))
-                return ' '.join([language.user_left_group(group) , language.group_deleted (group)])
+                return [True, ' '.join([language.user_left_group(group) , language.group_deleted (group)])]
         else:
             
             logger.debug ("admin_count > 1")
@@ -368,4 +309,4 @@ def request_leave (user, language, group):
         logger.info ("normal user %s leaving group %s" % (user, group))
         user.leave_group(group)
 	
-    return language.user_left_group(group.group_name)
+    return [True, language.user_left_group(group.group_name)]

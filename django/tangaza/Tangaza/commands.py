@@ -34,69 +34,65 @@ logger = logging.getLogger(__name__)
 ############################################################
 #@resolve_user
 def set_username (request, user, language, username):
-	# check if there's another in the organization with that name
+	# check if there's another user in the organization with that name
 	ug = UserGroups.objects.filter(user = user)
 	if len(ug) > 0:
-		groups = Vikundi.objects.filter(org = org)
+		groups = Vikundi.objects.filter(org = ug[0].group.org)
 		
 		ug_b = UserGroups.objects.filter(group__in = groups, user__name_text = username)
 		
 		if len(ug_b) > 0:
 			# TODO: algorithm for suggesting alternative username
-			return language.username_taken(username)
+			return [False, language.username_taken(username)]
 	
 	user.set_name(username)
-	return language.name_set(username)
+	return [True, language.name_set(username)]
 
-@resolve_user
+#@resolve_user
 def quiet_group (request, user, language, name_or_slot):
-	group = Groups.resolve(user, name_or_slot)
+	group = Vikundi.resolve(user, name_or_slot)
 	
 	if group == None:
-		return language.unknown_group(name_or_slot)
+		return [False, language.unknown_group(name_or_slot)]
 	
 	if not user.is_member(group):
-		return language.user_not_in_group(user, group)
+		return [False, language.user_not_in_group(user, group)]
 	
 	group.set_quiet(user)
 	
 	logger.info ("user %s group %s" % (user, group))
 	
-	return language.group_quieted(group)
+	return [True, language.group_quieted(group)]
 
-@resolve_user
+#@resolve_user
 def unquiet_group (request, user, language, name_or_slot):
-	group = Groups.resolve(user, name_or_slot)
+	group = Vikundi.resolve(user, name_or_slot)
 	
 	if group == None:
-		return language.unknown_group(name_or_slot)
+		return [False, language.unknown_group(name_or_slot)]
 	
 	if not user.is_member(group):
-		return language.user_not_in_group(user, group)
+		return [False, language.user_not_in_group(user, group)]
 
 	group.unquiet(user)
 
 	logger.info ("user %s group %s" % (user, group))
 
-	return language.group_unquieted(group)
+	return [True, language.group_unquieted(group)]
 
-@resolve_user
+#@resolve_user
 def quiet_or_unquiet_all_groups (request, user, language):
-
 	logger.info ("user %s" % user)
+	return [True, "not implemented"]
 
-	return "not implemented"
-
-@resolve_user
+#@resolve_user
 def quiet_all (request, user, language):
-	
 	Groups.quiet_all(user)
-	return language.quieted_all_groups()
+	return [True, language.quieted_all_groups()]
 
-@resolve_user
+#@resolve_user
 def unquiet_all (request, user, language):
-	
 	Groups.unquiet_all(user)
-	return language.unquieted_all_groups()
+	return [True, language.unquieted_all_groups()]
 
 

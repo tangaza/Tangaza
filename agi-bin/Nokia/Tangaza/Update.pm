@@ -30,11 +30,34 @@ use Nokia::Tangaza::Network;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 
+=head1 NAME
+
+Nokia::Tangaza::Update - Module for making updates
+
+=head1 DESCRIPTION
+
+This module enables the use to send Tangazo to everyone on the 
+selected group/vikundi.
+
+=cut
+
 #The values have been initialized in init
 my $tmp_dir;# = '/mnt/tmpfs/';
 my $tmp_rec_dir;# = $tmp_dir.'record/';
 
 ######################################################################
+
+=head1 METHODS
+
+=head2 can_post
+
+Checks whether the user is allowed to send messages to the selected group/vikundi
+Users can only post to groups they are members of.
+
+Returns: 1 if the user is allowed, 0 otherwise
+
+=cut
+
 sub can_post {
     my ($self, $group_id) = @_;
     
@@ -53,6 +76,14 @@ sub can_post {
 }
 
 ######################################################################
+
+=head2 init
+
+Sets up global variables used througout the model i.e. file paths where
+recordings will be saved and preferences defined in settings.conf
+
+=cut
+
 sub init {
     my ($self) = @_;
     
@@ -62,6 +93,20 @@ sub init {
 }
 
 ######################################################################
+
+=head2 update_main_menu
+
+Plays the update menu, asking users to select what update actions 
+they'd like to perform.
+
+If the slot selected has no defined group, the selected group 
+has no members or user has no permissions to post to the group,
+the method plays back an error message to that effect and returns.
+
+The recorded update will be saved in the path defined in settings.conf
+
+=cut
+
 sub update_main_menu {
     my ($self, $annotation) = @_;
     
@@ -200,6 +245,14 @@ sub update_main_menu {
 }
 
 ######################################################################
+
+=head2 notify_dest
+
+Flashes all members in the group/vikundi to inform them that a new 
+message has been sent to the group.
+
+=cut
+
 sub notify_dest {
     my ($self, $friends, $channel) = @_;
     $self->log(4, "Notifying users: ". join( ',', map { $_ } @$friends ));
@@ -229,6 +282,7 @@ sub send_sms_update {
 }
 
 ######################################################################
+
 sub flash_update {
     my ($self, $phone) = @_;
     
@@ -251,6 +305,24 @@ sub flash_update {
 }
 
 ######################################################################
+
+=head2 save_pub_message
+
+A message sent by a member is called a `pub_message`. This method
+saves new updates to the database.
+
+=over 4
+
+=item Args:
+
+$update_file - path to the recorded message
+
+$channels - the group/vikundi that the message was sent to
+
+=back
+
+=cut
+
 sub save_pub_message {
     my ($self, $update_file, $channels) = @_;
     $self->log (4, "START save_pub_message: $update_file $channels");
@@ -269,6 +341,26 @@ sub save_pub_message {
 }
 
 ######################################################################
+
+=head2 save_sub_message
+
+Each pub message is mapped to a user in the group - this is called sub_message.
+This method attaches a message to a specific user within the group
+
+=over 4
+
+=item Args:
+$pub_id - the pub_message this refers to
+
+$dst_user_id - the group member to receive this message
+
+$channel - the group/vikundi this message belongs to
+
+$dst_user_ids - a buffer array with ids of all users who this message was sent to
+
+=back
+
+=cut
 sub save_sub_message {
     my ($self, $pub_id, $dst_user_id, $channel, $dst_user_ids) = @_;
     my $now = 'NOW()';
@@ -279,4 +371,14 @@ sub save_sub_message {
     
     push (@$dst_user_ids, $dst_user_id);
 }
+
+=head1 AUTHORS
+
+Billy Odero, Jonathan Ledlie
+
+Copyright (C) 2010 Nokia Corporation.
+
+=cut
+
+
 1;

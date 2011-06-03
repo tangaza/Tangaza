@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API &mdash; Nokia Tangaza v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nokia Tangaza v1.0 documentation" href="index.html" />
+    <link rel="prev" title="Model Layer" href="models.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Model Layer"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Nokia Tangaza v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tangaza.Tangaza.api">
+<span id="api"></span><h1>API<a class="headerlink" href="#module-tangaza.Tangaza.api" title="Permalink to this headline">¶</a></h1>
+<p>For use by developers to build applications on top of Nokia Tangaza</p>
+<dl class="function">
+<dt id="tangaza.Tangaza.api.get_admins">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">get_admins</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.get_admins" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>The list of admins in the group</dd>
+<dt>Args:</dt>
+<dd>group - the group whose administrators are being requested for</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.get_groups">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">get_groups</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.get_groups" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>All groups that the user is a member of</dd>
+<dt>Args: </dt>
+<dd>member - the member making the request</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.get_members">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">get_members</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.get_members" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>All members in the a particular group</dd>
+<dt>Args: </dt>
+<dd>member- the member making the request, 
+group - the group whose members are being requested for</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.get_messages">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">get_messages</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.get_messages" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>The list of messages that member has received</dd>
+<dt>Args:</dt>
+<dd>member - the member making the request</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.get_update">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">get_update</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.get_update" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>Your current status i.e. groups you are a member of, info on unheard messages, pending invites</dd>
+<dt>Args: </dt>
+<dd>member - the member requesting this info</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.json_repr">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">json_repr</tt><big>(</big><em>queryset</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.json_repr" title="Permalink to this definition">¶</a></dt>
+<dd>Django serializer doesnt display items in custom querysets
+e.g. if you use Model.objects.extra(select=[&#8216;field&#8217;]...)
+This is a custom serializer that enables this</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_add_admin">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_add_admin</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_add_admin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>status - 0 if admin was successfully added, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member (must be an administrator) who wants to add new administrator to the group
+group - the group to which the new administrator is being added
+new_admin - the new administrator being added to the group</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_create_group">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_create_group</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_create_group" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>status - 0 if group created, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member who wants to create a group
+group_name - the name of the group to be created</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_delete_admin">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_delete_admin</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_delete_admin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>status - 0 if the admin was successfully deleted, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member (must be an administrator) who wants to delete an administrator from the group
+group - the group from which the administrator is being deleted
+del_admin - the administrator that is being deleted from the group</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_delete_group">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_delete_group</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_delete_group" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>status - 0 if group deleted, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member deleting a group
+group - the id of group being deleted</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_delete_user">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_delete_user</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_delete_user" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>status - 0 if the member was successfully deleted, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member (must be an administrator) who wants to delete a member from the group
+group - the group from which the member is being deleted
+del_user - the member being deleted from the group</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_invite_user">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_invite_user</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_invite_user" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>status - 0 if invite was sent, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member sending the invite
+group - the group the person is being invited to
+invited_user_phone - the phone number of the person being invited</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_join">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_join</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_join" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>status - 0 if successfully joined, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member trying to join a group
+group - the group that the member wants to join</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_leave">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_leave</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_leave" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>status - 0 if successfully left group, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member who is leaving the group
+group - the group that the member is leaving</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_quiet">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_quiet</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_quiet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns: </dt>
+<dd>status - 0 if successfully set group to quiet, -1 if failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the who doesnt want to receive updates from the group
+group - the group that the member wants to put on silent mode</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.request_unquiet">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">request_unquiet</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.request_unquiet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>status - 0 if successfully set group to send updates, -1 if failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member who wants to receive the updates
+group - the group that the member wants to receive updates from</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tangaza.Tangaza.api.set_username">
+<tt class="descclassname">tangaza.Tangaza.api.</tt><tt class="descname">set_username</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#tangaza.Tangaza.api.set_username" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>status - 0 if a new username was set, -1 if it failed; message - error or success message</dd>
+<dt>Args:</dt>
+<dd>member - the member who wants to change their username
+username - a new username for the member</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="models.html"
+                                  title="previous chapter">Model Layer</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/api.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Model Layer"
+             >previous</a> |</li>
+        <li><a href="index.html">Nokia Tangaza v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Nokia.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.4.
+    </div>
+  </body>
+</html>

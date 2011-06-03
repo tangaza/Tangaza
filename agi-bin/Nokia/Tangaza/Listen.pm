@@ -31,7 +31,22 @@ use Nokia::Tangaza::Update;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 
+=head1 NAME
+
+Nokia::Tangaza::Listen - Module for listening to updates
+
+=cut
+
+=head1 DESCRIPTION
+
+This module allows the user to playback new and existing messages
+sent to a particular group.
+
+=head1 METHODS
+
+=cut
 ######################################################################
+
 sub get_all_groups {
     my ($self) = @_;
     
@@ -42,6 +57,16 @@ sub get_all_groups {
     return \@groups;
 }
 ######################################################################
+
+=head2 listen_main_menu
+
+Plays the listening menu options for the user to determine what actions to take.
+
+Once users select the group/vikundi whose messages they want to listen to, they 
+have the option to listen to new, old or flagged messages.
+They can also flag messages for quick retrieval in future.
+
+=cut
 
 sub listen_main_menu {
     my ($self) = @_;
@@ -189,6 +214,11 @@ sub listen_main_menu {
 
 ######################################################################
 
+=head2 listen_new_menu
+
+This only plays new messages to the user.
+
+=cut
 sub listen_new_menu {
 	my ($self) = @_;
 
@@ -200,6 +230,23 @@ sub listen_new_menu {
 }
 
 ######################################################################
+
+=head2 walk_messages_menu
+
+Goes through all the messages the user would like to listen to based 
+on supplied arguments (below).
+
+=over 4
+
+=item Args:
+
+$msg_type: '1' - new messages; '2' - flagged messages; 'undefined' - plays all
+
+$channels: the group whose messages are to be played
+
+=back
+
+=cut
 
 sub walk_messages_menu {
     my ( $self, $msg_type, $channels ) = @_;
@@ -416,5 +463,13 @@ sub walk_messages_menu {
     return 'ok';
     
 }
+
+=head1 AUTHORS
+
+Billy Odero, Jonathan Ledlie
+
+Copyright (C) 2010 Nokia Corporation.
+
+=cut
 
 1;
