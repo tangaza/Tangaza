@@ -26,7 +26,27 @@ use Sys::Hostname;
 use Nokia::Common::Tools;
 use Nokia::Common::Callback;
 
+=head1 NAME
+
+Nokia::Tangaza::Callback - Module for calling back users
+
+=head1 DESCRIPTION
+
+Nokia::Tangaza::Callback calls back a user that made a missed call to our system.
+
+=cut
+
 ######################################################################
+
+=head1 METHODS
+
+=head2 callback
+
+Checks the callback state variable `cbstate` to determine if the user 
+called us or if we need to call them back. If `cbstate` == 'calledback'
+it places a call.
+
+=cut
 
 sub callback {
     my $self = shift;    
@@ -54,6 +74,11 @@ sub callback {
 #    &Nokia::Common::Tools::pre_server_close_hook ($self);
 #}
 
+=head2 place_call_tangaza
+
+Places a call to the phone number in `$self->{user}->{outgoing_phone}`
+
+=cut
 sub place_call_tangaza {
     my ($self) = @_;
 
@@ -87,5 +112,13 @@ sub place_call_tangaza {
     &place_call ($call_content);
     
 }
+
+=head1 AUTHORS
+
+Billy Odero, Jonathan Ledlie
+
+Copyright (C) 2010 Nokia Corporation.
+
+=cut
 
 1;

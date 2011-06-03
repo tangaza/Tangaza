@@ -27,15 +27,33 @@ use DBI;
 use Nokia::Tangaza::Update;
 use Nokia::Tangaza::Listen;
 use Nokia::Tangaza::Network;
-#use Nokia::Tangaza::Invitations;
 use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 use Nokia::Common::Entry;
 use Nokia::Common::Auth;
 use Nokia::Common::SMSQueue;
 
+=head1 NAME
+
+Nokia::Tangaza::Entry - Entry point into the system
+
+=head1 DESCRIPTION
+
+This is the entry module into Tangaza
+
+=head1 METHODS
+
+=cut
 ######################################################################
 
+=head2 entry
+
+This is the the first method that should be executed when starting 
+up the system.
+
+It initializes `$self` with all the necessary information.
+
+=cut
 sub entry {
 
     # Start of Tangaza call
@@ -73,6 +91,11 @@ sub send_more_about_tangaza {
 
 ######################################################################
 
+=head2 about_socnet_main_menu
+
+Plays the `about page` to the user.
+
+=cut
 sub about_socnet_main_menu {
     my ($self) = @_;
 
@@ -83,6 +106,15 @@ sub about_socnet_main_menu {
 
 ######################################################################
 
+=head2 main_menu
+
+This is the entry point into the system. 
+
+It plays the welcome message, lets the user know if there are any new 
+messages to listen to and gives the user the options necessary to access 
+all other menus (i.e. update, listen and about menu) within the system.
+
+=cut
 sub main_menu {
     my ($self) = @_;
     
@@ -316,5 +348,13 @@ sub reject_terms {
 }
 
 ######################################################################
+
+=head1 AUTHORS
+
+Billy Odero, Jonathan Ledlie
+
+Copyright (C) 2010 Nokia Corporation.
+
+=cut
 
 1;

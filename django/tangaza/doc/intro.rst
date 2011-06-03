@@ -6,7 +6,7 @@ Introduction: Tangaza
 
 Tangaza is a social networking service that makes use of SMS and voice to enable low-cost group communication. 
 
-Users can create and manage their groups and invite oth- ers to join. 
+Users can create and manage their groups and invite others to join. 
 After a group is formed, members can then text and send spoken updates to each other. 
 
 Through sets of SMS-based commands users can create both public and private groups, 
