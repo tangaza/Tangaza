@@ -42,9 +42,12 @@ Nokia::Tangaza::Callback calls back a user that made a missed call to our system
 
 =head2 callback
 
-Checks the callback state variable `cbstate` to determine if the user 
-called us or if we need to call them back. If `cbstate` == 'calledback'
-it places a call.
+Calls L<Nokia::Common::Callback::callback> to determine if the user wants to be 
+called back by the system or is calling through at their own cost.
+
+It then checks C<CBSTATE> variable (defined in extensions.conf), to determine if the 
+user called us or if we need to call them back. If `cbstate` == 'calledback' it 
+places a call to the user.
 
 =cut
 

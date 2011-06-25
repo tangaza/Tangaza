@@ -48,10 +48,11 @@ This is the entry module into Tangaza
 
 =head2 entry
 
-This is the the first method that should be executed when starting 
-up the system.
+Once L<Nokia::Common::Callback::callback> determines the callback state and a 
+channel with the user has been established, C<entry> sets up the call.
 
-It initializes `$self` with all the necessary information.
+It also initializes `$self` with all the necessary information by calling 
+L<Nokia::Common::Entry::entry>.
 
 =cut
 sub entry {
