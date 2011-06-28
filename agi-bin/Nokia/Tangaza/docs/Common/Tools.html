@@ -1,0 +1,389 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Common::Tools - Utility module</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#init_tools">init_tools</a></li>
+		<li><a href="#play_random">play_random</a></li>
+		<li><a href="#dtmf_quick_jump">dtmf_quick_jump</a></li>
+		<li><a href="#get_yes_no_option">get_yes_no_option</a></li>
+		<li><a href="#get_large_number">get_large_number</a></li>
+		<li><a href="#get_unchecked_large_number">get_unchecked_large_number</a></li>
+		<li><a href="#get_small_number">get_small_number</a></li>
+		<li><a href="#get_unchecked_large_number">get_unchecked_large_number</a></li>
+		<li><a href="#get_dtmf_input">get_dtmf_input</a></li>
+		<li><a href="#record_file">record_file</a></li>
+		<li><a href="#unlink_file">unlink_file</a></li>
+		<li><a href="#unlink_tmp_file">unlink_tmp_file</a></li>
+		<li><a href="#stream_file">stream_file</a></li>
+		<li><a href="#say_number">say_number</a></li>
+		<li><a href="#db_connect">db_connect</a></li>
+		<li><a href="#db_disconnect">db_disconnect</a></li>
+		<li><a href="#get_hash_file">get_hash_file</a></li>
+		<li><a href="#rnd_alphanum">rnd_alphanum</a></li>
+		<li><a href="#user_has_hungup">user_has_hungup</a></li>
+		<li><a href="#init_user">init_user</a></li>
+		<li><a href="#create_user">create_user</a></li>
+		<li><a href="#get_action">get_action</a></li>
+		<li><a href="#get_callcount">get_callcount</a></li>
+		<li><a href="#get_user_id">get_user_id</a></li>
+		<li><a href="#get_user_name">get_user_name</a></li>
+		<li><a href="#set_user_name">set_user_name</a></li>
+		<li><a href="#set_group_name">set_group_name</a></li>
+		<li><a href="#read_config">read_config</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Common::Tools - Utility module</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Provides all the utility methods required for performing commonly
+performed tasks</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="init_tools">init_tools</a></h2>
+<p>Called on startup.
+Use for any initialization of this module</p>
+<p>
+</p>
+<h2><a name="play_random">play_random</a></h2>
+<p>To make the system seem more &quot;real&quot;, you can have multiple responses that
+have the same meaning and play them randomly e.g. ok, fine, cool</p>
+<dl>
+<dt><strong><a name="args11" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$msg: The full filepath to the file to be streamed</p>
+<p>$random_key: if you are randomizing &quot;ok&quot; as explained above, the files should be
+named as okay-01, okay-02 etc. The random key in this case is the unchanging part
+of the filename i.e. &quot;okay&quot;</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="dtmf_quick_jump">dtmf_quick_jump</a></h2>
+<p>Ask the user once if he wants to jump somewhere
+Assumes press 1 to go there</p>
+<dl>
+<dt><strong><a name="args12" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$jump_fn: The function to jump to/to be called when the user presses 1</p>
+<p>$prompt: The prompt to be asking the user whether they want to jump somewhere</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_yes_no_option">get_yes_no_option</a></h2>
+<p>Gives the user an option in the form &quot;For yes press 1, for no press 2&quot;.</p>
+<dl>
+<dt><strong><a name="args13" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: The prompt that the user needs to respond yes or not to</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_large_number">get_large_number</a></h2>
+<p>Allows the user to input a large multi-digit number using the phones keypad.
+but unlike <a href="/Nokia/Tools/get_unchecked_large_number.html">the Nokia::Tools::get_unchecked_large_number manpage</a>, it plays it back to the user for confirmation.</p>
+<dl>
+<dt><strong><a name="args14" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: The prompt asking the user to enter a large number</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_unchecked_large_number">get_unchecked_large_number</a></h2>
+<p>Allows the user to input a large multi-digit number using the phones keypad</p>
+<dl>
+<dt><strong><a name="args15" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: The prompt asking a user to enter a number</p>
+<p>$number_list: Reference to the array that will hold the large number. Each 
+number input is stored as a separate array element</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_small_number">get_small_number</a></h2>
+<p>Allows the user to input a single-digit number using the phones keypad
+but unlike <a href="/Tools/get_unchecked_small_number.html">the Tools::get_unchecked_small_number manpage</a>, it plays it back to the user for confirmation.</p>
+<dl>
+<dt><strong><a name="args16" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: The prompt asking a user to input a number</p>
+<p>$digits: A string of valid digits that the user is allowed to key in</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_unchecked_large_number">get_unchecked_large_number</a></h2>
+<p>Allows the user to input a single-digit number using the phones keypad.</p>
+<dl>
+<dt><strong><a name="args17" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: The prompt asking a user to enter a number</p>
+<p>$digits: A string of valid digits that the user is allowed to key in</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_dtmf_input">get_dtmf_input</a></h2>
+<p>Allows the user to provide input using the phones keypad. It can be numbers
+or special characters like * or #</p>
+<dl>
+<dt><strong><a name="args18" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: The prompt asking the user to key in a number</p>
+<p>$digit: A string of the valid set of digits the user is allowed to key in</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="record_file">record_file</a></h2>
+<p>Cleanly record a file to the temp filesystem, letting the user play it back 
+and re-record it. Message should be something like: record your X at the beep</p>
+<p>Returns the relative pathname of the file if successful (relative to the 
+temp filesystem, which is kept in memory).</p>
+<dl>
+<dt><strong><a name="args19" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$instructions_prompt: The prompt that</p>
+<p>$length_in_seconds: The maximum time the user is given for the recording</p>
+<p>$redo_prompt: The prompt asking the user whether they want to re-record</p>
+<p>$delete_on_hangup: Delete the file if the user cancels or hangs up (default is no)</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="unlink_file">unlink_file</a></h2>
+<p>Deletes a file from filesystem</p>
+<dl>
+<dt><strong><a name="args20" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$filename: filepath of file to delete</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="unlink_tmp_file">unlink_tmp_file</a></h2>
+<p>Wrapper round <a href="/Tools/unlink_file.html">the Tools::unlink_file manpage</a> to only delete temporary files generated by the system</p>
+<dl>
+<dt><strong><a name="args21" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$filename: filepath of file to delete</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="stream_file">stream_file</a></h2>
+<p>Plays back an audio file stored in the filesystem.</p>
+<dl>
+<dt><strong><a name="args22" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompts: The file to be streamed</p>
+<p>$digits: String of digits that the system can respond to as the
+file is being streamed. Each digit can generate a defined event</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="say_number">say_number</a></h2>
+<p>Plays back a number that is in text format, one character at a time.</p>
+<dl>
+<dt><strong><a name="args23" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$number: The number to be played back</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="db_connect">db_connect</a></h2>
+<p>Sets up a DB connection using <a href="/Perl/DBI.html">the Perl::DBI manpage</a></p>
+<p>
+</p>
+<h2><a name="db_disconnect">db_disconnect</a></h2>
+<p>Terminates the db connection. Always called when the call terminates</p>
+<p>
+</p>
+<h2><a name="get_hash_file">get_hash_file</a></h2>
+<p>Generates a unique file name in the format [prefix][filename][suffix]</p>
+<dl>
+<dt><strong><a name="args24" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prefix: String prefexing the filename</p>
+<p>$suffix: A string appended to the filename</p>
+<p>$num_digits: Length of the filename to be generated</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="rnd_alphanum">rnd_alphanum</a></h2>
+<p>Generates a random alphanumeric word</p>
+<dl>
+<dt><strong><a name="args25" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$num_digits: The length of the alpahumeric word to be generated</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="user_has_hungup">user_has_hungup</a></h2>
+<p>Checks the channel state to determine if the user has hangup. Returns 1 if true.</p>
+<p>
+</p>
+<h2><a name="init_user">init_user</a></h2>
+<p>Creates a user if he does not exist, else fills `$self` with info about him.</p>
+<p>
+</p>
+<h2><a name="create_user">create_user</a></h2>
+<p>Creates a new user and returns id of new user</p>
+<dl>
+<dt><strong><a name="args26" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$desc: Optional secondary information that make up the profile of the user 
+to be created i.e place_id, language_id, phone</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_action">get_action</a></h2>
+<p>Lookups up the database for the list of allowed actions to determine what action 
+has been performed in the system.</p>
+<p>Returns the id of the performed action</p>
+<dl>
+<dt><strong><a name="args27" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$action: The action name being looked up</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_callcount">get_callcount</a></h2>
+<p>Returns the total number of calls that the user has ever made</p>
+<dl>
+<dt><strong><a name="args28" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$user_id The id of the user whose call count is being determined</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_user_id">get_user_id</a></h2>
+<p>Lookups and returns the user id of a user based on their phone number</p>
+<dl>
+<dt><strong><a name="args29" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$phone: The phone number being looked up</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_user_name">get_user_name</a></h2>
+<p>Returns the username/nickname of a user based on their user id</p>
+<dl>
+<dt><strong><a name="args30" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$user_id: The user id being used to retrieve the username/nickname</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="set_user_name">set_user_name</a></h2>
+<p>Allows the user to set an audio version of their nickname</p>
+<dl>
+<dt><strong><a name="args31" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$user_id: The user whose username is being set</p>
+<p>$prompt: The prompt asking the user to record their name</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="set_group_name">set_group_name</a></h2>
+<p>Allows a group administrator to set an audio version of their group's name</p>
+<dl>
+<dt><strong><a name="args32" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$group_id: The group whose name is being set</p>
+<p>$prompt: A prompt asking the user to record a name for the group</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="read_config">read_config</a></h2>
+<p>Reads the configuration file passed in $path and returns a dictionary initialized
+with the config file's attributes.</p>
+<dl>
+<dt><strong><a name="args33" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$path: File path to the config file</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

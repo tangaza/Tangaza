@@ -56,6 +56,14 @@ Users can only post to groups they are members of.
 
 Returns: 1 if the user is allowed, 0 otherwise
 
+=over 4
+
+=item Args:
+
+$group_id: The group id you are attempting to post to
+
+=back
+
 =cut
 
 sub can_post {
@@ -251,6 +259,16 @@ sub update_main_menu {
 Flashes all members in the group/vikundi to inform them that a new 
 message has been sent to the group.
 
+=over 4
+
+=item Args:
+
+$friends: The list of friends to be notified
+
+$channels: The group the message was sent to 
+
+=back
+
 =cut
 
 sub notify_dest {
@@ -315,9 +333,9 @@ saves new updates to the database.
 
 =item Args:
 
-$update_file - path to the recorded message
+$update_file: path to the recorded message
 
-$channels - the group/vikundi that the message was sent to
+$channels: the group/vikundi that the message was sent to
 
 =back
 
@@ -350,17 +368,19 @@ This method attaches a message to a specific user within the group
 =over 4
 
 =item Args:
-$pub_id - the pub_message this refers to
 
-$dst_user_id - the group member to receive this message
+$pub_id: the pub_message this refers to
 
-$channel - the group/vikundi this message belongs to
+$dst_user_id: the group member to receive this message
 
-$dst_user_ids - a buffer array with ids of all users who this message was sent to
+$channel: the group/vikundi this message belongs to
+
+$dst_user_ids: a buffer array with ids of all users who this message was sent to
 
 =back
 
 =cut
+
 sub save_sub_message {
     my ($self, $pub_id, $dst_user_id, $channel, $dst_user_ids) = @_;
     my $now = 'NOW()';
@@ -371,6 +391,8 @@ sub save_sub_message {
     
     push (@$dst_user_ids, $dst_user_id);
 }
+
+######################################################################
 
 =head1 AUTHORS
 

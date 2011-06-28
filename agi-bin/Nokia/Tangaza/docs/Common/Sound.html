@@ -1,0 +1,99 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Common::Sound - Audio manager</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#init_sound">init_sound</a></li>
+		<li><a href="#get_language_name">get_language_name</a></li>
+		<li><a href="#msg">msg</a></li>
+		<li><a href="#getttsfilename">getTTSFilename</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Common::Sound - Audio manager</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Manages all voice input</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="init_sound">init_sound</a></h2>
+<p>Initializes parameters necessary for processing sound files</p>
+<p>
+</p>
+<h2><a name="get_language_name">get_language_name</a></h2>
+<p>Returns the name of the language based on it's language id</p>
+<dl>
+<dt><strong><a name="args3" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$language_id: The id of language whose name is being requested</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="msg">msg</a></h2>
+<p>Uses the supplied <code>$words</code> parameter to loop through the file recordings
+in the filesystem and returns the full system filepath to be played back</p>
+<dl>
+<dt><strong><a name="args4" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$words: The name of the speech file to be played</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="getttsfilename">getTTSFilename</a></h2>
+<p>If the file to be played-back does not exist this method generates a TTS wav file
+that will be played back instead</p>
+<dl>
+<dt><strong><a name="args5" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$text: The text to be converted from text to speech</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

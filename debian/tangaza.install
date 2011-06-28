@@ -10,3 +10,4 @@ django/tangaza/media/	/usr/share/tangaza/
 sounds/			/usr/share/tangaza/
 init/			/usr/lib/tangaza/
 django/tangaza/doc/	/usr/share/tangaza/
+agi-bin/Nokia/Tangaza/docs/*	/usr/share/tangaza/doc/_build/html/perl_doc/

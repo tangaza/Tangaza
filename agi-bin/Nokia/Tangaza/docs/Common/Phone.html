@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Common::Phone - Checks incoming phone number</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#is_valid_outbound_number">is_valid_outbound_number</a></li>
+		<li><a href="#parse_callerid">parse_callerid</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Common::Phone - Checks incoming phone number</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This module parses caller-ids for to try and determine the origin of the call.
+It also checks caller-ids for outgoing calls to make sure that the system only 
+calls valid numbers e.g avoid calling 0800 numbers.</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="is_valid_outbound_number">is_valid_outbound_number</a></h2>
+<p>Checks whether the number is valid depending on the origin of the call</p>
+<dl>
+<dt><strong><a name="args" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$number: The phone number being validated</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="parse_callerid">parse_callerid</a></h2>
+<p>Parses the caller id to determine what country the call is originating from</p>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

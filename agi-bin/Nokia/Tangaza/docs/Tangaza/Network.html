@@ -1,0 +1,113 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Tangaza::Network - Manages user-group connetions</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#select_network_menu">select_network_menu</a></li>
+		<li><a href="#get_friend_count_on_network">get_friend_count_on_network</a></li>
+		<li><a href="#get_total_friend_count">get_total_friend_count</a></li>
+		<li><a href="#get_friends_on_network">get_friends_on_network</a></li>
+		<li><a href="#get_msg_count_on_network">get_msg_count_on_network</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Tangaza::Network - Manages user-group connetions</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This module manages all group operations</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="select_network_menu">select_network_menu</a></h2>
+<p>Plays the options available for performing operations on the groups/vikundi</p>
+<dl>
+<dt><strong><a name="args35" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$prompt: the sound file that plays the menu options</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_friend_count_on_network">get_friend_count_on_network</a></h2>
+<p>Returns the number of members on the specified group/vikundi</p>
+<dl>
+<dt><strong><a name="args36" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$network: The group whose member count you want</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_total_friend_count">get_total_friend_count</a></h2>
+<p>Returns the member count on all groups/vikundi that the user is a member of</p>
+<p>
+</p>
+<h2><a name="get_friends_on_network">get_friends_on_network</a></h2>
+<p>Returns an array of friends on the specified group/vikundi</p>
+<dl>
+<dt><strong><a name="args37" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$channels: The group whose members are to b returned</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="get_msg_count_on_network">get_msg_count_on_network</a></h2>
+<p>Returns the total number of messages on a particular group</p>
+<dl>
+<dt><strong><a name="args38" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$new_only: return only a count of new (unheard) messages</p>
+<p>$network: the group/vikundi whose message count is being returned</p>
+<p>$flagged: return only a count of flagged messages</p>
+</dd>
+</dl>
+<p>NOTE: If you specify both <code>$flagged</code> and <code>$new_only</code> you will get 0
+since new messages cannot have a flagged status.</p>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

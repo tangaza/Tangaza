@@ -115,7 +115,7 @@ sub select_network_menu {
 ######################################################################
 
 =head2 get_friend_count_on_network
-    
+
 Returns the number of members on the specified group/vikundi
 
 =over 4
@@ -141,7 +141,7 @@ sub get_friend_count_on_network {
 ######################################################################
 
 =head2 get_total_friend_count
-    
+
 Returns the member count on all groups/vikundi that the user is a member of
 
 =cut
@@ -165,7 +165,7 @@ sub get_total_friend_count {
 ######################################################################
 
 =head2 get_friends_on_network
-    
+
 Returns an array of friends on the specified group/vikundi
 
 =over 4
@@ -195,8 +195,6 @@ sub get_friends_on_network {
 
 Returns the total number of messages on a particular group
 
-
-
 =over 4
 
 =item Args:
@@ -209,7 +207,7 @@ $flagged: return only a count of flagged messages
 
 =back
 
-NOTE: If you specify both `$flagged` and `$new_only` you will get 0
+NOTE: If you specify both C<$flagged> and C<$new_only> you will get 0
 since new messages cannot have a flagged status.
 
 =cut

@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Common::SMSQueue - SMS buffer daemon</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<ul>
+
+		<li><a href="#methods">METHODS</a></li>
+		<li><a href="#process_request">process_request</a></li>
+		<li><a href="#send_sms">send_sms</a></li>
+		<li><a href="#write_to_log_hook">write_to_log_hook</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Common::SMSQueue - SMS buffer daemon</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Library for simple daemon that buffers outgoing SMS messages.
+Started with daemon/sms-send-daemon.pl.</p>
+<p>
+</p>
+<h2><a name="methods">METHODS</a></h2>
+<p>
+</p>
+<h2><a name="process_request">process_request</a></h2>
+<p>Server side of sms queue.</p>
+<p>Waits for SMS messages and sends them out FIFO</p>
+<p>
+</p>
+<h2><a name="send_sms">send_sms</a></h2>
+<p>Send out SMS's from the queue.</p>
+<dl>
+<dt><strong><a name="args2" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$phone: The phone number that is to receive the SMS</p>
+<p>$message: The message being sent</p>
+</dd>
+<dt><strong><a name="example" class="item">Example:</a></strong></dt>
+
+<dd>
+<pre>
+    &amp;send_sms ($self, $self-&gt;{user}-&gt;{phone}, &quot;Here is the message&quot;);</pre>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="write_to_log_hook">write_to_log_hook</a></h2>
+<p>This hook handles writing to log files</p>
+<p>See <a href="/Net/Server.html">the Net::Server manpage</a>.</p>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

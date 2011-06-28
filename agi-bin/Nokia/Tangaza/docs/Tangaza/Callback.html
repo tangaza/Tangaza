@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Tangaza::Callback - Module for calling back users</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#callback">callback</a></li>
+		<li><a href="#place_call_tangaza">place_call_tangaza</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Tangaza::Callback - Module for calling back users</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Nokia::Tangaza::Callback calls back a user that made a missed call to our system.</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="callback">callback</a></h2>
+<p>Calls <a href="/Nokia/Common/Callback/callback.html">the Nokia::Common::Callback::callback manpage</a> to determine if the user wants to be 
+called back by the system or is calling through at their own cost.</p>
+<p>It then checks <code>CBSTATE</code> variable (defined in extensions.conf), to determine if the 
+user called us or if we need to call them back. If `cbstate` == 'calledback' it 
+places a call to the user.</p>
+<p>
+</p>
+<h2><a name="place_call_tangaza">place_call_tangaza</a></h2>
+<p>Places a call to the phone number in `$self-&gt;{user}-&gt;{outgoing_phone}`</p>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Common::Entry - Entry into the system</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#entry">entry</a></li>
+		<li><a href="#start_call">start_call</a></li>
+		<li><a href="#end_call">end_call</a></li>
+		<li><a href="#configure_hook">configure_hook</a></li>
+		<li><a href="#pre_server_close_hook">pre_server_close_hook</a></li>
+		<li><a href="#write_to_log_hook">write_to_log_hook</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Common::Entry - Entry into the system</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Entry point into the system. It sets up the initial system and user state
+necessary for a call to the system.</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="entry">entry</a></h2>
+<p>Entry point into the system. Invoked by Asterisk from extensions.conf.
+It sets up the initial state of the system for each new call and cleans up
+when the call terminates.</p>
+<p>
+</p>
+<h2><a name="start_call">start_call</a></h2>
+<p>Checks the state of the call to determine if the user is flashing or calling through 
+and then initializes the appropriate variables required by the system.</p>
+<p>
+</p>
+<h2><a name="end_call">end_call</a></h2>
+<p>Performs cleanup and logging when the call ends i.e. user terminates the call or the 
+call terminates because of an error.</p>
+<p>
+</p>
+<h2><a name="configure_hook">configure_hook</a></h2>
+<p>Sets up initial configurations e.g. sound, database, tools as part of the call setup
+procedure.</p>
+<p>See <a href="/Net/Server.html">the Net::Server manpage</a></p>
+<p>
+</p>
+<h2><a name="pre_server_close_hook">pre_server_close_hook</a></h2>
+<p>Performs any necessary clean-ups just before the server terminates.</p>
+<p>See <a href="/Net/Server.html">the Net::Server manpage</a>.</p>
+<p>
+</p>
+<h2><a name="write_to_log_hook">write_to_log_hook</a></h2>
+<p>This hook handles writing to log files</p>
+<p>See <a href="/Net/Server.html">the Net::Server manpage</a>.</p>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>

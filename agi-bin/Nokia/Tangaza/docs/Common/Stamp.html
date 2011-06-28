@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Nokia::Common::Stamp - Date/Time formatting and conversions.</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#year_month_day">year_month_day</a></li>
+		<li><a href="#year_month_day_plus_n_days_dir">year_month_day_plus_n_days_dir</a></li>
+		<li><a href="#year_month_day_dir">year_month_day_dir</a></li>
+		<li><a href="#year_month">year_month</a></li>
+		<li><a href="#epoch2stamp">epoch2stamp</a></li>
+		<li><a href="#epoch2year_mo_day">epoch2year_mo_day</a></li>
+		<li><a href="#file2epochdelta">file2epochdelta</a></li>
+	</ul>
+
+	<li><a href="#authors">AUTHORS</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>Nokia::Common::Stamp - Date/Time formatting and conversions.</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This module manages all time/date conversions</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="year_month_day">year_month_day</a></h2>
+<p>Returns the current time into a date-time value of the form yyyymmdd</p>
+<p>
+</p>
+<h2><a name="year_month_day_plus_n_days_dir">year_month_day_plus_n_days_dir</a></h2>
+<p>Returns a directory path of the form yyyy/mm/dd/ formed from the current 
+date-time</p>
+<dl>
+<dt><strong><a name="args6" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$days: delta/delay adjustment to the current time</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="year_month_day_dir">year_month_day_dir</a></h2>
+<p>Returns a directory path of the form yyyy/mm/dd/ formed from the current 
+date-time</p>
+<dl>
+<dt><strong><a name="args7" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$days: delta/delay adjustment to the current time</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="year_month">year_month</a></h2>
+<p>Returns the current date-time in the form <code>yyyy-mm</code></p>
+<p>
+</p>
+<h2><a name="epoch2stamp">epoch2stamp</a></h2>
+<p>Converts the supplied epoch time to a timestamp value of the form <code>yyyy-mm-dd hh:mm</code></p>
+<dl>
+<dt><strong><a name="args8" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$epoch: The epoch time to be formatted</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="epoch2year_mo_day">epoch2year_mo_day</a></h2>
+<p>Converts the supplied epoch time to a date/time value of the form <code>yyyy-mm-dd</code></p>
+<dl>
+<dt><strong><a name="args9" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$epoch: The epoch time to be formatted</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="file2epochdelta">file2epochdelta</a></h2>
+<p>Gets the statistics from the supplied file and returns the timestamp value of the 
+date the file was last modified.</p>
+<dl>
+<dt><strong><a name="args10" class="item">Args:</a></strong></dt>
+
+<dd>
+<p>$file: The filepath to the file whose date property is to be used</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="authors">AUTHORS</a></h1>
+<p>Billy Odero, Jonathan Ledlie</p>
+<p>Copyright (C) 2010 Nokia Corporation.</p>
+
+</body>
+
+</html>
