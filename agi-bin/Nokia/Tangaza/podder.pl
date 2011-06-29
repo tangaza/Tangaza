@@ -1,9 +1,13 @@
+use strict;
 use Pod::Html::HtmlTree;
 use Data::Dumper;
+use File::Basename;
+use File::Spec::Functions qw(rel2abs);
 
 my $p = Pod::Html::HtmlTree->new;
-$p->indir    ( '/home/billz/git/Tangaza/agi-bin/Nokia/' );
-$p->outdir   ( '/home/billz/git/Tangaza/agi-bin/Nokia/Tangaza/docs/' );
+$p->indir    ( dirname(rel2abs($0)) );
+$p->outdir   ( dirname(rel2abs($0)).'/docs/' );
+
 #$p->mask_dir ( 0777 );    # default is 0775
 #$p->mask_html( 0777 ); # default is 0664
 $p->pod_exts ( [ 'pm' , 'pod' ] ); # default is [pm,pod,cgi,pl]
