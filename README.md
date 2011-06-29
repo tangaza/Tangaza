@@ -31,4 +31,4 @@ git checkout -b upstream --track origin/master
 
 git checkout master
 
-git-buildpackage --git-ignore-new
+git-buildpackage --git-ignore-new --git-builder=debuild -i\.git -I.git -us -uc 
