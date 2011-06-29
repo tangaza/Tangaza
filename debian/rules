@@ -20,7 +20,6 @@ override_dh_install:
 	rm -rf debian/tangaza/usr/lib/tangaza/agi-bin/Nokia/Tangaza/perl_docTangaza
 	rm -rf debian/tangaza/usr/lib/tangaza/agi-bin/Nokia/Common/.git/
 	rm debian/tangaza/usr/lib/tangaza/django/tangaza/.gitignore
-	rm debian/tangaza/usr/lib/tangaza/agi-bin/Nokia/Common/LICENSE
 	rm debian/tangaza/usr/lib/tangaza/django/tangaza/LICENSE
 	rm debian/tangaza/usr/share/tangaza/doc/_build/html/_static/jquery.js
 

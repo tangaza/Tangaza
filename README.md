@@ -21,4 +21,14 @@ Installation:
 ---------------
 
 Build the application using git-buildpackage in debian
-and then install the debian package
+and then install the debian package. This usually means
+
+git clone https://github.com/tangaza/Tangaza
+
+git checkout -b upstream --track origin/master
+
+(The '--track' option alters your .git/config file and adds a [branch "upstream"] section telling Git where you fetched it from. That means you can later just say "git pull" and you will get both the 'master' and the 'upstream' repository merged into your repository automatically.)
+
+git checkout master
+
+git-buildpackage --git-ignore-new
