@@ -1,16 +1,17 @@
 Source: tangaza
 Section: net
 Priority: extra
-Maintainer: Tangaza DevTeam <tangaza-dev@nokia.com>
+Maintainer: Billy Odero <billyx5@gmail.com>, Ian Lawrence <debs@ianlawrence.info>
 Build-Depends: debhelper (>= 7.0.50), python-support, python (>= 2.5.2)
 Standards-Version: 3.9.1
-Homepage: http://github.com/odero/Tangaza
+Vcs-Git: git://github.com/tangaza/Tangaza.git
+Homepage: https://github.com/tangaza/Tangaza/
 
 Package: tangaza
 Section: net
 Priority: optional
 Architecture: all
-Homepage: http://github.com/odero/Tangaza
+Homepage: https://github.com/tangaza/Tangaza/
 Depends: ${misc:Depends}, ${perl:Depends}, ${python:Depends}, libdbix-class-perl (>= 0.08), mysql-server (>= 5.0), asterisk (>= 1.4.21.2), libasterisk-agi-perl, libnet-cidr-perl, kannel (>= 1.4.1), python-django (>= 1.2), festival, libapache2-mod-wsgi, python-mysqldb, libuniversal-require-perl, libmodule-install-perl, libnet-server-perl, libconfig-tiny-perl, libmath-random-perl, nagios3
 Recommends: libdbix-class-schema-loader-perl
 Description: Group messaging using voice and text.
