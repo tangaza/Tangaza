@@ -21,9 +21,13 @@ Installation:
 ---------------
 
 Build the application using git-buildpackage in debian
-and then install the debian package. This usually means
+and then install the debian package (or convert to rpm). This usually means
+
+sudo apt-get install git-buildpackage devscripts build-essential fakeroot debhelper gnupg pbuilder ubuntu-dev-tools diff patch cdbs quilt lintian alien
 
 git clone https://github.com/tangaza/Tangaza
+
+cd Tangaza
 
 git checkout -b upstream --track origin/master
 
@@ -32,3 +36,9 @@ git checkout -b upstream --track origin/master
 git checkout master
 
 git-buildpackage --git-ignore-new --git-builder=debuild -i\.git -I.git -us -uc 
+
+which pops out a .deb into the parent directory.If you want to convert it do:
+
+cd ..
+
+sudo alien -r --scripts tangaza_1.0-1_all.deb
