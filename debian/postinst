@@ -97,21 +97,21 @@ cd $CWD
 
 TGZ_CONF=/etc/tangaza
 #1. asterisk
-if [ ! -f "/etc/asterisk/extensions.conf.tgzbak" ]; then
+if [[ ! -f "/etc/asterisk/extensions.conf.tgzbak" ]] && [[ -f /etc/asterisk/extensions.conf ]]; then
     echo "Replacing /etc/asterisk/extensions.conf."
     mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.tgzbak
     ln -s $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/
 fi
 
 #2. kannel
-if [ ! -f "/etc/kannel/kannel.conf.tgzbak" ]; then
+if [[ ! -f "/etc/kannel/kannel.conf.tgzbak" ]] && [[ -f /etc/kannel/kannel.conf ]]; then
     echo "Replacing /etc/kannel/kannel.conf."
     mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.tgzbak
     ln -s $TGZ_CONF/kannel/kannel.conf /etc/kannel/
 fi
 
-echo "Replacing /etc/kannel/modem.conf"
-if [ ! -f "/etc/kannel/modem.conf.tgzbak" ]; then
+if [[ ! -f "/etc/kannel/modem.conf.tgzbak" ]] && [[ -f /etc/kannel/modem.conf ]]; then
+    echo "Replacing /etc/kannel/modem.conf"
     mv /etc/kannel/modem.conf /etc/kannel/modem.conf.tgzbak
     ln -s $TGZ_CONF/kannel/modem.conf /etc/kannel/
 fi
