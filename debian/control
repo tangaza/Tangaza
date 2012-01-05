@@ -1,7 +1,7 @@
 Source: tangaza
 Section: net
 Priority: extra
-Maintainer: Billy Odero <billyx5@gmail.com>, Ian Lawrence <debs@ianlawrence.info>
+Maintainer: Billy Odero <billyx5@gmail.com>
 Build-Depends: debhelper (>= 7.0.50), python-support, python (>= 2.5.2)
 Standards-Version: 3.9.1
 Vcs-Git: git://github.com/tangaza/Tangaza.git
