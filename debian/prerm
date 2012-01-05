@@ -55,8 +55,22 @@ find $TGZ_DJANGO_MEDIA -type l -exec rm {} +;
 #5. Nagios symlinks
 rm /usr/lib/nagios/plugins/tangaza-monitor
 
-sed -i 's/cfg_dir=/etc/tangaza/nagios//g' /etc/nagios3/nagios.cfg
+sed -i 's/cfg_dir=\/etc\/tangaza\/nagios//g' /etc/nagios3/nagios.cfg
 
-#DEBHELPER#
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/tangaza" ]; then
+	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+		invoke-rc.d tangaza stop || exit $?
+	else
+		/etc/init.d/tangaza stop || exit $?
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_pysupport
+if which update-python-modules >/dev/null 2>&1; then
+	update-python-modules -c  tangaza.private
+fi
+# End automatically added section
+
 
 exit 0

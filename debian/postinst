@@ -157,6 +157,7 @@ if [ ! -f "/etc/apache2/mods-enabled/wsgi.load" ]; then
 fi
 
 TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
+
 #set django-admin css files
 if [ -f "$TGZ_DJANGO_MEDIA/css/activity.css" ]; then
     #For ubuntu
@@ -165,7 +166,6 @@ if [ -f "$TGZ_DJANGO_MEDIA/css/activity.css" ]; then
 	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
 	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
 	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
-	ln -s $DJANGO_MEDIA/js/jquery.js /usr/share/tangaza/doc/_build/html/_static/
     fi
     
     #For debian
@@ -174,7 +174,12 @@ if [ -f "$TGZ_DJANGO_MEDIA/css/activity.css" ]; then
 	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
 	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
 	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
-	ln -s $DJANGO_MEDIA/js/jquery.js /usr/share/tangaza/doc/_build/html/_static/
+    fi
+    
+    TGZ_DOCS=/usr/share/tangaza/doc
+    
+    if [ ! -f "$TGZ_DOCS/_build/html/_static/jquery.js" ]; then
+	ln -s $DJANGO_MEDIA/js/jquery.js $TGZ_DOCS/_build/html/_static/
     fi
 fi
 
@@ -194,10 +199,12 @@ chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
 
 #Configuring  nagios
 echo "Configuring nagios..."
+
+#if tangaza config already appended re-append
+sed -i 's/\/etc\/tangaza\/nagios//g' /etc/nagios3/nagios.cfg
 echo 'cfg_dir=/etc/tangaza/nagios' >> /etc/nagios3/nagios.cfg
 
 if [ ! -d "/usr/lib/nagios/plugins/tangaza-monitor" ]; then
-    
     # Add configs to nagios
     ln -s $TGZ_CONF/nagios/tangaza-monitor/ /usr/lib/nagios/plugins/
     
@@ -205,6 +212,21 @@ if [ ! -d "/usr/lib/nagios/plugins/tangaza-monitor" ]; then
 fi
 
 
-#DEBHELPER#
+# Automatically added by dh_pysupport
+if which update-python-modules >/dev/null 2>&1; then
+	update-python-modules  tangaza.private
+fi
+# End automatically added section
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/tangaza" ]; then
+	update-rc.d tangaza defaults >/dev/null
+	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+		invoke-rc.d tangaza start || exit $?
+	else
+		/etc/init.d/tangaza start || exit $?
+	fi
+fi
+# End automatically added section
+
 
 exit 0
