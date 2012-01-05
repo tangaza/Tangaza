@@ -201,7 +201,7 @@ chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
 echo "Configuring nagios..."
 
 #if tangaza config already appended re-append
-sed -i 's/\/etc\/tangaza\/nagios//g' /etc/nagios3/nagios.cfg
+sed -i 's/cfg_dir=\/etc\/tangaza\/nagios//g' /etc/nagios3/nagios.cfg
 echo 'cfg_dir=/etc/tangaza/nagios' >> /etc/nagios3/nagios.cfg
 
 if [ ! -d "/usr/lib/nagios/plugins/tangaza-monitor" ]; then
