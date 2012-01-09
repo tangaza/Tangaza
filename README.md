@@ -37,8 +37,18 @@ git checkout master
 
 git-buildpackage --git-ignore-new --git-builder=debuild -i\.git -I.git -us -uc 
 
-which pops out a .deb into the parent directory.If you want to convert it do:
+which pops out a .deb into the parent directory. Add that parent directory to your apt source.list by moving into the directory and running
 
-cd ..
+$ sudo dpkg-scanpackages . /dev/null | gzip -c9 > Packages.gz
 
-sudo alien -r --scripts tangaza_1.0-1_all.deb
+and then add this line to /etc/apt/sources.list
+
+deb file:///the/directory/with/the/deb /
+
+Resynchronize the package index files from their sources
+
+$ sudo apt-get update
+
+and install 
+
+$ sudo apt-get install tangaza
