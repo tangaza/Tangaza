@@ -30,7 +30,7 @@ fi
 
 CURR_DIR=$CWD
 
-TGZ_LOCATION=/usr/lib/tangaza
+TGZ_LOCATION=/usr/share/tangaza
 TGZ_HOME=$TGZ_LOCATION
 TGZ_DATA=/var/lib/tangaza
 
@@ -40,25 +40,6 @@ cd $TGZ_DATA/status && perl mkdirs.pl
 cd $TGZ_DATA/groups && perl mkdirs.pl
 
 cd $CURR_DIR
-
-AST_PATH=`which asterisk`
-
-if [ ! -n "$AST_PATH" ]; then
-    while [ -n "$PROVIDED_PATH" ]; do
-	echo -n "asterisk path to use [$AST_PATH]:"
-	
-	#check if asterisk exists in the path provided
-	if [ -e "$PROVIDED_PATH"]; then
-	    echo "Asterisk doesnt seem to exist in [$PROVIDED_PATH]"
-	    exit 1;
-	else
-	    echo "Asterisk exists in [$PROVIDED_PATH]"
-	fi
-	AST_PATH=$PROVIDED_PATH
-    done
-fi
-
-AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
 #create database if it doesnt exist
 echo 'Checking if the database already exists. Waiting for the database root password'
@@ -97,50 +78,52 @@ cd $CWD
 
 TGZ_CONF=/etc/tangaza
 #1. asterisk
-if [[ ! -f "/etc/asterisk/extensions.conf.tgzbak" ]] && [[ -f /etc/asterisk/extensions.conf ]]; then
-    echo "Replacing /etc/asterisk/extensions.conf."
-    mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.tgzbak
-    ln -s $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/
-fi
+#if [[ ! -f "/etc/asterisk/extensions.conf.tgzbak" ]] && [[ -f /etc/asterisk/extensions.conf ]]; then
+#    echo "Replacing /etc/asterisk/extensions.conf."
+#    mv /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.tgzbak
+#    ln -s $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/
+#fi
+
+echo '#include=/etc/tangaza/asterisk/extensions.conf' >> /etc/asterisk/extensions.conf
 
 #2. kannel
-if [[ ! -f "/etc/kannel/kannel.conf.tgzbak" ]] && [[ -f /etc/kannel/kannel.conf ]]; then
-    echo "Replacing /etc/kannel/kannel.conf."
-    mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.tgzbak
-    ln -s $TGZ_CONF/kannel/kannel.conf /etc/kannel/
-fi
+#if [[ ! -f "/etc/kannel/kannel.conf.tgzbak" ]] && [[ -f /etc/kannel/kannel.conf ]]; then
+#    echo "Replacing /etc/kannel/kannel.conf."
+#    mv /etc/kannel/kannel.conf /etc/kannel/kannel.conf.tgzbak
+#    ln -s $TGZ_CONF/kannel/kannel.conf /etc/kannel/
+#fi
 
-if [[ ! -f "/etc/kannel/modem.conf.tgzbak" ]] && [[ -f /etc/kannel/modem.conf ]]; then
-    echo "Replacing /etc/kannel/modem.conf"
-    mv /etc/kannel/modem.conf /etc/kannel/modem.conf.tgzbak
-    ln -s $TGZ_CONF/kannel/modem.conf /etc/kannel/
-fi
+#if [[ ! -f "/etc/kannel/modem.conf.tgzbak" ]] && [[ -f /etc/kannel/modem.conf ]]; then
+#    echo "Replacing /etc/kannel/modem.conf"
+#    mv /etc/kannel/modem.conf /etc/kannel/modem.conf.tgzbak
+#    ln -s $TGZ_CONF/kannel/modem.conf /etc/kannel/
+#fi
 
-if [ ! -f "/etc/kannel/tangaza.conf" ]; then
-    ln -s $TGZ_CONF/kannel/tangaza.conf /etc/kannel/tangaza.conf
-fi
+#if [ ! -f "/etc/kannel/tangaza.conf" ]; then
+#    ln -s $TGZ_CONF/kannel/tangaza.conf /etc/kannel/tangaza.conf
+#fi
+echo 'include=/etc/tangaza/kannel/kannel.conf' >> /etc/kannel/kannel.conf
 
 #restart asterisk
 echo "Restarting asterisk"
-/etc/init.d/asterisk restart
+invoke-rc.d asterisk restart
 
 echo "Restarting kannel"
-#/etc/init.d/kannel restart
-#For now stop kannel until config works then start manually
-#/etc/init.d/kannel stop
+#invoke-rc.d kannel restart
+
 
 #set apache configs
 FQDN=`hostname -f`
 
-echo "Adding tangaza-sms to sites-enabled"
-cp $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.tgzbak
+echo "Configuring tangaza website"
+#cp $TGZ_CONF/tangaza-sms $TGZ_CONF/tangaza-sms.tgzbak
 
 sed -i "s/your_server_name/$FQDN/g" $TGZ_CONF/tangaza-sms
 
-if [ ! -f "/etc/apache2/sites-enabled/tangaza-sms" ]; then
-    ln -s $TGZ_CONF/tangaza-sms /etc/apache2/sites-enabled/
-    chown root\: /etc/apache2/sites-enabled/tangaza-sms
-fi
+#if [ ! -f "/etc/apache2/sites-enabled/tangaza-sms" ]; then
+#    ln -s $TGZ_CONF/tangaza-sms /etc/apache2/sites-enabled/
+#    chown root\: /etc/apache2/sites-enabled/tangaza-sms
+#fi
 
 #echo "Enabling port 8080"
 #PORT_ENABLED=`grep -i '^Listen 8080$' /etc/apache2/ports.conf`
@@ -150,41 +133,59 @@ fi
 #fi
 
 #Check if wsgi_module is loaded if not load it
-WSGI=`find /usr/lib/ -name "mod_wsgi.so" -exec ls {} +;`
-if [ ! -f "/etc/apache2/mods-enabled/wsgi.load" ]; then
-    echo "LoadModule wsgi_module $WSGI" > /etc/apache2/mods-available/wsgi.load
-    ln -s /etc/apache2/mods-available/wsgi.load /etc/apache2/mods-enabled/
-fi
+#WSGI=`find /usr/lib/ -name "mod_wsgi.so" -exec ls {} +;`
+#if [ ! -f "/etc/apache2/mods-enabled/wsgi.load" ]; then
+#    echo "LoadModule wsgi_module $WSGI" > /etc/apache2/mods-available/wsgi.load
+#    ln -s /etc/apache2/mods-available/wsgi.load /etc/apache2/mods-enabled/
+#fi
+a2enmod wsgi
 
-TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
+#TGZ_DJANGO_MEDIA=/usr/share/tangaza/media
 
 #set django-admin css files
-if [ -f "$TGZ_DJANGO_MEDIA/css/activity.css" ]; then
-    #For ubuntu
-    if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
-	DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
-	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
-	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
-	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
-    fi
-    
-    #For debian
-    if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/dashboard.css' ]; then
-	DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
-	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
-	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
-	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
-    fi
-    
-    TGZ_DOCS=/usr/share/tangaza/doc
-    
-    if [ ! -f "$TGZ_DOCS/_build/html/_static/jquery.js" ]; then
-	ln -s $DJANGO_MEDIA/js/jquery.js $TGZ_DOCS/_build/html/_static/
-    fi
-fi
+#if [ -f "$TGZ_DJANGO_MEDIA/css/activity.css" ]; then
+#    #For ubuntu
+#    if [ -f '/usr/share/pyshared/django/contrib/admin/media/css/dashboard.css' ]; then
+#	DJANGO_MEDIA=/usr/share/pyshared/django/contrib/admin/media
+#	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
+#	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
+#	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
+#    fi
+#    
+#    #For debian
+#    if [ -f '/usr/share/python-support/python-django/django/contrib/admin/media/css/dashboard.css' ]; then
+#	DJANGO_MEDIA=/usr/share/python-support/python-django/django/contrib/admin/media
+#	ln -s $DJANGO_MEDIA/css/* $TGZ_DJANGO_MEDIA/css/
+#	ln -s $DJANGO_MEDIA/img $TGZ_DJANGO_MEDIA/
+#	ln -s $DJANGO_MEDIA/js/* $TGZ_DJANGO_MEDIA/js/
+#    fi
+#    
+#    TGZ_DOCS=/usr/share/tangaza/doc
+#    
+#    if [ ! -f "$TGZ_DOCS/_build/html/_static/jquery.js" ]; then
+#	ln -s $DJANGO_MEDIA/js/jquery.js $TGZ_DOCS/_build/html/_static/
+#    fi
+#fi
 
 #check if apache is running and restart it
-/etc/init.d/apache2 restart
+invoke-rc.d apache2 restart
+
+AST_PATH=`which asterisk`
+
+#if [ ! -n "$AST_PATH" ]; then
+#    while [ -n "$PROVIDED_PATH" ]; do
+#	echo -n "asterisk path to use [$AST_PATH]:"
+#	
+#	#check if asterisk exists in the path provided
+#	if [ -e "$PROVIDED_PATH"]; then
+#	    echo "Asterisk doesnt seem to exist in [$PROVIDED_PATH]"
+#	    exit 1;
+#	else
+#	    echo "Asterisk exists in [$PROVIDED_PATH]"
+#	fi
+#	AST_PATH=$PROVIDED_PATH
+#    done
+#fi
 
 AST_USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
@@ -204,28 +205,31 @@ echo "Configuring nagios..."
 sed -i 's/cfg_dir=\/etc\/tangaza\/nagios//g' /etc/nagios3/nagios.cfg
 echo 'cfg_dir=/etc/tangaza/nagios' >> /etc/nagios3/nagios.cfg
 
-if [ ! -d "/usr/lib/nagios/plugins/tangaza-monitor" ]; then
-    # Add configs to nagios
-    ln -s $TGZ_CONF/nagios/tangaza-monitor/ /usr/lib/nagios/plugins/
-    
-    /etc/init.d/nagios3 restart
-fi
+#if [ ! -d "/usr/lib/nagios/plugins/tangaza-monitor" ]; then
+#    # Add configs to nagios
+#    ln -s $TGZ_CONF/nagios/tangaza-monitor/ /usr/lib/nagios/plugins/
+#    
+    invoke-rc.d nagios3 restart
+#fi
 
 
 # Automatically added by dh_pysupport
 if which update-python-modules >/dev/null 2>&1; then
 	update-python-modules  tangaza.private
 fi
+
+#DEBHELPER#
+
 # End automatically added section
 # Automatically added by dh_installinit
-if [ -x "/etc/init.d/tangaza" ]; then
-	update-rc.d tangaza defaults >/dev/null
-	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-		invoke-rc.d tangaza start || exit $?
-	else
-		/etc/init.d/tangaza start || exit $?
-	fi
-fi
+#if [ -x "/etc/init.d/tangaza" ]; then
+#	update-rc.d tangaza defaults >/dev/null
+#	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+#		invoke-rc.d tangaza start || exit $?
+#	else
+#		/etc/init.d/tangaza start || exit $?
+#	fi
+#fi
 # End automatically added section
 
 

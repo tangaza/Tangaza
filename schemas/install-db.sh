@@ -33,7 +33,7 @@
 
 set -e
 
-TANGAZA_HOME=/usr/lib/tangaza
+TANGAZA_HOME=/usr/share/tangaza
 CONF_PATH=/etc/tangaza/settings.conf
 DB_HOST=`awk -F'=' '/^DB_HOST/ {print $2}'  $CONF_PATH`
 DB_USER=`awk -F'=' '/^DB_USER/ {print $2}'  $CONF_PATH`

@@ -27,7 +27,7 @@
 	
         WSGIDaemonProcess asterisk processes=2 maximum-requests=500 threads=1
         WSGIProcessGroup asterisk
-	WSGIScriptAlias / /usr/lib/tangaza/django/tangaza/apache/django.wsgi
+	WSGIScriptAlias / /usr/share/tangaza/django/tangaza/apache/django.wsgi
         
 	ErrorLog /var/log/tangaza/tangaza-error.log
 	
