@@ -14,13 +14,13 @@
 
 override_dh_install:
 	dh_install
-	rm -rf debian/tangaza/usr/lib/tangaza/django/tangaza/media/
-	rm -rf debian/tangaza/usr/lib/tangaza/django/tangaza/doc/
-	rm -rf debian/tangaza/usr/lib/tangaza/agi-bin/Nokia/Tangaza/perl_docCommon
-	rm -rf debian/tangaza/usr/lib/tangaza/agi-bin/Nokia/Tangaza/perl_docTangaza
-	rm -rf debian/tangaza/usr/lib/tangaza/agi-bin/Nokia/Common/.git/
-	rm debian/tangaza/usr/lib/tangaza/django/tangaza/.gitignore
-	rm debian/tangaza/usr/lib/tangaza/django/tangaza/LICENSE
+	rm -rf debian/tangaza/usr/share/tangaza/django/tangaza/media/
+	rm -rf debian/tangaza/usr/share/tangaza/django/tangaza/doc/
+	rm -rf debian/tangaza/usr/share/tangaza/agi-bin/Nokia/Tangaza/perl_docCommon
+	rm -rf debian/tangaza/usr/share/tangaza/agi-bin/Nokia/Tangaza/perl_docTangaza
+	rm -rf debian/tangaza/usr/share/tangaza/agi-bin/Nokia/Common/.git/
+	rm debian/tangaza/usr/share/tangaza/django/tangaza/.gitignore
+	rm debian/tangaza/usr/share/tangaza/django/tangaza/LICENSE
 	rm debian/tangaza/usr/share/tangaza/doc/_build/html/_static/jquery.js
 
 .PHONY: override_dh_install

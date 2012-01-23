@@ -1,6 +1,6 @@
 
 #set environment variables
 
-export NASI_HOME=/usr/lib/tangaza
+export NASI_HOME=/usr/share/tangaza
 export PERL5LIB=$NASI_HOME/agi-bin
 export NASI_CONFIG=/etc/tangaza/settings.conf
