@@ -14,5 +14,5 @@ Architecture: all
 Homepage: https://github.com/tangaza/Tangaza/
 Depends: ${misc:Depends}, ${perl:Depends}, ${python:Depends}, libdbix-class-perl (>= 0.08), mysql-server (>= 5.0), asterisk (>= 1.4.21.2), libasterisk-agi-perl, libnet-cidr-perl, kannel (>= 1.4.1), python-django (>= 1.2), festival, libapache2-mod-wsgi, python-mysqldb, libuniversal-require-perl, libmodule-install-perl, libnet-server-perl, libconfig-tiny-perl, libmath-random-perl, nagios3
 Recommends: libdbix-class-schema-loader-perl
-Description: Group messaging using voice and text.
+Description: Group messaging using voice and text
  Allows the creation of groups and the sending of messages to those groups.
