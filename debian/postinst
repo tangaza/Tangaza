@@ -28,6 +28,8 @@ if [ `id -u` != 0 ]; then
   exit 1
 fi
 
+# test addition
+
 CURR_DIR=$CWD
 
 TGZ_LOCATION=/usr/share/tangaza
