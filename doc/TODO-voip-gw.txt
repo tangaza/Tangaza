@@ -1,0 +1,26 @@
+Changes from standard package to get GSM-VoIP gateway to work
+
+Install asterisk v10
+dpkg -r --ignore-depends=tangaza asterisk
+download asterisk source, ./configure, make, make install
+no additional asterisk config needed
+
+Fix web site
+The apache install from the package appears to be broken.
+sudo cp debian/tangaza/etc/tangaza/tangaza-sms /etc/apache2/sites-available/
+
+Goal:
+- Show UI (web, text, ivr) using gateway
+- Create poster that shows steps
+  - what (benefit to NGOs), how, results (DEV trial, upcoming)
+Steps:
++ compile Asterisk 10
+  - need to tell it to permanently ignore package 'asterisk'
+- set up to same point as Tangaza wiki on gw
+- fix web side
+- decide where to put gsm gw config
+- disable kannel and maybe sms-send-daemon
+- see how to send sms from within perl
+  - are any sms sent not from within Ast connection, ie do we need to
+  use call files / daemon?
+- add extension.conf to use sip.conf (and sip.conf)

@@ -1,4 +1,4 @@
-/etc/tangaza/tangaza-sms	/etc/apache2/sites-enabled
+/etc/tangaza/tangaza-sms	/etc/apache2/sites-enabled/tangaza-sms
 /usr/share/tangaza/media/js/jquery.js	/usr/share/tangaza/doc/_build/html/_static/jquery.js
 /usr/share/pyshared/django/contrib/admin/media/css/base.css	/usr/share/tangaza/media/css/base.css
 /usr/share/pyshared/django/contrib/admin/media/css/dashboard.css	/usr/share/tangaza/media/css/dashboard.css
