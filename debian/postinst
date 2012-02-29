@@ -28,13 +28,24 @@ if [ `id -u` != 0 ]; then
   exit 1
 fi
 
-# test addition
+INSTALL_LOG=/tmp/tangaza-install.log
+
+echo "Starting postinst"
 
 CURR_DIR=$CWD
 
 TGZ_LOCATION=/usr/share/tangaza
 TGZ_HOME=$TGZ_LOCATION
 TGZ_DATA=/var/lib/tangaza
+
+# note: when installing over an existing install
+# this is false
+if [ -d $TGZ_LOCATION ]; then
+    echo "$TGZ_LOCATION exists"
+else
+    echo "$TGZ_LOCATION does not exist -- is there an existing version?"
+    exit 1
+fi
 
 #Generate the sub directories for data files
 cd $TGZ_DATA/names && perl mkdirs.pl

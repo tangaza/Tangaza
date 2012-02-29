@@ -17,7 +17,14 @@ Steps:
 + compile Asterisk 10
   - need to tell it to permanently ignore package 'asterisk'
 - set up to same point as Tangaza wiki on gw
+  - dpkg -i --ignore-depends=asterisk tangaza_1.0-1_all.deb
 - fix web side
+  - not working; filed bug
+- starting up daemons by hand
+  - sudo -u asterisk perl -w /usr/share/tangaza/agi-bin/tangaza.agi
+
+  - Commit /etc/init.d/tangaza ; set up mailing list
+
 - decide where to put gsm gw config
 - disable kannel and maybe sms-send-daemon
 - see how to send sms from within perl
