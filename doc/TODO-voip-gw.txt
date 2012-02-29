@@ -37,6 +37,7 @@ Steps:
   - grep for sms in Nokia::Tangaza and Common.  It looks like the only
     two sms outgoing are in Entry and Update.  These can instead use
     Tool's sms_enqueue, which can send the msg directly via Asterisk.
+  - test change to Entry where removed direct call to smsqueue
 
 - Send incoming SMS to django
 
