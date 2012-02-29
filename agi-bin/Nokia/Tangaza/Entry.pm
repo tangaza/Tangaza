@@ -31,7 +31,6 @@ use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 use Nokia::Common::Entry;
 use Nokia::Common::Auth;
-use Nokia::Common::SMSQueue;
 
 =head1 NAME
 
@@ -85,7 +84,7 @@ sub send_more_about_tangaza {
 
     my $more_info = "All calls to Tangaza are recorded.  Privacy policy available at http://www.nokia.com/tangaza/privacy.";
     
-    &send_sms ($self, $phone, $more_info);
+    &sms_enqueue ($self, $phone, $more_info);
     
     $self->log (4, "sent more about tangaza to $phone");
 }
