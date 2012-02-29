@@ -97,8 +97,8 @@ TGZ_CONF=/etc/tangaza
 #    ln -s $TGZ_CONF/asterisk/extensions.conf /etc/asterisk/
 #fi
 
-echo '#include=/etc/tangaza/asterisk/extensions.conf' >> /etc/asterisk/extensions.conf
-echo '#include=/etc/tangaza/asterisk/sip.conf' >> /etc/asterisk/sip.conf
+echo '#include /etc/tangaza/asterisk/extensions.conf' >> /etc/asterisk/extensions.conf
+echo '#include /etc/tangaza/asterisk/sip.conf' >> /etc/asterisk/sip.conf
 
 #2. kannel
 #if [[ ! -f "/etc/kannel/kannel.conf.tgzbak" ]] && [[ -f /etc/kannel/kannel.conf ]]; then

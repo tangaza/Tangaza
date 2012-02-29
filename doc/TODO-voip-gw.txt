@@ -16,28 +16,45 @@ Goal:
 Steps:
 + compile Asterisk 10
   - need to tell it to permanently ignore package 'asterisk'
-- set up to same point as Tangaza wiki on gw
-  - dpkg -i --ignore-depends=asterisk tangaza_1.0-1_all.deb
+  + dpkg -i --ignore-depends=asterisk tangaza_1.0-1_all.deb
+- Gateway setup
+  + update firmware
+  + Number in slot 1: 617-909-4893
+
+  - because we are running in a VM, needed to set VM's network
+    connection to be direct and to explicitly use ethernet (which is
+    connected to gateway).  The gateway gave it an address of
+    192.168.8.101.  In GW "call settings" used this address instead of
+    as wiki says.
+
+  - Leaving off:
+    permanently ignore package 'asterisk'
+    recompile asterisk with sip support
+    Leave time to prep for Mikko meeting
+
 - fix web side
   - not working; filed bug
 + starting up daemons by hand
-
-  - sudo -u asterisk perl -w -I /usr/share/tangaza/agi-bin
+  + sudo -u asterisk perl -w -I /usr/share/tangaza/agi-bin
     /usr/share/tangaza/agi-bin/tangaza.agi (does not work as-is b/c
     ast use needs right env variables)
 
-- decide where to put gsm gw config
++ decide where to put gsm gw config
+  + /usr/tangaza/settings.conf
+
 - disable kannel and maybe sms-send-daemon
-  + don't see how to disable kannel without changing config file, which seems a no-no
+  + don't see how to disable kannel without changing config file,
+  which seems a no-no
   - switch off sms-send-daemon in /etc/init.d/tangaza
 
 - see how to send sms from within perl
   + are any sms sent not from within Ast connection, ie do we need to
   use call files / daemon? Answer: no
-  - grep for sms in Nokia::Tangaza and Common.  It looks like the only
+  + grep for sms in Nokia::Tangaza and Common.  It looks like the only
     two sms outgoing are in Entry and Update.  These can instead use
     Tool's sms_enqueue, which can send the msg directly via Asterisk.
   - test change to Entry where removed direct call to smsqueue
+  - test Tools.pm sms_enqueue
 
 - Send incoming SMS to django
 
