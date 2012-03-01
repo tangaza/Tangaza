@@ -52,3 +52,9 @@ $ sudo apt-get update
 and install 
 
 $ sudo apt-get install tangaza
+
+then go to
+
+http://localhost
+
+and you should see the Tangaza site. Log in with the Django user name and password you set up during the package install
