@@ -13,27 +13,30 @@ Goal:
 - Show UI (web, text, ivr) using gateway
 - Create poster that shows steps
   - what (benefit to NGOs), how, results (DEV trial, upcoming)
+
 Steps:
 + compile Asterisk 10
   - need to tell it to permanently ignore package 'asterisk'
   + dpkg -i --ignore-depends=asterisk tangaza_1.0-1_all.deb
 - Gateway setup
   + update firmware
-  + Number in slot 1: 617-909-4893
-
+  + Number in slot 1: 8901 2603 : 617-909-4893
+                      8901 2604:  617-710-4839
+		      8901 2604 4002 2085 637 - fails
   - because we are running in a VM, needed to set VM's network
     connection to be direct and to explicitly use ethernet (which is
     connected to gateway).  The gateway gave it an address of
     192.168.8.101.  In GW "call settings" used this address instead of
     as wiki says.
 
-  - Leaving off:
-    permanently ignore package 'asterisk'
-    recompile asterisk with sip support
-    Leave time to prep for Mikko meeting
+  - Changed CID Forward Mode to "Use CID as SIP CallerID"
+
+
 
 - fix web side
   - not working; filed bug
+  + /usr/share/tangaza/django/tangaza# python manage.py createsuperuser
+
 + starting up daemons by hand
   + sudo -u asterisk perl -w -I /usr/share/tangaza/agi-bin
     /usr/share/tangaza/agi-bin/tangaza.agi (does not work as-is b/c
@@ -57,5 +60,7 @@ Steps:
   - test Tools.pm sms_enqueue
 
 - Send incoming SMS to django
+  - added new daemon - add to git, revised extensions.conf
 
-- add extension.conf to use sip.conf (and sip.conf)
+- Files to commit
+  - add extension.conf to use sip.conf (and sip.conf)

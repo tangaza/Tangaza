@@ -31,6 +31,12 @@ use Nokia::Common::Sound;
 use Nokia::Common::Tools;
 use Nokia::Common::Entry;
 use Nokia::Common::Auth;
+use Nokia::Common::SMSQueue;
+
+#use Sys::Hostname;
+use Nokia::Common::Tools;
+use Nokia::Common::Callback;
+
 
 =head1 NAME
 
@@ -84,7 +90,7 @@ sub send_more_about_tangaza {
 
     my $more_info = "All calls to Tangaza are recorded.  Privacy policy available at http://www.nokia.com/tangaza/privacy.";
     
-    &sms_enqueue ($self, $phone, $more_info);
+    &send_sms ($self, $phone, $more_info);
     
     $self->log (4, "sent more about tangaza to $phone");
 }
@@ -348,6 +354,91 @@ sub reject_terms {
 }
 
 ######################################################################
+
+# NEW STUFF BELOW
+
+######################################################################
+
+=head2 callback
+
+Calls L<Nokia::Common::Callback::callback> to determine if the user wants to be 
+called back by the system or is calling through at their own cost.
+
+It then checks C<CBSTATE> variable (defined in extensions.conf), to determine if the 
+user called us or if we need to call them back. If `cbstate` == 'calledback' it 
+places a call to the user.
+
+=cut
+
+sub callback {
+    my $self = shift;    
+
+    #&dbi_connect ($self);
+
+    #$self->log (4, "XXX switch to sfcom specific flash");
+
+    &Nokia::Common::Callback::callback ($self);
+
+
+    if ($self->{cbstate} eq 'calledback') {
+	sleep (2);
+	&place_call_tangaza($self);
+
+    }
+
+}
+
+
+######################################################################
+
+#sub pre_server_close_hook {
+#    my $self = shift;
+#    &Nokia::Common::Tools::pre_server_close_hook ($self);
+#}
+
+=head2 place_call_tangaza
+
+Places a call to the phone number in `$self->{user}->{outgoing_phone}`
+
+=cut
+sub place_call_tangaza {
+    my ($self) = @_;
+
+    my $phone = $self->{user}->{outgoing_phone};
+
+    my $call_content = '';
+    my $call_origin = $self->{origin};
+    my $call_ext = $self->{callout_ext};
+
+    if ($call_origin eq 'us') {
+	$call_content = 
+	    "Channel: IAX2/jnctn_out/$phone\n".
+	    "CallerID: $call_ext\n";
+    } elsif ($call_origin eq 'gateway') {
+	$call_content = 
+	    "Channel: SIP/gsm1/1\n".
+	    "CallerID: $phone\n";
+    } else {
+	$call_content = 
+	    "Channel: SIP/nora01/1\n".
+	    "CallerID: $phone\n";
+    }
+
+    $call_content .= 
+	"Context: callback-second\n".
+	"Extension: $call_ext\n".
+	"Setvar: OUTBOUNDID=$self->{callerid}\n".
+	"Setvar: ORIGIN=$call_origin\n".
+	"WaitTime: 15\n";
+    
+    $self->log (4, "content $call_content");
+    
+    #print STDERR ("2 content $call_content");
+    
+    &place_call ($call_content);
+    
+}
+
 
 =head1 AUTHORS
 
