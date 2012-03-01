@@ -1,7 +1,7 @@
 #
 #    Tangaza
 #
-#    Copyright (C) 2010 Nokia Corporation.
+#    Copyright (C) 2010-2012 Nokia Corporation.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -36,7 +36,7 @@ use Nokia::Common::SMSQueue;
 #use Sys::Hostname;
 use Nokia::Common::Tools;
 use Nokia::Common::Callback;
-
+use Nokia::Common::GatewayHttpSMSRelay;
 
 =head1 NAME
 
@@ -355,10 +355,6 @@ sub reject_terms {
 
 ######################################################################
 
-# NEW STUFF BELOW
-
-######################################################################
-
 =head2 callback
 
 Calls L<Nokia::Common::Callback::callback> to determine if the user wants to be 
@@ -386,6 +382,21 @@ sub callback {
 
     }
 
+}
+
+######################################################################
+
+=head2 sms_relay
+
+Waits for SMS messages, relays them to http process, waits for result,
+and sends it back to Asterisk.
+
+=cut
+
+sub sms_relay {
+    my $self = shift;
+
+    &Nokia::Common::Callback::sms_relay ($self);
 }
 
 
@@ -416,12 +427,12 @@ sub place_call_tangaza {
 	    "CallerID: $call_ext\n";
     } elsif ($call_origin eq 'gateway') {
 	$call_content = 
-	    "Channel: SIP/gsm1/1\n".
-	    "CallerID: $phone\n";
+	    "Channel: SIP/gsm1/$phone\n".
+	    "CallerID: $call_origin\n";
     } else {
 	$call_content = 
 	    "Channel: SIP/nora01/1\n".
-	    "CallerID: $phone\n";
+	    "CallerID: $call_origin\n";
     }
 
     $call_content .= 

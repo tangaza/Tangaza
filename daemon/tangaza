@@ -92,8 +92,9 @@ do_start()
 	start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILES/tangaza.pid --chuid=$USER --exec $PERL_PATH --background -- $DAEMON || return 2
 
 	echo "Running sms-send-daemon"
-	DAEMON=$NASI_PATH/../daemon/sms-send-daemon.pl
-        start-stop-daemon --start --quiet --pidfile $PIDFILES/sms-send-daemon.pid --chuid=$USER --exec $DAEMON --background
+        DAEMON="-I $NASI_PATH $NASI_PATH/../daemon/sms-send-daemon.pl"
+        start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILES/sms-send-daemon.pid --chuid=$USER --exec $PERL_PATH --background -- $DAEMON || return 2
+
 	
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend

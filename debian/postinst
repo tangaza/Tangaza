@@ -209,6 +209,7 @@ chown -R $AST_USER\: $TGZ_DATA
 chown -R $AST_USER\: /etc/tangaza/
 chown -R $AST_USER\: /var/log/tangaza/
 chown -R $AST_USER\: /var/spool/tangaza/
+chown -R $AST_USER\: /var/spool/asterisk/outgoing
 chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
 
 
