@@ -1,7 +1,7 @@
 #
 #    Tangaza
 #
-#    Copyright (C) 2010 Nokia Corporation.
+#    Copyright (C) 2010-2012 Nokia Corporation.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -773,7 +773,73 @@ class Calls(models.Model):
 
 
 ######################################################
+def test_send_sms ():
+    global_send_sms('8576548538', 'hello world', 'US')
+
 def global_send_sms (dest_phone, text, origin = 'KE'):
+    from django.conf import settings
+
+    # TODO settings
+    use_gateway = settings.CFG_SETTINGS['voip-gsm-gateway']['active']
+    logger.debug('use_gateway %s' % use_gateway)
+
+    if (use_gateway == True):
+        return send_sms_via_gateway (dest_phone, text, origin)
+    else:
+        return send_sms_via_kannel (dest_phone, text, origin)
+
+
+
+
+######################################################
+def send_sms_via_gateway (dest_phone, text, origin):
+    from django.utils.http import urlquote
+    logger.debug('sms_via_gateway phone %s text %s' % (dest_phone, text))
+
+    full_text = "%s\n%s" % (dest_phone, text)
+    encoded_text = urlquote(full_text)
+
+    content =  "Channel: Local/smssend_callfile@gateway/n"
+    content += "Setvar: SMSOUT=%s\n" % (encoded_text)
+    content += "Extension: smssend\n"
+
+    return place_call(content)
+
+
+    
+
+######################################################
+def place_call (content):
+    import uuid
+    import shutil
+    from django.conf import settings
+
+    # TODO settings
+    #tmp_dir = settings.tmp_dir
+    #call_file_dir = settings.call_file_dir
+    tmp_dir = ''
+    call_file_dir = ''
+
+
+    # just make a random file name
+    r_uuid = uuid.uuid4()
+    call_file_name = "%s/place_call/%s.call" % (tmp_dir, r_uuid)
+
+    try:
+        tmp_file = open(call_file_name, "w")
+        tmp_file.write(content)
+        tmp_file.close()
+
+        shutil.move(call_file_name, call_file_dir)
+
+    except IOError:
+        logger.info ('IO Error call_file_name %s call_file_dir %s' %
+                     (call_file_name, call_file_dir))
+        return False
+
+
+######################################################
+def send_sms_via_kannel(dest_phone, text, origin):
     from django.conf import settings
     import urllib
     

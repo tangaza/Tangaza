@@ -18,7 +18,7 @@ logging.basicConfig(
     filemode = 'a',
 )
 
-#APP_CONFIG = '/etc/tangaza/settings.conf'
+APP_CONFIG = '/etc/tangaza/settings.conf'
 
 def read_config():
     parser = ConfigParser.ConfigParser()
@@ -30,7 +30,7 @@ def read_config():
         
     return config_settings
 
-#CFG_SETTINGS = read_config()
+CFG_SETTINGS = read_config()
 
 #Custom settings for sending sms
 SMS_VOICE = {

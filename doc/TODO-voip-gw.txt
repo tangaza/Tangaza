@@ -27,29 +27,35 @@ Steps:
     Instead /var/spool/asterisk/outgoing worked
     Files must be owned by asterisk user in order to be deleted.
 
-- Gateway setup
++ Gateway setup
   + update firmware
   + Number in slot 1: 8901 2603 : 617-909-4893
                       8901 2604:  617-710-4839
 		      8901 2604 4002 2085 637 - fails
-  - because we are running in a VM, needed to set VM's network
+  + because we are running in a VM, needed to set VM's network
     connection to be direct and to explicitly use ethernet (which is
     connected to gateway).  The gateway gave it an address of
     192.168.8.101.  In GW "call settings" used this address instead of
     as wiki says.
 
-  - Changed CID Forward Mode to "Use CID as SIP CallerID"
+  + Changed CID Forward Mode to "Use CID as SIP CallerID"
+    Did not add any prefix.
 
+  + Weird bug with GoIP where it needs to be plugged in to a router
+  (via its LAN port) for it to hand out more than one DHCP address.
+  Normally this shouldn't matter, but because I am working within a
+  VM, it does (I need more than one DHCP address)
 
 
 - fix web side
   - not working; filed bug
   + /usr/share/tangaza/django/tangaza# python manage.py createsuperuser
 
-+ starting up daemons by hand
-  + sudo -u asterisk perl -w -I /usr/share/tangaza/agi-bin
-    /usr/share/tangaza/agi-bin/tangaza.agi (does not work as-is b/c
-    ast use needs right env variables)
++ starting up daemon by hand
+  + export NASI_CONFIG=/etc/tangaza/settings.conf
+  + source /etc/tangaza/settings.sh
+  + perl -w -I /usr/share/tangaza/agi-bin /usr/share/tangaza/agi-bin/tangaza.agi
+    Note that this runs it as root, not asterisk user
 
 + decide where to put gsm gw config
   + /usr/tangaza/settings.conf
@@ -73,6 +79,9 @@ Steps:
 
 Leaving off:
 - Trying to get phone callbacks working again, and getting some kind of db error.  Maybe a variable is not being passed along?
- (An organization  is the top level object - this needs to be created first so maybe the db error is related to this)
-- Can switch to working on django side until this is resolved
+
+- If we send in an sms from an unknown number, this results in a server error and no response to the user.  Seems like a problem.
+
+- (An organization  is the top level object - this needs to be created first so maybe the db error is related to this)
+
 
