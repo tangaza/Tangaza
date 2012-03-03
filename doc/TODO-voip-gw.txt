@@ -73,5 +73,6 @@ Steps:
 
 Leaving off:
 - Trying to get phone callbacks working again, and getting some kind of db error.  Maybe a variable is not being passed along?
+ (An organization  is the top level object - this needs to be created first so maybe the db error is related to this)
 - Can switch to working on django side until this is resolved
 
