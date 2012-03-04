@@ -313,7 +313,7 @@ class Organization(models.Model):
         auth_user.save()
         
         #Activate the groups as well
-        groups = Groups.objects.filter(org = self)
+        groups = Vikundi.objects.filter(org = self)
         map(lambda g: g.activate(), groups)
         
     def deactivate(self):
@@ -329,7 +329,7 @@ class Organization(models.Model):
         auth_user.save()
         
         #Deactivate the groups as well 
-        groups = Groups.objects.filter(org = self)
+        groups = Vikundi.objects.filter(org = self)
         map(lambda g: g.deactivate(), groups)
         
 #    def delete (self):

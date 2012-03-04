@@ -45,7 +45,8 @@ def resolve_user (func):
         #logger.debug ('validate A')
         p = UserPhones.objects.filter(phone_number = source_phone)
         logger.debug(p)
-        
+        #create default language
+        language = LanguageFactory.create_language()
         if len(p) < 1:
             #user = Watumiaji.create_user(args[1], args[1])
             return HttpResponse(language.not_allowed_to_use_tangaza())
@@ -462,7 +463,7 @@ class BlankLanguage(Language):
 
 class LanguageFactory(object):
     @classmethod
-    def create_language(cls, language):
+    def create_language(cls, language='eng'):
         if language == 'eng' or language == 'english':
             return EnglishLanguage()
         elif language == 'swa' or language == 'swahili':
