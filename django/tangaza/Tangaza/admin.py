@@ -328,7 +328,10 @@ admin.site.register(GroupAdmin, GroupLeaderAdmin)
 
 class PubMessagesAdmin(admin.ModelAdmin):
     model = PubMessages
-    list_display = ['timestamp', 'src_user', 'channel', 'play_message']
+    list_display = ['timestamp', 'src_user', 'channel', 'play_message'] 
+    
+    def has_add_permission(self, request):
+        return False
     
     def get_actions(self, request):
         actions = super(PubMessagesAdmin, self).get_actions(request)
