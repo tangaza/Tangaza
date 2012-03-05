@@ -38,7 +38,7 @@ def resolve_user (func):
         #logger.debug('Starting resolve_user %s' % [x for x in request.META.keys() if x.__contains__('KANNEL')])
         source_phone = ''
         if request.method == 'POST':
-            source_phone = request.META.get(['HTTP_X_KANNEL_FROM'], '').strip('+')
+            source_phone = request.META.get('HTTP_X_KANNEL_FROM', '').strip('+')
         
         #logger.debug ('validate A')
         p = UserPhones.objects.filter(phone_number = source_phone)
