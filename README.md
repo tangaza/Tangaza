@@ -29,6 +29,11 @@ git clone https://github.com/tangaza/Tangaza
 
 cd Tangaza
 
+Tangaza references the Common Lib (http://github.com/tangaza/Common) as a submodule. Therefore you need to run the following to make sure this is also included into Tangaza:
+
+1. git submodule init
+2. git submodule update
+
 git checkout -b upstream --track origin/master
 
 (The '--track' option alters your .git/config file and adds a [branch "upstream"] section telling Git where you fetched it from. That means you can later just say "git pull" and you will get both the 'master' and the 'upstream' repository merged into your repository automatically.)
