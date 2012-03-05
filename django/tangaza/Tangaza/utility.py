@@ -39,8 +39,8 @@ def resolve_user (func):
         source_phone = ''
         if request.method == 'POST':
             source_phone = request.META['HTTP_X_KANNEL_FROM'].strip('+')
-        else:
-            source_phone = args[1].strip('+')
+#        else:
+#            source_phone = args[1].strip('+')
         
         #logger.debug ('validate A')
         p = UserPhones.objects.filter(phone_number = source_phone)
