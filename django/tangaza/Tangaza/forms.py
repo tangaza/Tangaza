@@ -294,8 +294,9 @@ class VikundiForm(forms.ModelForm):
     def clean_is_active(self):
         
         if self.cleaned_data['is_active'] == 'yes' and not self.instance.group_name_file:
-            msg = u'The group cannot be activated until a ' \
-                'voice recording of the group name is provided.'
+            msg = u"The group could not be activated." \
+                "The group administrator must call the organization's " \
+                "toll-free number and record a name for this group so that it can be activated."
             logger.error(msg)
             raise forms.ValidationError(msg)
         return self.cleaned_data['is_active']

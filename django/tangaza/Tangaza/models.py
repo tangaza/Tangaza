@@ -355,7 +355,7 @@ class Vikundi(models.Model):
     group_name = models.CharField(max_length=180,db_index=True)
     group_name_file = models.CharField(max_length=96, blank=True, help_text=u'File path to the speech recorded group name')
     group_type = models.CharField(max_length=7,choices=GROUPTYPE[1:], default='private')
-    is_active = models.CharField(max_length=9, blank=True, choices=YES_NO, default='yes')
+    is_active = models.CharField(max_length=9, choices=YES_NO, default='no')
     org = models.ForeignKey(Organization, verbose_name=u'Organization')
     objects = VikundiManager()
     
@@ -392,8 +392,13 @@ class Vikundi(models.Model):
     
     def activate(self):
         '''You can only send/receive messages if active'''
-        self.is_active = 'yes'
-        self.save()
+        #make sure that only vikundi with name recordings are activated
+        if self.group_name_file:
+            self.is_active = 'yes'
+            self.save()
+            return True
+        else:
+            return False
         
     def deactivate(self):
         '''You can only send/receive messages if active'''

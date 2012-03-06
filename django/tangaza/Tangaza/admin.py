@@ -133,28 +133,41 @@ class VikundiAdmin(admin.ModelAdmin):
         return obj
     
     def activate_selected(self, request, queryset):
+        activated = 0
+        failed = 0
         for obj in queryset:
-            obj.activate()
+            if obj.activate(): 
+                activated += 1
+            else:
+                failed += 1
             
-        if queryset.count() == 1:
-            message_bit = "1 vikundi was"
+        if activated == 1:
+            message_bit = "1 group was"
         else:
-            message_bit = "%s vikundi were" % queryset.count()
-        self.message_user(request, "%s successfully activated." % message_bit)
+            message_bit = "%s groups were" % activated
+            
+        if failed == 1:
+            failed_msg = "%s group did not have a name recording and failed to be activated." % failed
+        elif failed > 1:
+            failed_msg = "%s groups did not have name recordings and failed to be activated." % failed
+        else:
+            failed_msg = ""
+            
+        self.message_user(request, "%s successfully activated. %s" % (message_bit, failed_msg))
         
-    activate_selected.short_description = "Activate selected vikundi"
+    activate_selected.short_description = "Activate selected group"
     
     def deactivate_selected(self, request, queryset):
         for obj in queryset:
             obj.deactivate()
             
         if queryset.count() == 1:
-            message_bit = "1 vikundi was"
+            message_bit = "1 group was"
         else:
-            message_bit = "%s vikundi were" % queryset.count()
+            message_bit = "%s groups were" % queryset.count()
         self.message_user(request, "%s successfully deactivated." % message_bit)
         
-    deactivate_selected.short_description = "Deactivate selected vikundi"
+    deactivate_selected.short_description = "Deactivate selected group"
 
 admin.site.register(Vikundi, VikundiAdmin)
 
