@@ -268,6 +268,10 @@ class WatumiajiForm(forms.ModelForm):
         #logger.debug("test %s" % self.instance.id)
         users = Watumiaji.objects.filter(id = self.instance.id)
         
+        #for some reason name_text is not being validated on its own as a required field
+        if not cleaned_data.get('name_text', None):
+            raise forms.ValidationError(u"Enter the username")
+        
         # only check if new user
         if len(users) < 1:
             # get all users in org with same_name
