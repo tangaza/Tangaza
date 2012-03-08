@@ -104,7 +104,7 @@ def index(request, user, language):
     # XXX set language on-the-fly
     # or pull from db based on users selection on phone
     # language = LanguageFactory.create_language('eng')
-    
+
     if request.method == "GET":
         logger.debug ('get request')
         return request_update (user,language)
