@@ -37,41 +37,7 @@ def resolve_user (func):
         from django.conf import settings
         request = args[0]
         #logger.debug('Starting resolve_user %s' % [x for x in request.META.keys() if x.__contains__('KANNEL')])
-        use_gateway = settings.CFG_SETTINGS['voip-gsm-gateway']['active']
-        logger.debug('use_gateway %s' % use_gateway)
-
-        if use_gateway == 'true':
-            logger.debug('true quote OK')
-
-        #logger.debug('hello')
-
-        #use_gateway2 = settings.CFG_SETTINGS['voip-gsm-gateway']['active']
-
-        #if "paths" in settings.CFG_SETTINGS:
-        #    logger.debug('contains paths')
-
-        #if "voip-gsm-gateway" in settings.CFG_SETTINGS:
-        #    logger.debug('contains gw')         
-
-        #if "not here" in settings.CFG_SETTINGS:
-        #    logger.debug('contains not here')         
-
-        #paths = settings.CFG_SETTINGS['paths']
-        #if "NASI_TMP" in paths:
-        #    logger.debug('contains nasi_tmp')
-
-        #pathsTwo = settings.CFG_SETTINGS['paths2']
-        #if "NASI_TMP" in pathsTwo:
-        #    logger.debug('pathsTwo contains nasi_tmp')
-
-        #for section in settings:
-        #    logger.debug('s %s\n' % section)
-
-        #tmp_dir = settings.CFG_SETTINGS['paths']['NASI_TMP']
-        #call_file_dir = settings.CFG_SETTINGS['paths']['NASI_OUTGOING']
-        #logger.debug('tmp_dir %s' % tmp_dir)
-        #logger.debug('call_file_dir %s' % call_file_dir)
-
+        
         source_phone = ''
         if request.method == 'POST':
             source_phone = request.META.get('HTTP_X_KANNEL_FROM', '').strip('+')

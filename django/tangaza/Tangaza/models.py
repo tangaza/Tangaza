@@ -778,17 +778,17 @@ class Calls(models.Model):
 
 
 ######################################################
-def test_send_sms ():
-    global_send_sms('8576548538', 'hello world', 'US')
+#def test_send_sms ():
+#    global_send_sms('8576548538', 'hello world', 'US')
 
 def global_send_sms (dest_phone, text, origin = 'KE'):
     from django.conf import settings
 
-    # TODO settings
+    # settings: is voip gsm gateway active or kannel?
     use_gateway = settings.CFG_SETTINGS['voip-gsm-gateway']['active']
     logger.debug('use_gateway %s' % use_gateway)
 
-    if (use_gateway == True):
+    if use_gateway == 'true':
         return send_sms_via_gateway (dest_phone, text, origin)
     else:
         return send_sms_via_kannel (dest_phone, text, origin)
@@ -809,8 +809,6 @@ def send_sms_via_gateway (dest_phone, text, origin):
     content += "Extension: smssend\n"
 
     return place_call(content)
-
-
     
 
 ######################################################
@@ -819,11 +817,18 @@ def place_call (content):
     import shutil
     from django.conf import settings
 
-    # TODO settings
-    #tmp_dir = settings.tmp_dir
-    #call_file_dir = settings.call_file_dir
-    tmp_dir = ''
-    call_file_dir = ''
+    # settings: tmp_dir, call_file_dir
+    tmp_dir = '/tmp'
+    call_file_dir = '/var/spool/asterisk/outgoing'
+
+    paths = settings.CFG_SETTINGS['paths']
+    if 'nasi_tmp' in paths:
+        tmp_dir = paths['nasi_tmp']
+        logger.debug('set tmp_dir = %s\n' % tmp_dir)
+
+    if 'nasi_outgoing' in paths:
+        call_file_dir = paths['nasi_outgoing']
+        logger.debug('set call_file_dir = %s\n' % call_file_dir)
 
 
     # just make a random file name
