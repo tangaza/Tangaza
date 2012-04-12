@@ -104,7 +104,7 @@ do_stop()
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
 	echo "Stopping tangaza"
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILES/tangaza.pid --name $NAME
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILES/tangaza.pid
 	RETVAL="$?"
 	#[ "$RETVAL" = 2 ] && return 2
 	# Wait for children to finish too if this is a daemon that forks
@@ -120,8 +120,8 @@ do_stop()
 	echo "Stopping sms-send-daemon"
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILES/sms-send-daemon.pid
 	
-	kill `ps aux | grep -i tangaza.agi | grep -i $USER | awk '{print $2}'` | sort -r
-	kill `ps aux | grep -i sms-send-daemon.pl | grep -i $USER | awk '{print $2}'` | sort -r
+	#kill `ps aux | grep -i tangaza.agi | grep -i $USER | awk '{print $2}'` | sort -r
+	#kill `ps aux | grep -i sms-send-daemon.pl | grep -i $USER | awk '{print $2}'` | sort -r
 	
 	# Many daemons don't delete their pidfiles when they exit.
 	rm -rf $PIDFILES/*
