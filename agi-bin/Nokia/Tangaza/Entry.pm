@@ -214,15 +214,21 @@ sub main_menu {
     my %dispatch =
                 (1 => \&update_main_menu,
                  2 => \&listen_main_menu,
-                 3 => \&about_socnet_main_menu);
+                 3 => \&about_socnet_main_menu,
+		 4 => \&record_user_name);
 
-    my $digits = '123*';
+    my $digits = '1234*';
 
     &dtmf_dispatch_static ($self, \%words, \%dispatch, $digits);
     
 
 }
 
+sub record_user_name {
+    my ($self) = @_;
+    my $namefile  = &set_user_name ($self, $self->{user}->{id}, &msg($self, 'record-name-now'));
+    $self->{user_name} = $namefile;
+}
 
 ######################################################################
 
@@ -396,7 +402,7 @@ and sends it back to Asterisk.
 sub sms_relay {
     my $self = shift;
 
-    &Nokia::Common::Callback::sms_relay ($self);
+    &Nokia::Common::GatewayHttpSMSRelay::sms_relay ($self);
 }
 
 
@@ -429,6 +435,7 @@ sub place_call_tangaza {
 	$call_content = 
 	    "Channel: SIP/gsm1/$phone\n".
 	    "CallerID: $call_origin\n";
+	$call_ext = 1;
     } else {
 	$call_content = 
 	    "Channel: SIP/nora01/1\n".

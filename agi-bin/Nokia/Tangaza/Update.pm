@@ -243,9 +243,9 @@ sub update_main_menu {
 	&stream_file($self,'sent-update', "*#", "0");
     }
     
-#    eval {
-#	&notify_dest($self, \@dst_user_ids, $channels);
-#    };
+    #eval {
+	&notify_dest($self, \@dst_user_ids, $channels);
+    #};
     
     $self->log (4, "end update_main_menu");
     
@@ -277,15 +277,19 @@ sub notify_dest {
     
     my $user_rs = $self->{server}{schema}->resultset('UserPhones')->search
 	({user_id => {'IN' => [@$friends]}},
-	 {select => qw/'phone_number'/});
+	 {select => qw/phone_number/});
     
     my $group = $self->{server}{schema}->resultset('Vikundi')->find($channel);
+    #foreach my $key (keys %$group) {
+    #$self->log(4, "group k $key");
+    #}
     
     while (my $phone = $user_rs->next) {
 	my $num = $phone->phone_number;
-	$num =~ s/^2547/07/;
-	&flash_update ($self, $num);
-	#&send_sms_update ($self, $$phone->phone_number, $group);
+	#$num =~ s/^2547/07/;
+	#&flash_update ($self, $num);
+	$self->log(4, "calling send_sms_update $num group $group");
+	&send_sms_update ($self, $num, $group);
     }
     
     return 'ok';
@@ -296,6 +300,9 @@ sub send_sms_update {
     my ($self, $phone, $group) = @_;
     
     my $directions = "Tangaza! $self->{callerid} sent you a Tangaza \@".$group;
+
+    $self->log(4, "calling sms_enqueue $phone dir $directions");
+    
     &sms_enqueue ($self, $phone, $directions);
 }
 
