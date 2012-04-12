@@ -124,9 +124,6 @@ do_stop()
 	#start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
 	#[ "$?" = 2 ] && return 2
 	
-	echo "Stopping cb-tangaza"
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILES/cb-tangaza.pid
-	
 	echo "Stopping sms-send-daemon"
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILES/sms-send-daemon.pid
 	
