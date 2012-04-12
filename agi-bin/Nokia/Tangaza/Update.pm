@@ -188,6 +188,10 @@ sub update_main_menu {
     
     $self->log (4, "UPDATE id ".$self->{user}->{id}." return $update_file");
     
+    if ($update_file eq 'hangup') {
+	return 'hangup';
+    }
+
     if ($update_file eq 'cancel') {
 	&play_random ($self, &msg($self,'cancelled-update'), 'ok');
 	return 'cancel';
