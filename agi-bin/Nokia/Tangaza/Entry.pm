@@ -219,8 +219,14 @@ sub main_menu {
 
     my $digits = '1234*';
 
-    &dtmf_dispatch_static ($self, \%words, \%dispatch, $digits);
-    
+    # allow a cancel to loop us around, instead of exiting
+    while (1) {
+	my $res = &dtmf_dispatch_static ($self, \%words, \%dispatch, $digits);
+	$self->log (4, "dtmf_dispatch_static ret=$res");
+	if ($res eq 'hangup') {
+	    return;
+	}
+    }
 
 }
 
