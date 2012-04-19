@@ -804,7 +804,7 @@ def send_sms_via_gateway (dest_phone, text, origin):
     full_text = "%s\n%s" % (dest_phone, text)
     encoded_text = urlquote(full_text)
 
-    content =  "Channel: Local/smssend_callfile@gateway/n"
+    content =  "Channel: Local/smssend_callfile@gateway/n\n"
     content += "Setvar: SMSOUT=%s\n" % (encoded_text)
     content += "Extension: smssend\n"
 
