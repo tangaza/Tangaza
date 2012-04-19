@@ -31,7 +31,8 @@ SCRIPTNAME=/etc/init.d/$NAME
 #set USER to be same as asterisk user
 AST_PATH=`which asterisk`
 PERL_PATH=`which perl`
-USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
+USER=asterisk
+#USER=`ps aux|grep -i $AST_PATH|awk '!/grep/'|awk 'NR < 2 {print $1}'`
 
 # Exit if the package is not installed
 #[ -x "$DAEMON" ] || exit 0
