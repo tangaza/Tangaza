@@ -14,7 +14,7 @@ DEBUG = True
 logging.basicConfig(
     level = logging.DEBUG,
     format = '[%(asctime)s]:[%(levelname)s][%(name)s:%(lineno)d] %(message)s',
-    filename = '/tmp/tangaza.log',
+    filename = '/var/log/tangaza-web/tangaza.log',
     filemode = 'a',
 )
 
