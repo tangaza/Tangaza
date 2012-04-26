@@ -6,4 +6,5 @@
 /var/lib/tangaza/status
 /var/lib/tangaza/groups
 /var/log/tangaza
+/var/log/tangaza-web
 /var/spool/tangaza/outgoing

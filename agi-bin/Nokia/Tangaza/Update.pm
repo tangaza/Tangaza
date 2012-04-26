@@ -283,7 +283,8 @@ sub notify_dest {
 	({user_id => {'IN' => [@$friends]}},
 	 {select => qw/phone_number/});
     
-    my $group = $self->{server}{schema}->resultset('Vikundi')->find($channel);
+    my $group = $self->{server}{schema}->resultset('Vikundi')->find
+	($channel, {select => qw/group_name/});
     #foreach my $key (keys %$group) {
     #$self->log(4, "group k $key");
     #}
@@ -292,7 +293,7 @@ sub notify_dest {
 	my $num = $phone->phone_number;
 	#$num =~ s/^2547/07/;
 	#&flash_update ($self, $num);
-	$self->log(4, "calling send_sms_update $num group $group");
+	$self->log(4, "calling send_sms_update $num group $group->group_name");
 	&send_sms_update ($self, $num, $group);
     }
     

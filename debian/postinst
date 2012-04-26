@@ -211,7 +211,7 @@ chown -R $AST_USER\: /var/log/tangaza/
 chown -R $AST_USER\: /var/spool/tangaza/
 chown -R $AST_USER\: /var/spool/asterisk/outgoing
 chown -R $AST_USER\: /var/lib/asterisk/festivalcache/
-
+chown -R www-data\:  /var/log/tangaza-web/
 
 #Configuring  nagios
 echo "Configuring nagios..."
