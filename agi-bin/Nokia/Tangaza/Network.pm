@@ -77,7 +77,7 @@ sub select_network_menu {
     $self->log (4, "received network_code $network_code");
 
     if ($network_code eq 'timeout' ||
-                $network_code eq 'hangup' ||
+	$network_code eq 'hangup' ||
 	$network_code eq 'cancel') {
 	return $network_code;
     }
@@ -88,7 +88,7 @@ sub select_network_menu {
     my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
         ({user_id => $self->{user}->{id}, slot => $network_code},
          {join => 'group_id',
-	  select => [qw/group_id group_name_file/]});
+	  select => [qw/me.group_id group_id.group_name_file/]});
     
     my $group = $group_rs->next;
     my $group_id = $group->group_id->id if (defined($group));
