@@ -120,8 +120,14 @@ sub update_main_menu {
     
     $self->log (4, "start update_main_menu");
     &init($self);
+
+    my $friend_count = &get_total_friend_count($self);
+    $self->log (4, "friend_count $friend_count");
+
+    $self->log (4, "app_name ".$self->get_property('app_name').
+		" dsn ".$self->get_property('dsn'));
     
-    if (&get_total_friend_count($self) == 0) {
+    if ($friend_count <= 0) {
 	$self->log (4, "user has no friends");
 	&play_random ($self, &msg($self,'please-add-people'), 'bummer');
 	return 'ok';

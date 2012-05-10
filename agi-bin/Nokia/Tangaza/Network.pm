@@ -34,7 +34,7 @@ use Nokia::Common::Phone;
 
 =head1 NAME
 
-Nokia::Tangaza::Network - Manages user-group connetions
+Nokia::Tangaza::Network - Manages user-group connections
 
 =cut
 
@@ -89,7 +89,8 @@ sub select_network_menu {
         ({user_id => $self->{user}->{id}, slot => $network_code},
          {join => 'group_id',
 	  select => [qw/me.group_id group_id.group_name_file/]});
-    
+
+
     my $group = $group_rs->next;
     my $group_id = $group->group_id->id if (defined($group));
     my $group_name = $group->group_id->group_name_file if (defined($group));
