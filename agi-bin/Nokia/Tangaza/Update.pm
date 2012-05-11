@@ -77,7 +77,7 @@ sub can_post {
     return 1 if ('mine' ne $group->group_type);
 
     my $rs = $self->{server}{schema}->resultset('GroupAdmin')->search
-	(group_id => $group_id, user_id => $self->{user}->{id});	
+	({group_id => $group_id, user_id => $self->{user}->{id}});
     
     return ($rs->count() > 0) ? 1 : 0;
     
@@ -144,7 +144,7 @@ sub update_main_menu {
     
     if ($has_name < 1) {
         my $rs = $self->{server}{schema}->resultset('GroupAdmin')->search
-            (group_id => $channels, user_id => $self->{user}->{id});
+            ({group_id => $channels, user_id => $self->{user}->{id}});
 	
         #if its the group admin ask them to record a new group name
         if ($rs->count() > 0) {

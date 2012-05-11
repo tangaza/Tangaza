@@ -225,13 +225,13 @@ sub get_msg_count_on_network {
     
     my $msg_rs = $self->{server}{schema}->resultset('SubMessages');
     
-    $msg_rs = $msg_rs->search(flagged => $flagged) if (defined($flagged));
+    $msg_rs = $msg_rs->search({flagged => $flagged}) if (defined($flagged));
     
-    $msg_rs = $msg_rs->search(dst_user_id => $user_id);
+    $msg_rs = $msg_rs->search({dst_user_id => $user_id});
     
-    $msg_rs = $msg_rs->search(heard => 'no') if ($new_only);
+    $msg_rs = $msg_rs->search({heard => 'no'}) if ($new_only);
     
-    $msg_rs = $msg_rs->search(channel => $network) unless (!defined($network) || ref($network) eq "ARRAY");
+    $msg_rs = $msg_rs->search({channel => $network}) unless (!defined($network) || ref($network) eq "ARRAY");
     
     
     my $msg_count = $msg_rs->count;
