@@ -296,8 +296,8 @@ sub notify_dest {
 	my $num = $phone->phone_number;
 	#$num =~ s/^2547/07/;
 	#&flash_update ($self, $num);
-	$self->log(4, "calling send_sms_update $num group $group->group_name");
-	&send_sms_update ($self, $num, $group);
+	$self->log(4, "calling send_sms_update $num group ".$group->group_name);
+	&send_sms_update ($self, $num, $group->group_name);
     }
     
     return 'ok';
