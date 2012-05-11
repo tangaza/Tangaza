@@ -82,13 +82,11 @@ sub select_network_menu {
 	return $network_code;
     }
     
-    $self->log (4, "end select_network_menu");
-    
     #return the group_id based on the selected slot
     my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
         ({user_id => $self->{user}->{id}, slot => $network_code},
          {join => 'group_id',
-	  select => [qw/me.group_id group_id.group_name_file/]});
+	  select => [qw/group_id.id group_id.group_name_file/]});
 
 
     my $group = $group_rs->next;
@@ -108,6 +106,9 @@ sub select_network_menu {
     }
     
     $self->log(4, "Selected group: ".$group_id. ", has group_name: ".$has_name);
+    
+    $self->log (4, "end select_network_menu");
+    
     return ($group_id, $has_name);
 
 }
