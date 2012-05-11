@@ -62,54 +62,70 @@ $prompt: the sound file that plays the menu options
 
 =cut
 sub select_network_menu {
-    my ($self,$prompt,$can_select_all) = @_;
+  my ($self,$prompt,$can_select_all) = @_;
 
-    $self->log (4, "start select_network_menu");
+  $self->log (4, "start select_network_menu");
 
+  # skip over query if user only has only slot possible
+  my $slot = -1;
+  my $slot_rs = $self->{server}{schema}->resultset('UserGroups')->search
+    ({user_id => $self->{user}->{id}},{select => [qw/slot/]});
+
+  my $slot_cursor = $slot_rs->next;
+  if ($slot_rs->count == 1 && defined($slot_cursor)) {
+    if (defined($slot_cursor->slot)) {
+      $slot = $slot_cursor->slot;
+      $self->log (4, "auto selected slot $slot");
+    }
+  }
+
+
+  if ($slot != -1) {
     my $digits = "0123456789";
     if ($can_select_all == 1) {
-	$digits = "0123456789";
+      $digits = "0123456789";
     }
 
-    my $network_code = &get_unchecked_small_number
-        ($self, $prompt, $digits);
 
-    $self->log (4, "received network_code $network_code");
+    $slot = &get_unchecked_small_number
+      ($self, $prompt, $digits);
 
-    if ($network_code eq 'timeout' ||
-	$network_code eq 'hangup' ||
-	$network_code eq 'cancel') {
-	return $network_code;
+    $self->log (4, "received network_code $slot");
+
+    if ($slot eq 'timeout' ||
+	$slot eq 'hangup' ||
+	$slot eq 'cancel') {
+      return $slot;
     }
-    
-    #return the group_id based on the selected slot
-    my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
-        ({user_id => $self->{user}->{id}, slot => $network_code},
-         {join => 'group_id',
-	  select => [qw/group_id.id group_id.group_name_file/]});
+  }
+
+  #return the group_id based on the selected slot
+  my $group_rs = $self->{server}{schema}->resultset('UserGroups')->search
+    ({user_id => $self->{user}->{id}, slot => $slot},
+     {join => 'group_id',
+      select => [qw/group_id.id group_id.group_name_file/]});
 
 
-    my $group = $group_rs->next;
-    my $group_id = $group->group_id->id if (defined($group));
-    my $group_name = $group->group_id->group_name_file if (defined($group));
-    my $has_name = 1;
+  my $group = $group_rs->next;
+  my $group_id = $group->group_id->id if (defined($group));
+  my $group_name = $group->group_id->group_name_file if (defined($group));
+  my $has_name = 1;
     
-    if (defined($group_name) && length($group_name) > 0) {
-	my $prefs = $self->get_property('prefs');
-	my $groups_dir = $prefs->{paths}->{NASI_DATA}.'/groups/';
+  if (defined($group_name) && length($group_name) > 0) {
+    my $prefs = $self->get_property('prefs');
+    my $groups_dir = $prefs->{paths}->{NASI_DATA}.'/groups/';
 	
-	&stream_file($self, 'you-entered', "#");
-	$self->agi->stream_file($groups_dir.$group_name, "#");
-    }
-    else {
-	$has_name = -1;
-    }
+    &stream_file($self, 'you-entered', "#");
+    $self->agi->stream_file($groups_dir.$group_name, "#");
+  } else {
+    $has_name = -1;
+  }
     
-    $self->log(4, "Selected group: ".$group_id. ", has group_name: ".$has_name);
+  $self->log(4, "Selected group: ".$group_id. ", has group_name: ".$has_name);
     
-    $self->log (4, "end select_network_menu");
+  $self->log (4, "end select_network_menu");
     
-    return ($group_id, $has_name);
+  return ($group_id, $has_name);
 
 }
 
