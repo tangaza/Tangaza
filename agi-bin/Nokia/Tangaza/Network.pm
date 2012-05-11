@@ -80,7 +80,7 @@ sub select_network_menu {
   }
 
 
-  if ($slot != -1) {
+  if ($slot == -1) {
     my $digits = "0123456789";
     if ($can_select_all == 1) {
       $digits = "0123456789";
