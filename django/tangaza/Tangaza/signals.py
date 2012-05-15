@@ -52,15 +52,14 @@ def create_vikundi_object_handler(sender,  **kwargs):
 
 create_vikundi_object.connect(create_vikundi_object_handler)
 
-def user_left_group(sender, **kwargs):
-    logger.debug("Deleting user group %s" % kwargs)
-    
+#def user_left_group(sender, **kwargs):
+#    logger.debug("Deleting user group %s" % kwargs)
 #    action = Actions.objects.get(action_desc = 'left group')
 #    user_group = kwargs['instance']
 #    hist = UserGroupHistory(user = user_group.user, group = user_group.group, action = action)
 #    hist.save()
 
-post_delete.connect(user_left_group, sender=UserGroups)
+#post_delete.connect(user_left_group, sender=UserGroups)
 
 def user_joined_group(sender, **kwargs):
     if not kwargs['created']:
