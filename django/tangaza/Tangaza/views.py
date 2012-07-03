@@ -92,6 +92,18 @@ def leave_group (request, user, language, group_or_slot):
     
     return request_leave (user, language, group)
 
+def send_group_sms(request, user, language, group_name, text):
+    logger.debug("Starting  group text group:%s" % group_name)
+    group = Vikundi.resolve (user, group_name)
+    
+    if group is None:
+        logger.info ("smsc: %s user: %s unknown_group %s" % (smsc, user, group_name))
+        return [False, language.unknown_group(group_name)]
+    
+    from django.conf import settings
+    
+    return request_send(user, language, text, group, settings.SMS_VOICE[smsc])
+        
 ##############################################################################
 from django.views.decorators.csrf import csrf_exempt
 
@@ -153,12 +165,14 @@ def index(request, user, language):
     elif command == language.SETNAME:
         logger.debug('request set name user %s, username %s' % (user, username))
         return set_username(request, user, language, username)[1]
+    elif command == language.TEXT:
+        logger.debug('sending sms to group %s' % group_name)
+        return send_group_sms(request, user, language, group_name, extras)
     else:
         return request_update (user,language)[1]
 
 
 ##############################################################################
-
 def request_join (user, language, group, slot, origin):
     
     # SMS-only if no slot given

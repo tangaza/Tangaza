@@ -255,6 +255,7 @@ class EnglishLanguage(Language):
     DELETE = "delete"
     REMOVE = "remove"
     SETNAME = "username"
+    TEXT = "text"
     
     def __init__(self):
         self._username_taken = "The username %s is already taken. Try another: %s"
@@ -312,6 +313,7 @@ class SwahiliLanguage(Language):
     DELETE = "futa"
     REMOVE = "ondoa"
     SETNAME = "jina"
+    TEXT = 'text'
     
     def __init__(self):
         self._username_taken = "Jina %s linatumika tayari. Jaribu jina lingine. %s"

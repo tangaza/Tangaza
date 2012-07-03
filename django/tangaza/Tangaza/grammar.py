@@ -128,6 +128,10 @@ def parse(tokens, language):
                     command = tokens[1]
                     member = tokens[2]
                     extras = tokens[3:]
+            else:
+                #e.g. @xyz hello everyone this is your boss :)
+                command = 'text'
+                extras = [1:]
         else:
             #e.g. xyz create
             group = tokens[0]
@@ -159,7 +163,7 @@ class Commands(object):
     def __init__(self, lang):
         # GROUP_COMMANDS directed towards entire group
         # USER_COMMANDS directed towards specific members of a group
-        self.GROUP_COMMANDS = [lang.CREATE, lang.JOIN, lang.LEAVE, lang.DELETE] 
+        self.GROUP_COMMANDS = [lang.CREATE, lang.JOIN, lang.LEAVE, lang.DELETE, lang.TEXT] 
         self.USER_COMMANDS = [lang.REMOVE, lang.INVITE]
     
     def is_command(self, command):
